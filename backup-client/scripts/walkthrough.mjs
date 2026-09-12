@@ -55,6 +55,20 @@ const beats = [];                                              // { who, t, titl
 const clock = {};
 const whoOf = new Map();
 const now = who => (Date.now() - clock[who]) / 1000;
+// The edit: an open segment per window. fastForward() cuts a wait (the AI thinking, a
+// walk) into its own sped-up segment, so dead time doesn't eat the 2:30.
+const open = {};
+const startSeg = who => { open[who] = now(who); };
+const endSeg = (who, speed = 1) => {
+  if (open[who] != null && now(who) - open[who] > 0.05) segments.push({ who, start: open[who], end: now(who), speed });
+  open[who] = null;
+};
+async function fastForward(who, speed, fn) {
+  endSeg(who); startSeg(who);
+  const out = await fn();
+  endSeg(who, speed); startSeg(who);
+  return out;
+}
 
 // Subtitle-style captions along the bottom, clear of the HUD, toasts and question card.
 async function showCaption(page, title, sub) {
@@ -156,7 +170,7 @@ async function showcaseQuestion(page, tree, grove, first) {
   await page.waitForFunction(() => window.__game.stones().length > 0, null, { timeout: 8_000 });
   if (first) {
     await beat(page, `Quest: ${grove.questName}`, tree.citation ? clip(`📄 Worksheet p.${tree.citation.page} — every question cites its source`, 100) : '',
-      `Press E at a tree and answer stones rise — you answer by walking onto one.${tree.citation ? ' Every question shows the worksheet page it came from.' : ''}`);
+      `Press E, and answer stones rise — walk onto one to answer.${tree.citation ? ' Each question cites its worksheet page.' : ''}`);
   } else {
     await beat(page, `Quest: ${grove.questName}`, 'another tree', '', 1500);
   }
@@ -165,24 +179,29 @@ async function showcaseQuestion(page, tree, grove, first) {
   let wrongShown = false;
   for (let k = 0; k < order.length; k++) {
     const i = order[k];
-    if (k > 0) {                                               // step off before the next stone can count
-      const [px, pz] = await playerPos(page);
-      const dx = tree.pos[0] - px, dz = tree.pos[2] - pz, d = Math.hypot(dx, dz) || 1;
-      await walkTo(page, px + (dx / d) * 1.8, pz + (dz / d) * 1.8);
-    }
-    await walkTo(page, stones[i][0], stones[i][1]);
-    await page.waitForSelector('#fox:not([hidden])', { timeout: 10_000 });
-    await face(page, tree);
-    if (first && k === 0) await beat(page, 'The fox asks: how sure are you?', 'confidence before every answer', 'First, the fox asks how sure you are — so the game can tell a guess from a real misunderstanding.');
-    const response = nextAnswer(page);
-    await page.keyboard.press(k === 0 ? 'Digit3' : 'Digit2');
-    const r = await response;
-    await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
+    await fastForward('student', k > 0 ? 2 : 1, async () => {
+      if (k > 0) {                                             // step off before the next stone can count
+        const [px, pz] = await playerPos(page);
+        const dx = tree.pos[0] - px, dz = tree.pos[2] - pz, d = Math.hypot(dx, dz) || 1;
+        await walkTo(page, px + (dx / d) * 1.8, pz + (dz / d) * 1.8);
+      }
+      await walkTo(page, stones[i][0], stones[i][1]);
+      await page.waitForSelector('#fox:not([hidden])', { timeout: 10_000 });
+      await face(page, tree);
+    });
+    if (first && k === 0) await beat(page, 'The fox asks: how sure are you?', 'confidence before every answer', 'The fox asks how sure you are.');
+    const r = await fastForward('student', 3, async () => {       // the AI grading and diagnosing
+      const response = nextAnswer(page);
+      await page.keyboard.press(k === 0 ? 'Digit3' : 'Digit2');
+      const res = await response;
+      await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
+      return res;
+    });
     if (r.correct) {
       known.set(rootOf(tree), i);
       if (wrongShown) {
         await beat(page, 'Right — the tree regrows', 'but the mission still says: come back to what you missed',
-          'Try again and the tree grows back. But the mission adds a step: come back to it later, after other questions. That is spaced practice.', 3000);
+          'Retry, and the tree regrows — but the mission says come back later. That’s spaced practice.', 3000);
       } else {
         await beat(page, 'Right first time', `XP ${r.xp} · mastery ${Math.round(r.mastery * 100)}%`, '', 2200);
       }
@@ -193,11 +212,11 @@ async function showcaseQuestion(page, tree, grove, first) {
       const knownLabel = r.misconceptionId && r.misconceptionId !== 'unclassified';
       await beat(page, r.calibration === 'overconfident' ? 'Very sure — and wrong. The tree withers.' : 'Wrong — the tree withers',
         knownLabel ? clip(`AI diagnosis: “${r.misconceptionLabel}”`, 110) : 'Professor Byte asks a question back — never the answer',
-        `${r.calibration === 'overconfident' ? 'Very sure, and wrong. ' : 'Wrong. '}The tree withers, the AI diagnoses the misconception, and Professor Byte asks a question back instead of giving the answer.`,
+        `${r.calibration === 'overconfident' ? 'Very sure, and wrong. ' : 'Wrong. '}The tree withers, the AI diagnoses why, and Professor Byte asks a question back — not the answer.`,
         5500);
       if (r.saplingId) {
         await beat(page, 'A sapling of the same question sprouts up the path', 'the fox reflects your confidence back to you',
-          'A sapling of the same question sprouts further up the path.', 2600);
+          'A sapling of that question sprouts up the path.', 2400);
       }
     }
   }
@@ -249,23 +268,25 @@ async function typeInBubble(page, text) {
   await box.focus();
   await page.keyboard.type(clip(text, 260), { delay: 9 });
   await sleep(300);
-  const response = nextAnswer(page);
-  await page.keyboard.press('Control+Enter');
-  const r = await response;
-  await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
-  return r;
+  return fastForward('student', 3, async () => {                 // the AI grading the explanation
+    const response = nextAnswer(page);
+    await page.keyboard.press('Control+Enter');
+    const r = await response;
+    await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
+    return r;
+  });
 }
 
 async function helpMia(student, miaTree) {
-  const s = now('student');
+  startSeg('student');
   await approach(student, miaTree);
   await face(student, miaTree);
   await label(student, 'Mia is stuck — help her', 'teaching someone else is one of the strongest ways to learn',
-    'A classmate is stuck. Explaining it to Mia is one of the strongest ways to learn it yourself.');
+    'Mia is stuck. Teaching her is one of the best ways to learn.');
   const r = await typeInBubble(student, studentVoice(miaTree.rubric ?? []));
   await beat(student, r.correct ? 'Mia gets it' : 'Mia is still unsure', `${r.explanation?.hit.length ?? 0} of ${(miaTree.rubric ?? []).length} rubric points hit · graded by the AI`,
-    r.correct ? 'The AI checks the explanation against a rubric — and Mia gets it.' : 'The AI checks the explanation against a rubric, and shows what was missing.', 3200);
-  segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
+    r.correct ? 'The AI grades the explanation against a rubric.' : 'The AI grades the explanation against a rubric, and shows what was missing.', 3000);
+  endSeg('student');
 }
 
 // ---------------- the run ----------------
@@ -289,19 +310,19 @@ try {
   whoOf.set(teacher, 'teacher');
   clock.teacher = Date.now();
   await teacher.goto(`${BASE}/teacher.html`);
-  let s = now('teacher');
+  startSeg('teacher');
   const usingPdf = Boolean(PDF && existsSync(PDF));
   if (usingPdf) await teacher.setInputFiles('#pdf', PDF);
   else await teacher.click('.tabs button[data-kind="prompt"]');
   await beat(teacher, 'The teacher uploads the worksheet she already uses', 'any syllabus · or paste a link, paste text, or just name a topic',
-    'A teacher picks the syllabus — here, Singapore Primary 5 maths — and uploads the worksheet she already uses.');
+    'A teacher uploads the worksheet she already uses.');
   await teacher.click('#spawn');
   await teacher.waitForFunction(() => document.getElementById('room-code').textContent !== '—', null, { timeout: 60_000 });
   const room = (await teacher.textContent('#room-code')).trim();
   await label(teacher, aiConnected ? 'The AI reads it and grows a world of missions' : 'Building a forest from SAMPLE data — AI brain not connected',
-    `Room code ${room}`, aiConnected ? 'The AI reads every page and grows a world: each concept becomes a grove with a mission, each question a tree.' : '');
+    `Room code ${room}`, aiConnected ? 'The AI reads it and grows a world: each concept a grove with a mission, each question a tree.' : '');
   await sleep(3000);
-  segments.push({ who: 'teacher', start: s, end: now('teacher'), speed: 1 });
+  endSeg('teacher');
 
   // Generation can take a minute or more: record it, then speed it up in the edit.
   const waitStart = now('teacher');
@@ -316,14 +337,14 @@ try {
   usedSample = world.generatedBy === 'sample' || world.concepts.every(c => SAMPLE_CONCEPTS.has(c.name));
   if (usedSample) console.warn('\n⚠️  This world is SAMPLE data, not AI output. The video will say so.\n');
   const ladder = world.concepts.find(c => c.level !== world.syllabus.level);
-  s = now('teacher');
+  startSeg('teacher');
   await teacher.click('#copy-link');
   await beat(teacher,
     usedSample ? `${plural(world.trees.length, 'question')} — SAMPLE DATA, AI brain not connected`
       : `${plural(world.concepts.length, 'mission')}, ${plural(world.trees.length, 'question')} — from the worksheet`,
     [speed > 1 ? `generation shown ×${speed}` : '', 'share one link or the room code'].filter(Boolean).join(' · '),
-    usedSample ? '' : `${plural(world.concepts.length, 'mission')} and ${plural(world.trees.length, 'question')}${ladder ? `, up to ${ladder.level}` : ''}. The teacher copies one link into the class chat.`);
-  segments.push({ who: 'teacher', start: s, end: now('teacher'), speed: 1 });
+    usedSample ? '' : `${plural(world.concepts.length, 'mission')}, ${plural(world.trees.length, 'question')}. The teacher shares one link.`);
+  endSeg('teacher');
   console.log(`room ${room}: ${world.concepts.length} concepts, ${world.trees.length} trees${usedSample ? ' (SAMPLE DATA)' : ''}`);
 
   // ===== Scene 2 — a student plays =====
@@ -333,7 +354,7 @@ try {
   await student.goto(`${BASE}/?room=${room}&name=Alex&debug=1`);
   await student.waitForFunction(() => window.__game, null, { timeout: 30_000 });
   const playerId = await student.evaluate(() => sessionStorage.getItem('mg-player'));
-  s = now('student');
+  startSeg('student');
 
   const first = (await api(`/api/state/${room}?playerId=${playerId}`)).me;
   const root = world.concepts.find(c => c.id === first.current);
@@ -343,12 +364,12 @@ try {
 
   if (await student.$('#tutorial:not([hidden])')) {
     await beat(student, 'A student opens the link', 'first time in: how to play, in four lines',
-      'A student opens the link. First time in, four lines explain how to play.', 3000);
+      'A student opens it. Four lines explain how to play.', 2500);
     await student.keyboard.press('Enter');
   }
   await sleep(900);
   await beat(student, `Mission 1 of ${first.total}: ${root.questName}`, 'the panel says what to do · the beacon shows where',
-    'The mission panel says what to do, and a beacon shows where. Other students share the same world.', 3500);
+    'A mission panel says what to do. A beacon shows where.', 2500);
 
   const tried = new Set();
   for (let n = 0; n < 3; n++) {                                // until a real wrong answer is on camera
@@ -360,7 +381,7 @@ try {
     await approach(student, tree);
     if ((await showcaseQuestion(student, tree, root, n === 0)).wrongShown) break;
   }
-  segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
+  endSeg('student');
 
   if (miaTree?.conceptId === root.id) await helpMia(student, miaTree);
 
@@ -368,9 +389,9 @@ try {
   if (!(await finishMissionOffCamera(room, root.id, playerId, 'Alex'))) throw new Error(`could not finish mission ${root.questName}`);
   await student.waitForSelector('.modal.reflect', { timeout: 20_000 });
   await sleep(600);
-  s = now('student');
+  startSeg('student');
   await beat(student, 'A few answers later — reflect before moving on', 'metacognition: how well do I actually know this?',
-    'A few answers later, the work is done — but the mission ends with a reflection. How well do I know this, in my own words?', 3500);
+    'A few answers later: every mission ends with a reflection. How well do I really know this?', 3000);
   await student.click('.ratings button:nth-child(3)');
   await sleep(500);
   await student.click('.modal.reflect textarea');
@@ -379,24 +400,24 @@ try {
   await student.click('.modal.reflect button[type=submit]');
   await sleep(1400);
   await beat(student, 'Mission complete — the student\'s rating meets reality', 'the next grove unlocks for this student',
-    'The game compares their rating with how they actually did — and the next grove unlocks, for this student.', 4000);
-  segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
+    'Their rating is compared with how they actually did — and the next grove unlocks, for them.', 3500);
+  endSeg('student');
 
   if (next) {
-    s = now('student');
+    startSeg('student');
     await label(student, `Across the bridge: ${next.questName}`, ladder ? `groves climb the syllabus, up to ${ladder.level}` : 'each grove is the next topic in the syllabus', '');
     await travelTo(student, next);
-    segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
+    endSeg('student');
     if (miaTree?.conceptId === next.id) await helpMia(student, miaTree);
   }
 
-  s = now('student');
+  startSeg('student');
   await student.click('#world-btn');
   await student.waitForSelector('.world-list button', { timeout: 10_000 });
   await beat(student, 'Switch syllabus any time: teleport to another world', '＋ grows a new world from a topic, link or PDF',
-    'Any time, a student can teleport to another world — another topic — or grow a new one with the plus button.', 3000);
+    'Students can teleport to another topic, or grow a new world.', 2500);
   await student.keyboard.press('Escape');
-  segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
+  endSeg('student');
 
   // A second student, Bea, playing through the same API: confident and wrong, twice over.
   const beaId = `bea-${Date.now().toString(36)}`;
@@ -415,29 +436,31 @@ try {
   // ===== Scene 3 — the teacher sees every student, and acts =====
   await teacher.bringToFront();
   await sleep(2500);                                           // let the console poll
-  await teacher.evaluate(() => document.getElementById('insight-card').scrollIntoView({ block: 'start' }));
+  await teacher.evaluate(() => window.scrollTo(0, 0));
   const view = await api(`/api/teacher/${room}`);
   const bea = view.students.find(x => x.playerId === beaId);
   const top = view.misconceptions[0];
-  s = now('teacher');
+  startSeg('teacher');
   await beat(teacher, 'The teacher sees every student, live', bea ? clip(`Bea: ${bea.status === 'stuck' ? 'stuck' : bea.status}${bea.lastMisconception ? ` — “${bea.lastMisconception}”` : ''}`, 110) : 'mission, accuracy and confidence for each student',
-    'Back on the teacher console: every student, live — their mission, how accurate they are, and whether their confidence matches. Bea is flagged: confident, wrong, and stuck on the same idea.',
-    4500);
+    'The teacher sees every student live: mission, accuracy, confidence. Bea is flagged — confident, wrong, and stuck.',
+    4000);
   if (top) {
-    await teacher.evaluate(() => document.getElementById('misconceptions').scrollIntoView({ block: 'center' }));
+    await teacher.evaluate(() => document.getElementById('weakest').scrollIntoView({ block: 'start', behavior: 'smooth' }));
     await sleep(400);
     await beat(teacher, 'What the class misunderstands — not just who got it wrong', clip(`“${top.label}” · ${plural(top.studentCount ?? top.count, 'student')}`, 110),
-      `And across the class, not who got question four wrong — but what they misunderstood: ${top.label}.`, 3500);
-    await teacher.click('.misconceptions li:first-child .deploy');
-    await teacher.waitForSelector('.toast', { timeout: 90_000 });
+      'Not just who got it wrong — what the class misunderstood.', 3500);
+    await fastForward('teacher', 4, async () => {                // the AI drafting the focus trees
+      await teacher.click('.misconceptions li:first-child .deploy');
+      await teacher.waitForSelector('.toast', { timeout: 90_000 });
+    });
     await beat(teacher, 'Deploy Quest: the teacher chooses the intervention', 'focus trees join that grove\'s mission for every student',
-      'One click sends a focus quest on that misconception into the students’ missions. The AI drafts it — the teacher decides.');
+      'One click deploys a focus quest on it. The AI drafts; the teacher decides.');
   }
   await teacher.click('#next-session');
   await teacher.waitForSelector('.toast', { timeout: 20_000 });
   await beat(teacher, 'Next session: the Memory Quest', 'last session\'s questions come back — distributed practice',
-    'Next session, each student gets a Memory Quest: what they got right today comes back, so it’s still there on Thursday.');
-  segments.push({ who: 'teacher', start: s, end: now('teacher'), speed: 1 });
+    'Next session, a Memory Quest brings back what each student learned.');
+  endSeg('teacher');
 } catch (err) {
   failure = err;
   console.error('walkthrough stopped:', err.message);
