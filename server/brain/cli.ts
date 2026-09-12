@@ -5,7 +5,8 @@
 //   npx tsx cli.ts prompt
 // Add --out fallbackWorld.json to write the result somewhere specific.
 
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: ['../.env', '../../.env'] });   // server/.env first, then repo root
 import { readFile, writeFile } from 'node:fs/promises';
 import { spawnWorld } from './spawn.js';
 import type { SpawnInput, Syllabus } from '../../shared/types.js';

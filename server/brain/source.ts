@@ -1,6 +1,7 @@
-// URL -> { title, text }. Plain fetch first; if the page is a JS shell (React
-// SPA, bot wall) hand off to the headless browser in scrape.py. Everything
-// after this function is identical regardless of which one ran.
+// URL -> { title, text }. Plain fetch first. If the page came back fine but
+// nearly empty (a React shell) AND BRAIN_BROWSER_FALLBACK=1, hand off to the
+// headless browser in scrape.py. Off by default: it needs Python + Chromium on
+// the deploy box, and it is not something to demo on stage.
 
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -14,8 +15,10 @@ const SHELL_THRESHOLD = 2_000;             // less text than this = probably not
 export interface Fetched { title: string; text: string; via: 'fetch' | 'browser' }
 
 export async function fetchSource(url: string): Promise<Fetched> {
-  const plain = await plainFetch(url).catch(() => null);
-  if (plain && plain.text.length >= SHELL_THRESHOLD) return plain;
+  const plain = await plainFetch(url);            // real HTTP errors throw here, not to the browser
+  if (plain.text.length >= SHELL_THRESHOLD) return plain;
+  if (process.env.BRAIN_BROWSER_FALLBACK !== '1')
+    throw new Error(`${url} returned only ${plain.text.length} chars of text (JS-rendered page?). Paste the text instead.`);
   return browserFetch(url);
 }
 
@@ -31,7 +34,8 @@ async function plainFetch(url: string): Promise<Fetched> {
 
 async function browserFetch(url: string): Promise<Fetched> {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  const python = process.env.BRAIN_PYTHON ?? path.join(here, '.venv', 'Scripts', 'python.exe');
+  const venvPython = process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'];
+  const python = process.env.BRAIN_PYTHON ?? path.join(here, '.venv', ...venvPython);
   const { stdout } = await run(python, [path.join(here, 'scrape.py'), url], { maxBuffer: 16 * 1024 * 1024, timeout: 90_000 });
   const out = JSON.parse(stdout) as { title: string; text: string };
   return { title: out.title, text: clip(out.text), via: 'browser' };

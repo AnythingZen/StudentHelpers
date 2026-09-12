@@ -9,6 +9,7 @@ export const Bloom = z.enum(['remember', 'understand', 'apply']);
 export const SpawnConcept = z.object({
   id: z.string().describe('c1, c2, ... in order'),
   name: z.string(),
+  questName: z.string().describe('a short quest title for this grove, e.g. "The Fraction Bridge"'),
   bloom: Bloom,
   syllabusRef: z.string().describe('"P5 · Fractions · <named syllabus outcome>"'),
   level: z.string().describe('"Primary 5"; exactly one concept sits one level above the world'),

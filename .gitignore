@@ -22,3 +22,5 @@ coverage/
 # brain
 server/brain/node_modules/
 server/brain/.venv/
+
+server/brain/.ocr-cache/

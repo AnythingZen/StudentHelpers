@@ -8,7 +8,7 @@ import { TreesSchema } from './schemas.js';
 import { GROW_PROMPT, QUEST_PROMPT } from './prompts.js';
 import { fetchSource } from './source.js';
 import { fillTree } from './spawn.js';
-import { smart } from './llm.js';
+import { smart, jsonSchemaHint } from './llm.js';
 
 // Teacher's Deploy Quest: 5 trees aimed at one misconception.
 export async function focusQuest(world: World, misconceptionId: string): Promise<Tree[]> {
@@ -16,7 +16,7 @@ export async function focusQuest(world: World, misconceptionId: string): Promise
   if (!m) throw new Error(`unknown misconception ${misconceptionId}`);
   const { output } = await generateText({
     model: smart(),
-    prompt: QUEST_PROMPT(world.syllabus, m.label, m.conceptId),
+    prompt: QUEST_PROMPT(world.syllabus, m.label, m.conceptId) + jsonSchemaHint(TreesSchema),
     output: Output.object({ schema: TreesSchema }),
   });
   return output.trees.map(t => fillTree({ ...t, id: `${misconceptionId}-${t.id}`, conceptId: m.conceptId }));
@@ -30,7 +30,7 @@ export async function growFromSource(world: World, urlOrText: string): Promise<T
   const ids = world.concepts.map(c => c.id);
   const { output } = await generateText({
     model: smart(),
-    system: GROW_PROMPT(world.syllabus, world.concepts),
+    system: GROW_PROMPT(world.syllabus, world.concepts) + jsonSchemaHint(TreesSchema),
     prompt: `<document>\n${text}\n</document>`,
     output: Output.object({ schema: TreesSchema }),
   });

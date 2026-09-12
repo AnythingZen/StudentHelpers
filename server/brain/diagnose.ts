@@ -6,7 +6,7 @@ import { generateText, Output } from 'ai';
 import type { World, Tree, TreeWithAnswer, Diagnosis, Explanation, Confidence, Calibration } from '../../shared/types.js';
 import { DiagnosisSchema, GradeSchema, ExplanationSchema } from './schemas.js';
 import { DIAGNOSE_PROMPT, GRADE_PROMPT, EXPLAIN_PROMPT } from './prompts.js';
-import { fast, hotOptions } from './llm.js';
+import { fast, hotOptions, jsonSchemaHint } from './llm.js';
 
 const hot = () => ({ model: fast(), ...hotOptions() });
 
@@ -33,9 +33,10 @@ export async function diagnose(
              scaffoldHint: 'What happens to the size of each piece when the denominator gets bigger?', evidence: 'mock' };
   }
 
+  const schema = DiagnosisSchema(world.misconceptions.map(m => m.id));
   const { output } = await generateText({
     ...hot(),
-    system: DIAGNOSE_PROMPT,
+    system: DIAGNOSE_PROMPT + jsonSchemaHint(schema),
     prompt: `Concept: ${concept?.name ?? tree.conceptId}
 Question: ${tree.question}
 Correct answer: ${correctAnswer}
@@ -44,7 +45,7 @@ Student's stated confidence: ${confidence ?? 'unknown'}${cal ? ` (${cal})` : ''}
 
 Misconceptions for this world:
 ${list}`,
-    output: Output.object({ schema: DiagnosisSchema(world.misconceptions.map(m => m.id)) }),
+    output: Output.object({ schema }),
   });
   if (output.confidence < 0.5) output.misconceptionId = 'unclassified';
   return output;
@@ -55,7 +56,7 @@ export async function gradeRecall(tree: Tree, text: string): Promise<{ correct: 
   if (process.env.BRAIN_MOCK === '1') return { correct: true, why: 'mock' };
   const { output } = await generateText({
     ...hot(),
-    system: GRADE_PROMPT,
+    system: GRADE_PROMPT + jsonSchemaHint(GradeSchema),
     prompt: `Question: ${tree.question}\nReference answer: ${t.answerText}\nStudent answer: ${text}`,
     output: Output.object({ schema: GradeSchema }),
   });
@@ -66,7 +67,7 @@ export async function gradeExplanation(tree: Tree, text: string): Promise<Explan
   if (process.env.BRAIN_MOCK === '1') return { passed: true, hit: tree.rubric ?? [], missing: [], encouragement: 'mock' };
   const { output } = await generateText({
     ...hot(),
-    system: EXPLAIN_PROMPT,
+    system: EXPLAIN_PROMPT + jsonSchemaHint(ExplanationSchema),
     prompt: `Task: ${tree.question}\nRubric:\n${(tree.rubric ?? []).map(r => `- ${r}`).join('\n')}\n\nStudent's explanation:\n${text}`,
     output: Output.object({ schema: ExplanationSchema }),
   });

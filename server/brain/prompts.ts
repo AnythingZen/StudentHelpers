@@ -7,13 +7,14 @@ export function SPAWN_PROMPT(s: Syllabus, source: Source): string {
   const hasPages = source.kind === 'pdf';
   return `You are building a learning world for ${s.system} · ${s.level} · ${s.subject} · ${s.topic}.
 The syllabus supplies the vocabulary; the source material supplies the content.
-${source.kind === 'prompt' ? 'There is no document — draw on the standard syllabus content for this topic.' : 'Questions must be answerable from the document alone.'}
+${source.kind === 'prompt' ? 'There is no document — draw on the standard syllabus content for this topic.' : `Questions must be answerable from the document alone. The document may cover more than ${s.topic} — use only the parts about ${s.topic} and ignore the rest. Text came from OCR, so some numbers or fractions may be garbled or missing; skip anything you cannot read with confidence.`}
 
 Produce, in this order:
 
 1. CONCEPTS — 3 to 5 concepts found in the material (ids c1, c2, ...). Each maps to a named
    syllabus outcome in syllabusRef, e.g. "P5 · Fractions · Comparing fractions with unlike denominators",
-   with bloom = remember | understand | apply and level = "${s.level}".
+   with bloom = remember | understand | apply and level = "${s.level}", and a questName — a short
+   adventure title a 10-year-old would want to enter, e.g. "The Fraction Bridge".
    PLUS exactly one extra concept from the level above: level = "${nextLevel}", the natural
    next step beyond this material. It lists EVERY other concept as a prerequisite.
 

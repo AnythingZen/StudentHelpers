@@ -15,7 +15,7 @@ function world(trees: Tree[]): World {
     worldId: 'TEST', sessionIndex: 0,
     syllabus: { system: 'MOE-SG', level: 'Primary 5', subject: 'Mathematics', topic: 'Fractions' },
     subject: 'P5 Maths', source: { kind: 'prompt', text: 'fractions' }, status: 'ready',
-    concepts: [{ id: 'c1', name: 'c', bloom: 'remember', syllabusRef: '', level: 'Primary 5', prerequisites: [], centre: [0, 0, 0] }],
+    concepts: [{ id: 'c1', name: 'c', questName: 'q', bloom: 'remember', syllabusRef: '', level: 'Primary 5', prerequisites: [], centre: [0, 0, 0] }],
     misconceptions: [], trees,
   };
 }
@@ -101,5 +101,46 @@ describe('nextSession', () => {
     expect(w.trees.some(t => t.state === 'sapling')).toBe(false);
     expect(find(w, 't1').state).toBe('healthy');
     expect(find(w, 't2').state).toBe('withered');
+  });
+});
+
+// From docs/reviews/b-brain-c348b5b.md — each of these failed before the fix.
+describe('review fixes — c348b5b', () => {
+  it('sapling ids never collide across sessions', () => {
+    let w = schedule(world([tree({ id: 't4' })]), 't4', false);
+    w = schedule(w, 't4', false);
+    const second = w.trees.find(t => t.spawnedFrom === 't4' && t.id !== w.trees[1].id)!;
+    w = schedule(w, second.id, true);
+    w = nextSession(w);
+    w = schedule(w, 't4', false);
+    const ids = w.trees.map(t => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+  it('nextSession clears every sapling, answered or not', () => {
+    let w = schedule(world([tree({ id: 't4' })]), 't4', false);
+    const sap = w.trees.find(t => t.spawnedFrom === 't4')!;
+    w = schedule(w, sap.id, true);
+    w = nextSession(w);
+    expect(w.trees.filter(t => t.spawnedFrom !== null)).toHaveLength(0);
+  });
+  it('a new session can spawn saplings again', () => {
+    let w = schedule(world([tree({ id: 't4' })]), 't4', false);
+    const s1 = w.trees.find(t => t.spawnedFrom === 't4')!;
+    w = schedule(w, s1.id, false);
+    const s2 = w.trees.find(t => t.spawnedFrom === 't4' && t.id !== s1.id)!;
+    w = schedule(w, s2.id, true);
+    w = nextSession(w);
+    const before = w.trees.length;
+    w = schedule(w, 't4', false);
+    expect(w.trees.length).toBe(before + 1);
+  });
+  it('correct on a withered tree regrows it', () => {
+    let w = schedule(world([tree({ id: 't4' })]), 't4', false);
+    w = schedule(w, 't4', true);
+    expect(find(w, 't4').state).toBe('regrown');
+  });
+  it('concept health excludes saplings', () => {
+    const w = schedule(world([tree({ id: 'a' }), tree({ id: 'b' }), tree({ id: 'c' }), tree({ id: 'd' })]), 'a', false);
+    expect(conceptHealth(w, 'c1')).toBeCloseTo(0.75);
   });
 });

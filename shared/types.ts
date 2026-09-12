@@ -23,7 +23,7 @@ export type Source =
 
 // What C hands to spawnWorld(). Mirrors Source, plus the payload itself.
 export type SpawnInput =
-  | { kind: 'pdf';    filename: string; data: Buffer }
+  | { kind: 'pdf';    filename: string; data: Uint8Array }   // Node passes a Buffer; Uint8Array keeps A's vite build clean
   | { kind: 'url';    url: string }
   | { kind: 'text';   label: string; text: string }
   | { kind: 'prompt' };                                   // syllabus is the whole input
@@ -43,6 +43,7 @@ export interface World {
 export interface Concept {
   id: string;                 // "c1"
   name: string;
+  questName: string;          // "The Fraction Bridge" — B generates it at spawn
   bloom: Bloom;
   syllabusRef: string;        // "P5 · Fractions · Comparing fractions with unlike denominators"
   level: string;              // may be ABOVE the world's level (the level ladder)
@@ -91,6 +92,15 @@ export interface Explanation {
   encouragement: string;
 }
 
+// A <-> C seam: other players in the same world, polled every 500ms.
+export interface Presence {
+  playerId: string;
+  name: string;
+  pos: [number, number, number];
+  yaw: number;
+  seeded: boolean;            // server-side classmate, not a real client
+}
+
 export interface AnswerResponse {
   correct: boolean;
   treeState: TreeState;
@@ -104,3 +114,13 @@ export interface AnswerResponse {
   retention: number;
   calibration: Calibration | null;
 }
+export type AnswerResult = AnswerResponse;   // the contract uses both names
+
+// Client event bus (A's scene <-> C's network layer).
+export type GameEvent =
+  | { type: 'state';     world: World; xp: number; mastery: number; retention: number }
+  | { type: 'answered';  result: AnswerResult }
+  | { type: 'questStart'; conceptId: string; questName: string }
+  | { type: 'plankPlaced' | 'plankLost'; conceptId: string }
+  | { type: 'levelUp';   conceptId: string }
+  | { type: 'needConfidence'; treeId: string; resolve: (c: Confidence) => void };

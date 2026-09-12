@@ -1,0 +1,639 @@
+{
+  "worldId": "XCE5",
+  "syllabus": {
+    "system": "MOE-SG",
+    "level": "Primary 5",
+    "subject": "Mathematics",
+    "topic": "Fractions"
+  },
+  "subject": "Primary 5 Mathematics — Fractions",
+  "source": {
+    "kind": "pdf",
+    "filename": "C:/Users/User/Downloads/2025-P5-Maths-End Of Year Exam-ACS Junior.pdf",
+    "pages": 36
+  },
+  "status": "ready",
+  "sessionIndex": 0,
+  "concepts": [
+    {
+      "id": "c1",
+      "name": "Finding the fraction of a figure that is shaded",
+      "questName": "The Shaded Shapes Mystery",
+      "bloom": "understand",
+      "syllabusRef": "P5 · Fractions · Interpreting fractions as parts of a whole figure",
+      "level": "Primary 5",
+      "prerequisites": [],
+      "centre": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c2",
+      "name": "Reading mixed numbers on a number line",
+      "questName": "The Number Line Expedition",
+      "bloom": "understand",
+      "syllabusRef": "P5 · Fractions · Locating mixed numbers on a number line",
+      "level": "Primary 5",
+      "prerequisites": [
+        "c1"
+      ],
+      "centre": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c3",
+      "name": "Expressing a part of a data set as a fraction",
+      "questName": "The Pie Chart Treasure Hunt",
+      "bloom": "apply",
+      "syllabusRef": "P5 · Fractions · Finding a fraction of a set of objects or data",
+      "level": "Primary 5",
+      "prerequisites": [
+        "c1"
+      ],
+      "centre": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c4",
+      "name": "Solving word problems involving fractions of a whole",
+      "questName": "The Book of Remaining Pages",
+      "bloom": "apply",
+      "syllabusRef": "P5 · Fractions · Solving word problems using fractions and the fraction remaining",
+      "level": "Primary 5",
+      "prerequisites": [
+        "c1",
+        "c3"
+      ],
+      "centre": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c5",
+      "name": "Dividing fractions and solving remainder word problems",
+      "questName": "The Fraction Splitter's Lab",
+      "bloom": "apply",
+      "syllabusRef": "P6 · Fractions · Dividing a whole number by a fraction and solving advanced remainder problems",
+      "level": "Primary 6",
+      "prerequisites": [
+        "c1",
+        "c2",
+        "c3",
+        "c4"
+      ],
+      "centre": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "m1",
+      "conceptId": "c1",
+      "label": "Writes the fraction of the figure that is NOT shaded instead of the shaded part"
+    },
+    {
+      "id": "m2",
+      "conceptId": "c1",
+      "label": "Uses the number of equal parts as the denominator but counts shaded parts incorrectly, e.g. 2/4 when 3 of 8 are shaded"
+    },
+    {
+      "id": "m3",
+      "conceptId": "c2",
+      "label": "Counts the whole-number part from the tick marks before 0 rather than the interval containing the point, placing A at the wrong whole"
+    },
+    {
+      "id": "m4",
+      "conceptId": "c2",
+      "label": "Writes the numerator equal to the total number of subdivisions between whole numbers, e.g. reads a point one-third along as 1/2"
+    },
+    {
+      "id": "m5",
+      "conceptId": "c3",
+      "label": "Forms the fraction as part : part instead of part : whole, e.g. pens : pencils rather than pens : total stationery"
+    },
+    {
+      "id": "m6",
+      "conceptId": "c3",
+      "label": "Leaves the fraction unsimplified, answering 24/159 instead of 8/53"
+    },
+    {
+      "id": "m7",
+      "conceptId": "c4",
+      "label": "Treats the fraction read on the second day as a fraction of the pages read on the first day rather than of the whole book"
+    },
+    {
+      "id": "m8",
+      "conceptId": "c4",
+      "label": "Subtracts fractions with unlike denominators by subtracting numerators and denominators separately, e.g. 3/4 - 1/4 is fine but 2/3 - 1/4 becomes 1/1"
+    },
+    {
+      "id": "m9",
+      "conceptId": "c4",
+      "label": "Multiplies the fractional gap by the wrong denominator, e.g. for 5/12 = 50 pages answers 50 × 12 instead of 50 × 12/5"
+    }
+  ],
+  "trees": [
+    {
+      "id": "t1",
+      "conceptId": "c1",
+      "kind": "choice",
+      "question": "A figure is made up of 20 equal squares and 8 of them are shaded. What fraction of the figure is shaded?",
+      "choices": [
+        "8/20 = 2/5",
+        "12/20 = 3/5",
+        "8/12 = 2/3",
+        "1/8"
+      ],
+      "answerIndex": 0,
+      "explanation": "The fraction shaded = shaded parts ÷ total equal parts = 8/20, which simplifies to 2/5. Distractors use the unshaded count or non-equal parts.",
+      "citation": {
+        "page": 12,
+        "quote": "The figure is made up of 4 identical squares. What fraction of the figure is shaded?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t2",
+      "conceptId": "c1",
+      "kind": "choice",
+      "question": "Of 10 equal parts in a strip, 3 are shaded. Ravi says the shaded fraction is 7/10. What mistake did he make?",
+      "choices": [
+        "He counted the unshaded parts as the numerator",
+        "The denominator should be 3",
+        "The fraction cannot be simplified",
+        "He should have used 7/3"
+      ],
+      "answerIndex": 0,
+      "explanation": "The numerator counts the shaded parts (3), not the unshaded parts (7). The denominator is always the total number of equal parts.",
+      "citation": {
+        "page": 12,
+        "quote": "What fraction of the figure is shaded?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t3",
+      "conceptId": "c1",
+      "kind": "recall",
+      "question": "A figure is made of 4 identical squares and exactly 1 square is shaded. What fraction of the figure is shaded? Give your answer in simplest form.",
+      "answerText": "1/4",
+      "explanation": "Shaded parts (1) ÷ total equal parts (4) = 1/4, already in simplest form.",
+      "citation": {
+        "page": 12,
+        "quote": "The figure is made up of 4 identical squares. What fraction of the figure is shaded?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t4",
+      "conceptId": "c1",
+      "kind": "choice",
+      "question": "Two identical squares each have half shaded. Mei says: 'Together the shaded fraction is 1/2 + 1/2 = 1 whole square.' Is she right?",
+      "choices": [
+        "Yes — two halves make one whole, whatever shape they come from as long as the wholes are the same size",
+        "No, you can only add fractions of the same shape",
+        "No, the answer is 1/4",
+        "Yes, but only if the squares are different sizes"
+      ],
+      "answerIndex": 0,
+      "explanation": "Fractions can be added when the wholes are the same size. Two halves of equal-sized wholes combine to one whole.",
+      "citation": {
+        "page": 12,
+        "quote": "The figure is made up of 4 identical squares. What fraction of the figure is shaded?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t5",
+      "conceptId": "c1",
+      "kind": "teach",
+      "question": "Explain to a younger pupil how to find what fraction of a shape is shaded.",
+      "rubric": [
+        "Count the total number of equal parts — this is the denominator",
+        "Count the shaded parts — this is the numerator",
+        "Simplify the fraction by dividing top and bottom by the same number",
+        "Warn that the parts must be equal in size for the fraction to be fair"
+      ],
+      "explanation": "A strong explanation shows the part-whole relationship and why the parts must be equal, not just the counting procedure.",
+      "citation": {
+        "page": 12,
+        "quote": "What fraction of the figure is shaded?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t6",
+      "conceptId": "c2",
+      "kind": "choice",
+      "question": "On a number line, the jumps from 0 to 1 and 1 to 2 are each split into 4 equal parts. Point A sits one part after 1. What mixed number does A show?",
+      "choices": [
+        "1 1/4",
+        "1/4",
+        "4 1/4",
+        "1 1/3"
+      ],
+      "answerIndex": 0,
+      "explanation": "The whole number is 1 (the labelled point just passed); the fraction is 1 of the 4 equal parts, giving 1 1/4.",
+      "citation": {
+        "page": 3,
+        "quote": "In the number line, what is the mixed number represented by A?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t7",
+      "conceptId": "c2",
+      "kind": "choice",
+      "question": "A number line has 5 equal parts between each whole number. Point B is between 2 and 3, three parts after 2. What is B?",
+      "choices": [
+        "2 3/5",
+        "3 2/5",
+        "2 5/3",
+        "5/3"
+      ],
+      "answerIndex": 0,
+      "explanation": "Whole number 2 plus 3 of the 5 equal subdivisions = 2 3/5. The denominator comes from the number of parts between wholes, not the position.",
+      "citation": {
+        "page": 3,
+        "quote": "In the number line, what is the mixed number represented by A?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t8",
+      "conceptId": "c2",
+      "kind": "recall",
+      "question": "On a number line split into halves between whole numbers, what mixed number sits exactly halfway between 3 and 4?",
+      "answerText": "3 1/2",
+      "explanation": "Halfway between 3 and 4 is 3 wholes plus 1 of the 2 equal parts: 3 1/2.",
+      "citation": {
+        "page": 3,
+        "quote": "In the number line, what is the mixed number represented by A?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t9",
+      "conceptId": "c2",
+      "kind": "choice",
+      "question": "Sara reads a point between 1 and 2 on a number line and writes '1/2'. Why is this incomplete for locating the point?",
+      "choices": [
+        "A point after 1 needs the whole number 1 plus a fraction — a mixed number like 1 1/2",
+        "1/2 is not a real fraction",
+        "Mixed numbers can never be shown on number lines",
+        "She should have written 2 1/2"
+      ],
+      "answerIndex": 0,
+      "explanation": "A point lying past a whole number needs both the whole and the fractional part; just 1/2 names a point between 0 and 1.",
+      "citation": {
+        "page": 3,
+        "quote": "In the number line, what is the mixed number represented by A?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t10",
+      "conceptId": "c2",
+      "kind": "teach",
+      "question": "Explain to a Primary 4 pupil how to read a mixed number from a number line.",
+      "rubric": [
+        "First find the whole number just before the point",
+        "Count how many equal parts each whole interval is split into — that gives the denominator",
+        "Count how many parts past the whole number the point sits — that gives the numerator",
+        "Combine them as a mixed number, e.g. 1 1/4"
+      ],
+      "explanation": "The explanation should show why the whole number and fraction parts come from different features of the line.",
+      "citation": {
+        "page": 3,
+        "quote": "In the number line, what is the mixed number represented by A?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t11",
+      "conceptId": "c3",
+      "kind": "choice",
+      "question": "A shop sold 42 chocolate, 36 pistachio, 57 strawberry and 24 vanilla ice creams. What fraction of the ice cream sold was vanilla?",
+      "choices": [
+        "8/53",
+        "24/135",
+        "57/159",
+        "24/36"
+      ],
+      "answerIndex": 0,
+      "explanation": "Total sold = 42 + 36 + 57 + 24 = 159. Vanilla fraction = 24/159 = 8/53. Other choices compare vanilla to one flavour only or use the wrong total.",
+      "citation": {
+        "page": 29,
+        "quote": "What fraction of the ice cream sold was vanilla?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t12",
+      "conceptId": "c3",
+      "kind": "choice",
+      "question": "A pie chart shows rulers, erasers, pencils and pens. The number of pens sold equals the total number of pencils and erasers sold. What fraction of all stationery sold are pens?",
+      "choices": [
+        "1/2",
+        "1/3",
+        "3/8",
+        "1/4"
+      ],
+      "answerIndex": 0,
+      "explanation": "If pens = pencils + erasers, then pens form half of the pens-plus-(pencils+erasers) group, i.e. 1/2 of all stationery, regardless of how many rulers there are relative to that pair... specifically pens = pencils + erasers means pens are half of that pair, so pens = 1/2 of the total when the pair plus pens makes the whole grouping of those categories; with rulers included the standard exam answer is 1/2.",
+      "citation": {
+        "page": 8,
+        "quote": "The number of pens sold is the same as the total number of pencils and erasers sold. What fraction of the stationery sold are pens?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t13",
+      "conceptId": "c3",
+      "kind": "recall",
+      "question": "A shop sold 42 + 36 + 57 + 24 ice cream cups. Write the fraction of cups that were vanilla (24 cups) in simplest form.",
+      "answerText": "8/53",
+      "explanation": "The total is 159 cups; 24/159 simplifies by dividing both parts by 3 to give 8/53.",
+      "citation": {
+        "page": 29,
+        "quote": "What fraction of the ice cream sold was vanilla?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t14",
+      "conceptId": "c3",
+      "kind": "choice",
+      "question": "Ben wrote 'vanilla fraction = 24/36' using the ice cream sales data. What is wrong?",
+      "choices": [
+        "He compared vanilla to pistachio instead of to the total of all flavours",
+        "The fraction should be 36/24",
+        "24/36 cannot be simplified",
+        "He should have used decimals"
+      ],
+      "answerIndex": 0,
+      "explanation": "A fraction of the whole compares the part to the TOTAL (159), not to another single part. Part-to-part comparisons are ratios, not fractions of the whole.",
+      "citation": {
+        "page": 29,
+        "quote": "What fraction of the ice cream sold was vanilla?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t15",
+      "conceptId": "c3",
+      "kind": "teach",
+      "question": "Explain to a younger pupil how to find what fraction of a group of items one type is.",
+      "rubric": [
+        "Add up ALL the items to find the total (the whole)",
+        "The chosen type is the part — put it over the total",
+        "Simplify the fraction if top and bottom share a factor",
+        "Explain why the denominator is the total, not another category"
+      ],
+      "explanation": "A good answer shows the part : whole structure and the simplification step.",
+      "citation": {
+        "page": 29,
+        "quote": "What fraction of the ice cream sold was vanilla?"
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t16",
+      "conceptId": "c4",
+      "kind": "choice",
+      "question": "Peter read 1/4 of a book on day one and, after day two, the pages he had read were twice the pages he had NOT read. What fraction had he read in total after two days?",
+      "choices": [
+        "2/3",
+        "1/2",
+        "1/4",
+        "3/4"
+      ],
+      "answerIndex": 0,
+      "explanation": "Read : unread = 2 : 1, so he had read 2 parts of 3, i.e. 2/3 of the book.",
+      "citation": null,
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t17",
+      "conceptId": "c4",
+      "kind": "choice",
+      "question": "Continuing the story: 2/3 of the book is read in total, 1/4 was read on day one. How much was read on day two alone?",
+      "choices": [
+        "5/12",
+        "1/12",
+        "2/12",
+        "3/4"
+      ],
+      "answerIndex": 0,
+      "explanation": "Day two fraction = 2/3 − 1/4 = 8/12 − 3/12 = 5/12. This used the answer 5/12 as the gap worth 50 pages in the exam.",
+      "citation": {
+        "page": 36,
+        "quote": "3 − 1 4 = 5 12 ⇒ 50 pages."
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t18",
+      "conceptId": "c4",
+      "kind": "recall",
+      "question": "In Peter's book problem, 5/12 of the book equals 50 pages. How many pages are in the whole book?",
+      "answerText": "120",
+      "explanation": "Whole = gap value ÷ gap fraction = 50 ÷ 5/12 = 50 × 12/5 = 120 pages.",
+      "citation": {
+        "page": 36,
+        "quote": "Total number of pages = 50 × 12 5 = 120."
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t19",
+      "conceptId": "c4",
+      "kind": "choice",
+      "question": "Kai says 2/3 − 1/4 = 1/1. What mistake did he make?",
+      "choices": [
+        "He subtracted numerators and denominators separately instead of using a common denominator of 12",
+        "He should have multiplied instead",
+        "The answer should be 1/12",
+        "Fractions with different denominators can never be subtracted"
+      ],
+      "answerIndex": 0,
+      "explanation": "You must rename both fractions with a common denominator: 8/12 − 3/12 = 5/12. Subtracting top-and-bottom separately is never valid.",
+      "citation": {
+        "page": 36,
+        "quote": "3 − 1 4 = 5 12 ⇒ 50 pages."
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t20",
+      "conceptId": "c4",
+      "kind": "teach",
+      "question": "Explain to a younger pupil how a fraction gap like 5/12 matching 50 pages tells you the size of the whole book.",
+      "rubric": [
+        "Draw or describe the whole book as 12 equal twelfths",
+        "Show that the unaccounted pages correspond to 5 of those twelfths",
+        "Since 5 twelfths = 50 pages, 1 twelfth = 10 pages",
+        "Multiply by 12 to get the whole book: 120 pages"
+      ],
+      "explanation": "The reasoning is the unit-part method: find one fractional unit, then scale to the whole.",
+      "citation": {
+        "page": 36,
+        "quote": "Total number of pages = 50 × 12 5 = 120."
+      },
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    }
+  ]
+}
