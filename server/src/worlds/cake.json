@@ -1,0 +1,791 @@
+{
+ "worldId": "CAKE",
+ "syllabus": {
+  "system": "MOE-SG",
+  "level": "Primary 5",
+  "subject": "Mathematics",
+  "topic": "Fractions"
+ },
+ "subject": "Primary 5 Mathematics — Fractions",
+ "source": {
+  "kind": "pdf",
+  "filename": "P5-Fractions-Practice-Week3.pdf",
+  "pages": 2
+ },
+ "status": "ready",
+ "sessionIndex": 0,
+ "concepts": [
+  {
+   "id": "c1",
+   "name": "Equivalent fractions and simplest form",
+   "questName": "The Shapeshifting Fractions",
+   "bloom": "understand",
+   "syllabusRef": "P5 · Fractions · Equivalent fractions and expressing a fraction in its simplest form",
+   "level": "Primary 5",
+   "prerequisites": [],
+   "centre": [
+    10,
+    0,
+    -18
+   ]
+  },
+  {
+   "id": "c2",
+   "name": "Comparing and ordering unlike fractions",
+   "questName": "The Common Denominator Duel",
+   "bloom": "apply",
+   "syllabusRef": "P5 · Fractions · Comparing fractions with unlike denominators",
+   "level": "Primary 5",
+   "prerequisites": [
+    "c1"
+   ],
+   "centre": [
+    -10,
+    0,
+    -40
+   ]
+  },
+  {
+   "id": "c3",
+   "name": "Adding and subtracting unlike fractions",
+   "questName": "The Denominator Unifier",
+   "bloom": "apply",
+   "syllabusRef": "P5 · Fractions · Addition and subtraction of unlike fractions",
+   "level": "Primary 5",
+   "prerequisites": [
+    "c1",
+    "c2"
+   ],
+   "centre": [
+    10,
+    0,
+    -62
+   ]
+  },
+  {
+   "id": "c4",
+   "name": "Fraction of a set",
+   "questName": "The Set Splitter Challenge",
+   "bloom": "apply",
+   "syllabusRef": "P5 · Fractions · Finding a fraction of a set of objects",
+   "level": "Primary 5",
+   "prerequisites": [
+    "c1"
+   ],
+   "centre": [
+    -10,
+    0,
+    -84
+   ]
+  },
+  {
+   "id": "c5",
+   "name": "Two-step word problems with fractions of a remainder",
+   "questName": "The Remainder Riddle",
+   "bloom": "apply",
+   "syllabusRef": "P5 · Fractions · Solving word problems involving fractions of remaining amounts",
+   "level": "Primary 5",
+   "prerequisites": [
+    "c4"
+   ],
+   "centre": [
+    10,
+    0,
+    -106
+   ]
+  },
+  {
+   "id": "c6",
+   "name": "Dividing a fraction by a whole number",
+   "questName": "The Fraction Divider Portal (P6 Preview)",
+   "bloom": "understand",
+   "syllabusRef": "P6 · Fractions · Division of a fraction by a whole number",
+   "level": "Primary 6",
+   "prerequisites": [
+    "c1",
+    "c2",
+    "c3",
+    "c4",
+    "c5"
+   ],
+   "centre": [
+    -10,
+    0,
+    -128
+   ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "id": "m1",
+   "conceptId": "c1",
+   "label": "Thinks a fraction in simplest form was changed in value, e.g. believes 6/8 > 3/4 because the numbers got smaller"
+  },
+  {
+   "id": "m2",
+   "conceptId": "c1",
+   "label": "Compares fractions by numerator alone, so claims 10/15 > 2/3 because 10 is bigger than 2"
+  },
+  {
+   "id": "m3",
+   "conceptId": "c2",
+   "label": "Believes a larger denominator always means a larger fraction, so thinks 1/8 > 1/6 because 8 > 6"
+  },
+  {
+   "id": "m4",
+   "conceptId": "c2",
+   "label": "Orders fractions by comparing numerators without making a common denominator, e.g. ranks 7/10 largest just because 7 is the biggest numerator"
+  },
+  {
+   "id": "m5",
+   "conceptId": "c3",
+   "label": "Adds numerators and denominators separately, e.g. 1/2 + 1/3 = 2/5"
+  },
+  {
+   "id": "m6",
+   "conceptId": "c3",
+   "label": "Subtracts unlike fractions by subtracting numerators and denominators, e.g. 3/4 − 2/5 = 1/1"
+  },
+  {
+   "id": "m7",
+   "conceptId": "c4",
+   "label": "Multiplies the whole number by the numerator only and ignores the denominator, e.g. computes 3/8 of 24 as 3 × 24 = 72"
+  },
+  {
+   "id": "m8",
+   "conceptId": "c5",
+   "label": "Takes the second fraction of the original total instead of the remainder, e.g. computes 1/3 of $30 instead of 1/3 of $18"
+  },
+  {
+   "id": "m9",
+   "conceptId": "c6",
+   "label": "Divides both numerator and denominator by the whole number, e.g. writes 3/4 ÷ 3 = 1/4 instead of 1/4"
+  },
+  {
+   "id": "c1-cake-numerator",
+   "conceptId": "c1",
+   "label": "Counts the top number as pieces — takes 2 slices for 2/3 of 6"
+  },
+  {
+   "id": "c1-cake-denominator",
+   "conceptId": "c1",
+   "label": "Counts the bottom number as pieces — takes 3 slices for 2/3 of 6"
+  },
+  {
+   "id": "c2-bridge-numerator",
+   "conceptId": "c2",
+   "label": "Counts the top number as pieces — takes 3 planks for 3/4 of 8"
+  },
+  {
+   "id": "c2-bridge-denominator",
+   "conceptId": "c2",
+   "label": "Counts the bottom number as pieces — takes 4 planks for 3/4 of 8"
+  }
+ ],
+ "trees": [
+  {
+   "id": "t1",
+   "conceptId": "c1",
+   "kind": "choice",
+   "question": "Write 6/8 in its simplest form.",
+   "choices": [
+    "3/4",
+    "2/3",
+    "6/4",
+    "1/2"
+   ],
+   "answerIndex": 0,
+   "explanation": "6 and 8 share the factor 2, so divide both numerator and denominator by 2: 6/8 = 3/4. The value does not change because you divided top and bottom by the same number.",
+   "citation": {
+    "page": 1,
+    "quote": "To simplify a fraction, divide the numerator and the denominator by the same number."
+   },
+   "pos": [
+    13,
+    0,
+    -18
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t2",
+   "conceptId": "c1",
+   "kind": "choice",
+   "question": "Which fraction is equivalent to 2/3?",
+   "choices": [
+    "4/6",
+    "3/4",
+    "2/6",
+    "6/4"
+   ],
+   "answerIndex": 0,
+   "explanation": "Multiply both the numerator and the denominator of 2/3 by 2 to get 4/6. Equivalent fractions show the same amount even though the numbers look different.",
+   "citation": {
+    "page": 1,
+    "quote": "Which fraction is equivalent to 2/3: 4/6, 3/4 or 2/6?"
+   },
+   "pos": [
+    7.345382624051517,
+    0,
+    -15.568332550015857
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t3",
+   "conceptId": "c1",
+   "kind": "recall",
+   "question": "What must the numerator and denominator of a fraction have (or not have) for the fraction to be in its simplest form?",
+   "answerText": "No common factor other than 1.",
+   "explanation": "A fraction is in its simplest form when the numerator and denominator have no common factor other than 1, so it cannot be simplified any further.",
+   "citation": {
+    "page": 1,
+    "quote": "A fraction is in its simplest form when the numerator and denominator have no common factor other than 1."
+   },
+   "pos": [
+    10.367495730445675,
+    0,
+    -22.183891357110532
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t4",
+   "conceptId": "c1",
+   "kind": "choice",
+   "question": "Siti says 10/15 is bigger than 2/3 because 10 is bigger than 2. Is she correct?",
+   "choices": [
+    "No, because 10/15 simplifies to 2/3, so they are equal",
+    "Yes, because 10 > 2",
+    "No, because 15 > 3",
+    "Yes, because 10/15 has more parts"
+   ],
+   "answerIndex": 0,
+   "explanation": "Dividing 10/15 top and bottom by 5 gives 2/3. They are equivalent fractions showing exactly the same amount, so neither is bigger.",
+   "citation": {
+    "page": 1,
+    "quote": "Siti says 10/15 is bigger than 2/3 because 10 is bigger than 2. Is she correct?"
+   },
+   "pos": [
+    12.920086309754826,
+    0,
+    -14.190394253524067
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t5",
+   "conceptId": "c1",
+   "kind": "teach",
+   "question": "A Primary 3 pupil asks: \"How can 6/8 and 3/4 be the same amount when the numbers are different?\" Explain it to them.",
+   "rubric": [
+    "Explains that dividing BOTH the numerator and denominator by the same number (e.g. 2) keeps the value the same",
+    "Uses a picture or example, e.g. 6 parts out of 8 covers the same amount as 3 parts out of 4",
+    "States that equivalent fractions show the same amount",
+    "Warns that you cannot change only the top or only the bottom number"
+   ],
+   "explanation": "The reasoning to convey is that multiplying or dividing top and bottom by the same number keeps the fraction's value unchanged, so the two fractions are the same amount.",
+   "citation": {
+    "page": 1,
+    "quote": "Equivalent fractions show the same amount."
+   },
+   "pos": [
+    4.682685578711714,
+    0,
+    -18.94136461860409
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t6",
+   "conceptId": "c2",
+   "kind": "choice",
+   "question": "Which is larger, 3/4 or 5/8?",
+   "choices": [
+    "3/4, because 3/4 = 6/8 and 6/8 > 5/8",
+    "5/8, because 5 > 3",
+    "3/4, because 4 < 8",
+    "They are equal"
+   ],
+   "answerIndex": 0,
+   "explanation": "Change 3/4 to eighths: 3/4 = 6/8. With the same denominator, compare numerators: 6 > 5, so 3/4 is larger.",
+   "citation": {
+    "page": 1,
+    "quote": "Which is larger, 3/4 or 5/8?"
+   },
+   "pos": [
+    -7,
+    0,
+    -40
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t7",
+   "conceptId": "c2",
+   "kind": "choice",
+   "question": "Arrange from smallest to largest: 2/3, 3/5, 7/10.",
+   "choices": [
+    "3/5, 7/10, 2/3",
+    "2/3, 3/5, 7/10",
+    "7/10, 2/3, 3/5",
+    "3/5, 2/3, 7/10"
+   ],
+   "answerIndex": 0,
+   "explanation": "Use a common denominator of 30: 2/3 = 20/30, 3/5 = 18/30, 7/10 = 21/30. Comparing numerators gives 18 < 20 < 21, so 3/5 < 2/3 < 7/10.",
+   "citation": {
+    "page": 1,
+    "quote": "Arrange from smallest to largest: 2/3, 3/5, 7/10."
+   },
+   "pos": [
+    -12.654617375948483,
+    0,
+    -37.56833255001585
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t8",
+   "conceptId": "c2",
+   "kind": "recall",
+   "question": "Ben thinks 1/8 is bigger than 1/6 because 8 is bigger than 6. What mistake did he make?",
+   "answerText": "A bigger denominator means more, smaller parts, so 1/8 is actually smaller than 1/6; he compared the denominators directly instead of the size of the parts.",
+   "explanation": "With unit fractions, the bigger the denominator, the more parts the whole is cut into, so each part is smaller. Ben compared the size of the numbers instead of the size of the parts.",
+   "citation": {
+    "page": 1,
+    "quote": "Ben thinks 1/8 is bigger than 1/6 because 8 is bigger than 6."
+   },
+   "pos": [
+    -9.632504269554325,
+    0,
+    -44.18389135711053
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t9",
+   "conceptId": "c2",
+   "kind": "teach",
+   "question": "Explain to a younger pupil why you must change fractions to a common denominator before comparing them.",
+   "rubric": [
+    "Explains that different denominators mean different-sized parts, so numerators cannot be compared directly",
+    "Shows an example, e.g. changing 3/4 and 5/8 both to eighths before comparing",
+    "States that a bigger numerator only means a bigger fraction when denominators are the same",
+    "Explains how to make a common denominator using equivalent fractions"
+   ],
+   "explanation": "The key reasoning is that only same-sized parts can be counted against each other; equivalent fractions with a common denominator create same-sized parts.",
+   "citation": {
+    "page": 1,
+    "quote": "To compare fractions with different denominators, first change them to equivalent fractions with a common denominator."
+   },
+   "pos": [
+    -7.079913690245175,
+    0,
+    -36.19039425352407
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t10",
+   "conceptId": "c3",
+   "kind": "choice",
+   "question": "Find the value of 1/2 + 1/3.",
+   "choices": [
+    "5/6",
+    "2/5",
+    "2/6",
+    "1/5"
+   ],
+   "answerIndex": 0,
+   "explanation": "Use a common denominator of 6: 1/2 = 3/6 and 1/3 = 2/6. Adding the numerators gives 5/6. You never add the denominators together.",
+   "citation": {
+    "page": 2,
+    "quote": "7. Find the value of 1/2 + 1/3."
+   },
+   "pos": [
+    13,
+    0,
+    -62
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t11",
+   "conceptId": "c3",
+   "kind": "choice",
+   "question": "Find the value of 3/4 − 2/5.",
+   "choices": [
+    "7/20",
+    "1/1",
+    "1/20",
+    "5/9"
+   ],
+   "answerIndex": 0,
+   "explanation": "Use a common denominator of 20: 3/4 = 15/20 and 2/5 = 8/20. Subtracting numerators: 15 − 8 = 7, so the answer is 7/20.",
+   "citation": {
+    "page": 2,
+    "quote": "8. Find the value of 3/4 - 2/5."
+   },
+   "pos": [
+    7.345382624051517,
+    0,
+    -59.56833255001585
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t12",
+   "conceptId": "c3",
+   "kind": "recall",
+   "question": "A pupil wrote 1/2 + 1/3 = 2/5. Without working out the answer, explain how you know 2/5 must be wrong.",
+   "answerText": "Because 1/2 + 1/3 must be more than 1/2, but 2/5 is less than 1/2, so the answer cannot be right — denominators were wrongly added instead of made common.",
+   "explanation": "Estimating first: adding 1/3 to 1/2 must give something bigger than 1/2, but 2/5 is smaller than 1/2. Estimating is the check the document recommends.",
+   "citation": {
+    "page": 2,
+    "quote": "Without working out the answer, explain how you know 2/5 must be wrong."
+   },
+   "pos": [
+    10.367495730445675,
+    0,
+    -66.18389135711053
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t13",
+   "conceptId": "c3",
+   "kind": "teach",
+   "question": "A Primary 4 pupil adds fractions by adding the tops and the bottoms, like 1/2 + 1/3 = 2/5. Explain to them why that does not work and what to do instead.",
+   "rubric": [
+    "Explains that denominators tell the size of the parts, so they are never added",
+    "Explains that the fractions must be changed to equivalent fractions with a common denominator first",
+    "Shows a correct example, e.g. 1/2 + 1/3 = 3/6 + 2/6 = 5/6",
+    "Mentions estimating first to check the answer is reasonable"
+   ],
+   "explanation": "The pupil must understand that adding fractions means counting same-sized parts, so the parts must first be made the same size with a common denominator.",
+   "citation": {
+    "page": 2,
+    "quote": "Never add the denominators together."
+   },
+   "pos": [
+    12.920086309754826,
+    0,
+    -58.19039425352407
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t14",
+   "conceptId": "c4",
+   "kind": "choice",
+   "question": "There are 24 pupils in a class. 3/8 of them wear glasses. How many pupils wear glasses?",
+   "choices": [
+    "9",
+    "72",
+    "3",
+    "8"
+   ],
+   "answerIndex": 0,
+   "explanation": "Divide by the denominator, then multiply by the numerator: 24 ÷ 8 = 3, and 3 × 3 = 9 pupils.",
+   "citation": {
+    "page": 2,
+    "quote": "There are 24 pupils in a class. 3/8 of them wear glasses."
+   },
+   "pos": [
+    -7,
+    0,
+    -84
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t15",
+   "conceptId": "c4",
+   "kind": "recall",
+   "question": "To find a fraction of a set, what two steps do you follow?",
+   "answerText": "Divide by the denominator, then multiply by the numerator.",
+   "explanation": "Dividing by the denominator finds the size of one equal part of the set; multiplying by the numerator counts how many of those parts you need.",
+   "citation": {
+    "page": 2,
+    "quote": "To find a fraction of a set, divide by the denominator and multiply by the numerator."
+   },
+   "pos": [
+    -12.654617375948483,
+    0,
+    -81.56833255001585
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t16",
+   "conceptId": "c4",
+   "kind": "choice",
+   "question": "A class of 30 pupils has 2/5 of them in the choir. Which calculation finds the number of choir members?",
+   "choices": [
+    "30 ÷ 5 × 2 = 12",
+    "30 × 2 = 60",
+    "30 ÷ 2 × 5 = 75",
+    "30 ÷ 5 = 6"
+   ],
+   "answerIndex": 0,
+   "explanation": "Divide by the denominator to find one fifth (30 ÷ 5 = 6), then multiply by the numerator to take 2 of those parts (6 × 2 = 12).",
+   "citation": {
+    "page": 2,
+    "quote": "divide by the denominator and multiply by the numerator"
+   },
+   "pos": [
+    -9.632504269554325,
+    0,
+    -88.18389135711053
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t17",
+   "conceptId": "c5",
+   "kind": "choice",
+   "question": "Ali had $30. He spent 2/5 of it on a book and 1/3 of the remaining money on a pen. How much did the pen cost?",
+   "choices": [
+    "$6",
+    "$10",
+    "$12",
+    "$3"
+   ],
+   "answerIndex": 0,
+   "explanation": "He spent 2/5 of $30 = $12, leaving $18. The pen costs 1/3 of the REMAINING $18 = $6, not 1/3 of the original $30.",
+   "citation": {
+    "page": 2,
+    "quote": "Ali had $30. He spent 2/5 of it on a book and 1/3 of the remaining money on a pen."
+   },
+   "pos": [
+    13,
+    0,
+    -106
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t18",
+   "conceptId": "c5",
+   "kind": "recall",
+   "question": "In a two-step fraction problem, why can you NOT always take the second fraction of the original total?",
+   "answerText": "Because the second fraction is often a fraction of the amount left over (the remainder), not the original total.",
+   "explanation": "You must check which whole the second fraction refers to — it is frequently the remaining amount after the first step, so a new 'whole' is used.",
+   "citation": {
+    "page": 2,
+    "quote": "always check which \"whole\" the second fraction is a fraction of — it is often the amount that is left, not the original total"
+   },
+   "pos": [
+    7.345382624051517,
+    0,
+    -103.56833255001585
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t19",
+   "conceptId": "c5",
+   "kind": "teach",
+   "question": "Explain to a younger pupil the difference between \"1/3 of $30\" and \"1/3 of the remaining money\" in a two-step problem.",
+   "rubric": [
+    "Explains that the first step uses the original total as the whole",
+    "Explains that after money is spent, the remainder becomes the new whole for the second fraction",
+    "Shows a worked example with numbers, e.g. $30 minus $12 leaves $18, then take 1/3 of $18",
+    "Warns that using the original total for the second step gives a wrong, too-big answer"
+   ],
+   "explanation": "The reasoning is that the 'whole' changes between steps: the second fraction acts on what is left, not on the original amount.",
+   "citation": {
+    "page": 2,
+    "quote": "it is often the amount that is left, not the original total"
+   },
+   "pos": [
+    10.367495730445675,
+    0,
+    -110.18389135711053
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t20",
+   "conceptId": "c6",
+   "kind": "choice",
+   "question": "Find the value of 3/4 ÷ 3.",
+   "choices": [
+    "1/4",
+    "9/4",
+    "3/12 simplified to 1/4",
+    "1/4 — wait, is 9/12 equal to 3/4?"
+   ],
+   "answerIndex": 0,
+   "explanation": "Dividing 3/4 by 3 shares 3 quarters into 3 equal groups, so each group is 1 quarter: 3/4 ÷ 3 = 1/4. The answer is smaller than the start, as sharing must be.",
+   "citation": {
+    "page": 2,
+    "quote": "Dividing a fraction by a whole number shares the fraction into equal groups, so the answer is smaller."
+   },
+   "pos": [
+    -7,
+    0,
+    -128
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t21",
+   "conceptId": "c6",
+   "kind": "recall",
+   "question": "When you divide a fraction by a whole number, is the answer bigger or smaller than the fraction you started with, and why?",
+   "answerText": "Smaller, because you are sharing the fraction into equal groups, so each group holds a smaller amount.",
+   "explanation": "Sharing into equal groups makes each part smaller; for example, 1/2 ÷ 4 = 1/8, which is less than 1/2.",
+   "citation": {
+    "page": 2,
+    "quote": "Dividing a fraction by a whole number shares the fraction into equal groups, so the answer is smaller. For example, 1/2 divided by 4 is 1/8."
+   },
+   "pos": [
+    -12.654617375948483,
+    0,
+    -125.56833255001585
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t22",
+   "conceptId": "c6",
+   "kind": "choice",
+   "question": "Using the example in the notes, what is 1/2 ÷ 4?",
+   "choices": [
+    "1/8",
+    "2",
+    "1/6",
+    "4/2"
+   ],
+   "answerIndex": 0,
+   "explanation": "The document states 1/2 divided by 4 is 1/8: sharing half into 4 equal groups gives one eighth per group.",
+   "citation": {
+    "page": 2,
+    "quote": "1/2 divided by 4 is 1/8"
+   },
+   "pos": [
+    -9.632504269554325,
+    0,
+    -132.18389135711053
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "t23",
+   "conceptId": "c6",
+   "kind": "teach",
+   "question": "A younger pupil asks why dividing 3/4 by 3 gives a SMALLER number. Explain the idea of sharing a fraction into equal groups.",
+   "rubric": [
+    "Explains that division means sharing into equal groups",
+    "Explains that each group must therefore get less than the whole 3/4",
+    "Shows an example, e.g. 3 quarters shared into 3 groups gives 1 quarter each",
+    "Connects it to a whole-number example, e.g. 12 sweets shared among 3 friends gives 4 each"
+   ],
+   "explanation": "The reasoning is that sharing splits an amount into equal smaller parts, so the result of dividing is always smaller than what you started with.",
+   "citation": {
+    "page": 2,
+    "quote": "Dividing a fraction by a whole number shares the fraction into equal groups, so the answer is smaller."
+   },
+   "pos": [
+    -7.079913690245175,
+    0,
+    -124.19039425352406
+   ],
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null
+  },
+  {
+   "id": "c1-cake",
+   "conceptId": "c1",
+   "kind": "model",
+   "pos": [
+    5.599140527801461,
+    0,
+    -28.624614623879793
+   ],
+   "question": "Serve 2/3 of the cake. It is cut into 6 equal slices.",
+   "explanation": "6 slices split into 3 equal groups is 2 each, so 2/3 is 2 × 2 = 4 slices.",
+   "citation": null,
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null,
+   "model": {
+    "shape": "cake",
+    "parts": 6,
+    "num": 2,
+    "den": 3
+   },
+   "answerIndex": 4
+  },
+  {
+   "id": "c2-bridge",
+   "conceptId": "c2",
+   "kind": "model",
+   "pos": [
+    -19.238795325112868,
+    0,
+    -43.8268343236509
+   ],
+   "question": "Lay 3/4 of the bridge. It needs 8 equal planks.",
+   "explanation": "8 planks split into 4 equal groups is 2 each, so 3/4 is 3 × 2 = 6 planks.",
+   "citation": null,
+   "state": "healthy",
+   "leitnerBox": 1,
+   "spawnedFrom": null,
+   "model": {
+    "shape": "bridge",
+    "parts": 8,
+    "num": 3,
+    "den": 4
+   },
+   "answerIndex": 6
+  }
+ ],
+ "generatedBy": "ai"
+}

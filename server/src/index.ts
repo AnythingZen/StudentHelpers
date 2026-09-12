@@ -3,7 +3,7 @@
 // catching any call that throws or times out.
 
 import express from 'express';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createApp } from './app.js';
 import { withFallback, type Brain } from './brain.js';
@@ -57,6 +57,10 @@ const { app, store } = createApp({
 // The two demo worlds, always present with their fixture room codes.
 store.put(addChallenges({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7', generatedBy: 'sample' }));
 store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN', generatedBy: 'sample' });
+// Room CAKE: the audience room on the demo slide. A world the real AI grew from the demo
+// worksheet, saved once (src/worlds/cake.json) so the room survives restarts and deploys.
+const cake = dir('./worlds/cake.json');
+if (existsSync(cake)) store.put({ ...freshWorld(JSON.parse(readFileSync(cake, 'utf8'))), worldId: 'CAKE', generatedBy: 'ai' });
 
 app.listen(PORT, () => {
   console.log(`Mastery Grove server on http://localhost:${PORT}`);

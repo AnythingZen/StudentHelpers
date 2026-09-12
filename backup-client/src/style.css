@@ -165,3 +165,27 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px; margin: 0 1px; b
 .challenge-tag { font-size: 14px; background: rgba(120,60,110,.78); padding: 3px 10px; border-radius: 99px; }
 .challenge-tag.done { background: rgba(47,125,79,.85); }
 #stage canvas { cursor: default; }
+
+/* ---- phones: tap to walk, everything stacked so nothing overlaps ---- */
+#stage canvas { touch-action: none; }
+.touch #prompt { pointer-events: auto; cursor: pointer; }
+.touch #look-hint { display: none !important; }
+@media (max-width: 640px) {
+  #hud .bars, #hud .room span { display: none; }
+  #corner { left: 14px; right: 14px; width: auto; justify-items: stretch; }
+  .corner-buttons { justify-content: flex-end; }
+  .mission { padding: 8px 12px; gap: 4px; }
+  .mission-head b { font-size: 14px; }
+  .objectives li:not(.next), .mission small, .memory { display: none; }
+  .question-card { top: auto; bottom: 70px; width: calc(100vw - 28px); font-size: 14px; }
+  .challenge { top: auto; bottom: 14px; width: calc(100vw - 28px); }
+  .challenge .row { flex-wrap: wrap; }
+  .dialog { top: 150px; bottom: auto; left: 14px; right: 14px; width: auto; grid-template-columns: 36px 1fr; }
+  .dialog .portrait { width: 36px; height: 36px; font-size: 22px; }
+  #toasts { top: auto; bottom: 250px; left: 14px; right: 14px; width: auto; }
+  .toast { max-width: none; font-size: 13px; padding: 8px 12px; }
+  #prompt { bottom: 14px; max-width: calc(100vw - 28px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px; padding: 12px 18px; }
+  #fox { bottom: 32%; width: calc(100vw - 28px); }
+  .fox-buttons { flex-wrap: wrap; justify-content: center; }
+  #banner { font-size: 17px; padding: 12px 16px; width: calc(100vw - 28px); }
+}

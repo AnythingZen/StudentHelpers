@@ -14,6 +14,9 @@ import { AnswerStones } from './stones';
 import { ForestScene } from './world3d';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+// Phones and tablets: tap the ground to walk, tap the prompt to interact.
+const TOUCH = window.matchMedia('(pointer: coarse)').matches;
+if (TOUCH) document.body.classList.add('touch');
 const INTERACT_RANGE = 3.4;
 const WALK = 6, SPRINT = 11;
 
@@ -193,7 +196,14 @@ function start(room: string, name: string, first: StateResponse): void {
   $<HTMLButtonElement>('challenge-serve').onclick = () => void serveChallenge();
   $<HTMLButtonElement>('challenge-clear').onclick = () => { challenge?.view.clear(); showCount(); };
   $<HTMLButtonElement>('challenge-leave').onclick = () => closeChallenge();
+  const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   canvas.addEventListener('pointerdown', e => {
+    if (!challenge && TOUCH && !typing()) {
+      raycaster.setFromCamera(new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1), camera);
+      const hit = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      if (hit) autoTarget = new THREE.Vector3(Math.max(-48, Math.min(48, hit.x)), 0, Math.max(-140, Math.min(16, hit.z)));
+      return;
+    }
     if (!challenge || !$('fox').hidden) return;
     raycaster.setFromCamera(new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1), camera);
     const i = challenge.view.pick(raycaster);
@@ -224,6 +234,15 @@ function start(room: string, name: string, first: StateResponse): void {
     }
   }
   drawMissions();
+
+  $('prompt').addEventListener('click', () => { if (TOUCH) void interact(); });
+  if (TOUCH) {
+    $('tutorial').querySelector('ol')!.innerHTML = `
+      <li><b>👆 Tap the ground</b> to walk there.</li>
+      <li><b>✨ Follow the beacon</b> to a tree, then tap the black prompt at the bottom.</li>
+      <li><b>🪨 Tap a stone</b> to walk onto it and answer. The fox asks how sure you are.</li>
+      <li><b>🎯 Finish your mission</b> (top) and reflect to unlock the next grove.</li>`;
+  }
 
   // First time in: three lines on how to play, then out of the way.
   if (params.get('tutorial') !== '0' && !store.get('mg-tutorial')) {
