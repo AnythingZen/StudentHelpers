@@ -8,8 +8,9 @@ export interface DemoSeed {
   cohort: number;
   classMastered: number;
   goal: string;
-  // Keyed by misconception id. Only matches worlds built from the committed
-  // fixtures; a world from a real model has different ids and shows real data only.
+  // Keyed by the misconception's exact LABEL, not its id: a model-generated world
+  // reuses ids like "m3" for entirely different misconceptions, and keying by id
+  // would stamp fake class counts onto real labels.
   misconceptions: Record<string, { count: number; students: number }>;
 }
 
@@ -18,14 +19,20 @@ export const DEMO_SEED: DemoSeed = {
   classMastered: 36,
   goal: 'The Castle Library',
   misconceptions: {
-    m3: { count: 11, students: 11 }, m5: { count: 6, students: 6 }, m7: { count: 4, students: 4 },
-    rm2: { count: 9, students: 9 }, rm3: { count: 5, students: 5 },
+    'Compares fractions by numerator alone, so 5/8 > 3/4': { count: 11, students: 11 },
+    'Adds numerators and denominators separately: 1/2 + 1/3 = 2/5': { count: 6, students: 6 },
+    'Takes the fraction of the wrong whole': { count: 4, students: 4 },
+    'Guesses a word from how it looks rather than from the sentence around it': { count: 9, students: 9 },
+    'Reports what a character did instead of why — literal instead of inferential': { count: 5, students: 5 },
   },
 };
 
 export const EMPTY_SEED: DemoSeed = { cohort: 1, classMastered: 0, goal: 'The Castle Library', misconceptions: {} };
 
-export function teacherView(world: ServerWorld, events: AnswerEvent[], seed: DemoSeed) {
+export function teacherView(world: ServerWorld, events: AnswerEvent[], demoSeed: DemoSeed) {
+  // The seeded class only applies to the committed sample worlds. Anything the AI
+  // generated shows real, live numbers and nothing else.
+  const seed = world.misconceptions.some(m => demoSeed.misconceptions[m.label]) ? demoSeed : EMPTY_SEED;
   const players = new Set(events.map(e => e.playerId));
   const concepts = world.concepts.map(c => {
     const own = events.filter(e => e.conceptId === c.id);
@@ -41,7 +48,7 @@ export function teacherView(world: ServerWorld, events: AnswerEvent[], seed: Dem
     .filter(m => m.id !== 'unclassified')
     .map(m => {
       const real = events.filter(e => e.misconceptionId === m.id);
-      const s = seed.misconceptions[m.id];
+      const s = seed.misconceptions[m.label];
       return {
         id: m.id, label: m.label, conceptId: m.conceptId,
         count: (s?.count ?? 0) + real.length,

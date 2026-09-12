@@ -170,6 +170,22 @@ describe('GET /api/teacher', () => {
   });
 });
 
+describe('demo seed honesty', () => {
+  it('never attaches seeded class counts to an AI-generated world, even when ids collide', async () => {
+    // A model-generated world reuses ids like "m3" for completely different misconceptions.
+    const base = freshWorld(loadFixture('maths'));
+    const ai: ServerWorld = {
+      ...base, worldId: 'AIAI',
+      misconceptions: base.misconceptions.map(m => ({ ...m, label: `AI-generated: ${m.id}` })),
+    };
+    const { http } = setup({ world: ai });
+    const view = (await http.get('/api/teacher/AIAI')).body;
+    expect(view.demoSeeded).toBe(false);
+    expect(view.misconceptions).toEqual([]);          // no fake "11 students" on a real label
+    expect(view.classWorld.total).toBe(1);
+  });
+});
+
 describe('POST /api/deploy-quest', () => {
   it('adds new trees for one misconception near the entrance', async () => {
     const { http, store } = setup();
