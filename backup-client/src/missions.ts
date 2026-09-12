@@ -5,7 +5,7 @@ import type { Tree, World } from '../../server/src/contract';
 import type { PlayerProgress } from './net';
 
 type Mission = PlayerProgress['missions'][number];
-const ICON: Record<string, string> = { answer: '🎯', recall: '🧠', teach: '💬', focus: '🍎', review: '🌱', reflect: '🪞' };
+const ICON: Record<string, string> = { answer: '🎯', recall: '🧠', teach: '💬', model: '🛠️', focus: '🍎', review: '🌱', reflect: '🪞' };
 
 /** Which tree the beacon should stand on: the nearest tree that advances the first unfinished objective. */
 export function beaconTree(world: World<Tree>, me: PlayerProgress, from: { x: number; z: number }): Tree | null {
@@ -21,6 +21,7 @@ export function beaconTree(world: World<Tree>, me: PlayerProgress, from: { x: nu
       o.kind === 'answer' ? nearest(base.filter(t => t.kind === 'choice' && notYet(t)))
       : o.kind === 'recall' ? nearest(base.filter(t => t.kind === 'recall' && notYet(t)))
       : o.kind === 'teach' ? nearest(base.filter(t => t.kind === 'teach' && notYet(t)))
+      : o.kind === 'model' ? nearest(base.filter(t => t.kind === 'model' && notYet(t)))
       : o.kind === 'focus' ? nearest(inGrove.filter(t => t.spawnedFrom?.startsWith('quest:') && notYet(t)))
       // Missed questions: your sapling up the path if there is one, else the withered tree itself.
       : o.kind === 'review' ? nearest(inGrove.filter(t => t.state === 'sapling')) ?? nearest(base.filter(t => t.state === 'withered' || t.state === 'regrown'))

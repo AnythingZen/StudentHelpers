@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { createApp, topicHintFromUrl } from './app.js';
+import { addChallenges } from './challenges.js';
 import { withFallback } from './brain.js';
 import { createFallbackBrain, freshWorld, loadFixture } from './fallbackBrain.js';
 import type { Brain } from './brain.js';
@@ -353,5 +354,19 @@ describe('a link the AI cannot read', () => {
     expect(topicHintFromUrl('https://www.khanacademy.org/math/cc-fifth-grade-math/imp-fractions-3')).toBe('fractions');
     expect(topicHintFromUrl('https://en.wikipedia.org/wiki/Photosynthesis')).toBe('photosynthesis');
     expect(topicHintFromUrl('not a url')).toBe('');
+  });
+});
+
+describe('hands-on challenges through the API', () => {
+  it('grades the cake by count, diagnoses the numerator mistake, and counts toward the mission', async () => {
+    const { http } = setup({ world: addChallenges({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7' }) });
+    const wrong = await answer(http, { treeId: 'c1-cake', response: 2, confidence: 'high' });
+    expect(wrong.body).toMatchObject({ correct: false, misconceptionId: 'c1-cake-numerator', calibration: 'overconfident' });
+    expect(wrong.body.misconceptionLabel).toMatch(/top number/);
+    expect(wrong.body.scaffoldHint).toMatch(/\?$/);
+    expect((await answer(http, { treeId: 'c1-cake', response: 7 })).status).toBe(400);
+    expect((await answer(http, { treeId: 'c1-cake', response: 4 })).body.correct).toBe(true);
+    const me = (await http.get('/api/state/OAK7?playerId=p1')).body.me;
+    expect(me.missions[0].objectives.find((o: { kind: string }) => o.kind === 'model')).toMatchObject({ done: true });
   });
 });

@@ -10,6 +10,7 @@ import { toClientWorld } from './clientWorld.js';
 import type {
   AnswerResponse, Calibration, Confidence, Explanation, ServerWorld, SourceKind, SpawnInput, Syllabus,
 } from './contract.js';
+import { addChallenges, gradeModel } from './challenges.js';
 import { ensureLayout, layoutReviews, placeNewTrees, placeSapling } from './layout.js';
 import { PresenceBoard } from './presence.js';
 import { playerProgress, roster, treesFor } from './progress.js';
@@ -217,9 +218,9 @@ export function createApp(deps: AppDeps) {
           }
         }
         // Anything a brain returns without a label came from a model.
-        store.put(ensureLayout({
+        store.put(addChallenges(ensureLayout({
           ...final, worldId, status: 'ready', sessionIndex: 0, generatedBy: final.generatedBy ?? 'ai', ...(notice ? { notice } : {}),
-        }));
+        })));
       } catch (err) {
         log(`[world ${worldId}] spawn failed: ${(err as Error).message}`);
         store.update(worldId, w => ({ ...w, status: 'failed' }));
@@ -254,12 +255,20 @@ export function createApp(deps: AppDeps) {
 
     let correct: boolean;
     let explanation: Explanation | undefined;
+    let modelGrade: ReturnType<typeof gradeModel> | null = null;
     if (tree.kind === 'choice') {
       const n = body.response;
       if (typeof n !== 'number' || !Number.isInteger(n) || n < 0 || n >= (tree.choices?.length ?? 0)) {
         throw new HttpError(400, 'response must be the index of one of the choices');
       }
       correct = n === tree.answerIndex;
+    } else if (tree.kind === 'model') {
+      const n = body.response;
+      if (typeof n !== 'number' || !Number.isInteger(n) || n < 0 || n > (tree.model?.parts ?? 0)) {
+        throw new HttpError(400, 'response must be how many pieces you chose');
+      }
+      modelGrade = gradeModel(tree, n);
+      correct = modelGrade.correct;
     } else {
       const text = typeof body.response === 'string' ? body.response.trim() : '';
       if (text.length < MIN_ANSWER || text.length > MAX_ANSWER) {
@@ -274,7 +283,10 @@ export function createApp(deps: AppDeps) {
     }
 
     // Teach trees get Mia's reaction instead of a misconception diagnosis.
-    const diagnosis = !correct && tree.kind !== 'teach' ? await brain.diagnose(tree, body.response, world) : null;
+    // Hands-on challenges diagnose themselves from the count; no model call.
+    const diagnosis = correct || tree.kind === 'teach' ? null
+      : modelGrade ? { misconceptionId: modelGrade.misconceptionId ?? 'unclassified', confidence: 1, scaffoldHint: modelGrade.hint ?? '', evidence: `chose ${body.response}` }
+      : await brain.diagnose(tree, body.response, world);
 
     // Re-read: another answer may have landed while we awaited the brain.
     const current = store.require(worldId);

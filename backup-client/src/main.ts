@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import type { AnswerResponse, Concept, Tree, World } from '../../server/src/contract';
 import { Avatar, makeFox, makeProfessorByte } from './avatar';
+import type { ChallengeView } from './challenge';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { askConfidence, banner, Bubble, calibrationLine, setBars, setPrompt, toast } from './hud';
 import { askReflection, beaconTree, judgmentFeedback, renderMissionPanel } from './missions';
@@ -126,6 +127,13 @@ function start(room: string, name: string, first: StateResponse): void {
         face: (x: number, z: number) => { yaw = Math.atan2(-(x - pos.x), -(z - pos.z)); },
         busy: () => busy,
         me: () => me,
+        challengeOpen: () => challenge !== null,
+        // Screen pixel of a cake slice / bridge plank, so a recording can click it for real.
+        pieceScreen: (i: number) => {
+          if (!challenge) return null;
+          const v = challenge.view.pieceWorld(i).project(camera);
+          return [((v.x + 1) / 2) * window.innerWidth, ((1 - v.y) / 2) * window.innerHeight];
+        },
         beacon: () => beaconTree(world, me!, { x: pos.x, z: pos.z })?.id ?? null,
       },
     });
@@ -142,6 +150,55 @@ function start(room: string, name: string, first: StateResponse): void {
 
   const lockedFor = (conceptId: string) =>
     me ? !(me.missions.find(m => m.conceptId === conceptId)?.unlocked ?? true) : isLocked(world, conceptId);
+
+  // ---- hands-on challenges: build the fraction with real pieces
+  let challenge: { tree: Tree; view: ChallengeView } | null = null;
+  const raycaster = new THREE.Raycaster();
+  const showCount = () => {
+    if (!challenge) return;
+    const { view } = challenge;
+    $('challenge-n').textContent = String(view.count());
+    $('challenge-total').textContent = String(view.spec.parts);
+    $('challenge-thing').textContent = view.thing;
+  };
+  function openChallenge(tree: Tree): void {
+    const view = forest.model(tree.id);
+    if (!view || !tree.model) return;
+    challenge = { tree, view };
+    busy = true;
+    stones.clear(); bubble.close(); setPrompt(null);
+    document.exitPointerLock();
+    view.clear();
+    const cake = tree.model.shape === 'cake';
+    $('challenge-kind').textContent = cake ? '🎂 Hands-on challenge' : '🌉 Bridge checkpoint';
+    $('challenge-q').textContent = tree.question;
+    $('challenge-help').textContent = `Click the ${view.thing} to choose them — or press 1–${tree.model.parts}`;
+    $<HTMLButtonElement>('challenge-serve').textContent = cake ? 'Serve it (Enter)' : 'Build it (Enter)';
+    $('challenge').hidden = false;
+    showCount();
+  }
+  function closeChallenge(): void {
+    challenge = null;
+    $('challenge').hidden = true;
+    busy = false;
+  }
+  async function serveChallenge(): Promise<void> {
+    if (!challenge || !$('fox').hidden) return;
+    const { tree, view } = challenge;
+    if (view.count() === 0) { toast(`Choose some ${view.thing} first`, 'bad'); return; }
+    const confidence = await askConfidence();
+    await submit(tree, view.count(), confidence);
+    busy = challenge !== null;           // stay in the challenge until it's solved or left
+  }
+  $<HTMLButtonElement>('challenge-serve').onclick = () => void serveChallenge();
+  $<HTMLButtonElement>('challenge-clear').onclick = () => { challenge?.view.clear(); showCount(); };
+  $<HTMLButtonElement>('challenge-leave').onclick = () => closeChallenge();
+  canvas.addEventListener('pointerdown', e => {
+    if (!challenge || !$('fox').hidden) return;
+    raycaster.setFromCamera(new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1), camera);
+    const i = challenge.view.pick(raycaster);
+    if (i !== null) { challenge.view.toggle(i); showCount(); }
+  });
 
   // ---- missions and reflection
   const prompted = new Set<string>();     // auto-open each mission's reflection once
@@ -186,6 +243,14 @@ function start(room: string, name: string, first: StateResponse): void {
   // ---- input
   window.addEventListener('keydown', e => {
     if (typing()) return;
+    if (challenge) {
+      if (!$('fox').hidden) return;                     // the fox has the number keys
+      const n = Number(e.key);
+      if (n >= 1 && n <= challenge.view.spec.parts) { challenge.view.toggle(n - 1); showCount(); }
+      if (e.code === 'Enter') void serveChallenge();
+      if (e.code === 'Escape') closeChallenge();
+      return;
+    }
     keys.add(e.code);
     if (e.code === 'KeyE') interact();
     if (e.code === 'KeyR' && me?.current) void reflectOn(me.current);
@@ -194,7 +259,7 @@ function start(room: string, name: string, first: StateResponse): void {
   });
   window.addEventListener('keyup', e => keys.delete(e.code));
   window.addEventListener('blur', () => keys.clear());
-  canvas.addEventListener('click', () => { if (!bubble.open) canvas.requestPointerLock(); });
+  canvas.addEventListener('click', () => { if (!bubble.open && !challenge) canvas.requestPointerLock(); });
   document.addEventListener('mousemove', e => {
     if (!locked()) return;
     yaw -= e.movementX * 0.0025;
@@ -217,6 +282,7 @@ function start(room: string, name: string, first: StateResponse): void {
     if (!near || near.locked) return;
     const { tree } = near;
     const quest = conceptOf(tree)?.questName ?? 'the grove';
+    if (tree.kind === 'model') { openChallenge(tree); return; }
     if (tree.kind === 'choice') {
       stones.show(tree, quest, pos);
       toast(`Quest accepted: ${quest}`);
@@ -264,6 +330,21 @@ function start(room: string, name: string, first: StateResponse): void {
       if (res.correct) { forest.cheer('seed-mia', now); toast('💬 You helped Mia understand it. +25 XP', 'good'); }
       return;
     }
+    if (tree.kind === 'model' && challenge) {
+      const { view } = challenge;
+      const m = tree.model!;
+      if (res.correct) {
+        view.celebrate();
+        toast(`${m.shape === 'cake' ? '🎂' : '🌉'} Exactly ${m.num}/${m.den} — ${view.count()} of ${m.parts} ${view.thing}`, 'good', 5000);
+        setTimeout(closeChallenge, 2200);
+      } else {
+        const lead = res.calibration === 'overconfident' ? 'You were very sure about that one. ' : '';
+        // Dialogue only: his body would stand between the camera and the cake.
+        bubble.say(new THREE.Vector3(), 'Professor Byte', lead + (res.scaffoldHint ?? `How many ${view.thing} make 1/${m.den}?`), 10000);
+        toast(`⚠️ ${view.count()} ${view.thing} isn't ${m.num}/${m.den} — try again`, 'bad', 4500);
+      }
+      return;
+    }
     if (res.correct) {
       stones.sink(now);
       bubble.close();
@@ -301,7 +382,7 @@ function start(room: string, name: string, first: StateResponse): void {
     drawMissions();
     // The moment a mission's work is done, ask for the reflection that finishes it.
     const ready = me?.missions.find(m => m.ready && !m.complete && m.unlocked);
-    if (ready && !prompted.has(ready.conceptId) && !busy && !stones.open) setTimeout(() => void reflectOn(ready.conceptId), 1800);
+    if (ready && !prompted.has(ready.conceptId) && !busy && !stones.open && !challenge) setTimeout(() => void reflectOn(ready.conceptId), 1800);
   }
 
   async function refresh(): Promise<void> {
@@ -329,6 +410,7 @@ function start(room: string, name: string, first: StateResponse): void {
   timer.connect(document);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), camTarget = new THREE.Vector3();
   let jumpT = 0;                           // seconds into a jump; 0 = on the ground
+  const camLook = new THREE.Vector3(0, 1.8, 10);
 
   renderer.setAnimationLoop(ts => {
     timer.update(ts);
@@ -339,7 +421,7 @@ function start(room: string, name: string, first: StateResponse): void {
     forward.set(-Math.sin(yaw), 0, -Math.cos(yaw));
     right.set(-forward.z, 0, forward.x);
     let moveX = 0, moveZ = 0;
-    if (!typing() && !busy) {
+    if (!typing() && !busy && !challenge) {
       if (keys.has('KeyW') || keys.has('ArrowUp')) { moveX += forward.x; moveZ += forward.z; }
       if (keys.has('KeyS') || keys.has('ArrowDown')) { moveX -= forward.x; moveZ -= forward.z; }
       if (keys.has('KeyD') || keys.has('ArrowRight')) { moveX += right.x; moveZ += right.z; }
@@ -376,10 +458,18 @@ function start(room: string, name: string, first: StateResponse): void {
     fox.position.set(pos.x + right.x * 1.2 - forward.x * 0.4, Math.abs(Math.sin(t * 9)) * (speed ? 0.1 : 0), pos.z + right.z * 1.2 - forward.z * 0.4);
     fox.rotation.y = yaw + Math.PI;
 
-    // Third person: the camera trails behind and slightly above the avatar.
-    camTarget.set(pos.x - forward.x * 7, 3.2 + pitch * 4, pos.z - forward.z * 7);
-    camera.position.lerp(camTarget, 1 - Math.exp(-dt * 8));
-    camera.lookAt(pos.x + forward.x * 2, 1.8, pos.z + forward.z * 2);
+    // Third person: the camera trails behind and slightly above the avatar — or, in a
+    // challenge, looks down at the cake or bridge so the pieces are big enough to click.
+    if (challenge) {
+      const f = challenge.view.focus(pos);
+      camera.position.lerp(f.cam, 1 - Math.exp(-dt * 6));
+      camLook.lerp(f.look, 1 - Math.exp(-dt * 6));
+    } else {
+      camTarget.set(pos.x - forward.x * 7, 3.2 + pitch * 4, pos.z - forward.z * 7);
+      camera.position.lerp(camTarget, 1 - Math.exp(-dt * 8));
+      camLook.lerp(new THREE.Vector3(pos.x + forward.x * 2, 1.8, pos.z + forward.z * 2), 1 - Math.exp(-dt * 12));
+    }
+    camera.lookAt(camLook);
 
     // Walk onto a stone to answer; the fox asks how sure you are first.
     const chosen = stones.update(dt, pos, now);
@@ -391,10 +481,11 @@ function start(room: string, name: string, first: StateResponse): void {
 
     // Prompt for whatever is in reach.
     const near = nearestTree();
-    if (stones.open || bubble.open || busy || !near) setPrompt(null);
+    if (stones.open || bubble.open || busy || challenge || !near) setPrompt(null);
     else {
       const quest = conceptOf(near.tree)?.questName ?? 'the grove';
       setPrompt(near.locked ? `🔒 ${quest} is locked — finish your current mission first`
+        : near.tree.kind === 'model' ? `E · ${near.tree.model?.shape === 'bridge' ? '🌉 Bridge checkpoint' : '🎂 Cake challenge'} — ${quest}`
         : near.tree.kind === 'teach' ? `E · Mia is stuck on ${quest}. Help her.`
         : near.tree.kind === 'recall' ? `E · Answer from memory — ${quest}`
         : `E · Quest: ${quest}`);

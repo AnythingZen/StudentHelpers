@@ -7,7 +7,9 @@
 
 export type Bloom = 'remember' | 'understand' | 'apply';
 export type TreeState = 'healthy' | 'withered' | 'sapling' | 'regrown';
-export type TreeKind = 'choice' | 'recall' | 'teach';
+// 'model': a hands-on challenge — build a fraction with real objects (cake slices,
+// bridge planks). Graded by the server from the count, no AI call needed.
+export type TreeKind = 'choice' | 'recall' | 'teach' | 'model';
 export type Confidence = 'low' | 'medium' | 'high';
 export type Calibration = 'overconfident' | 'underconfident' | 'calibrated';
 export type WorldStatus = 'growing' | 'ready' | 'failed';
@@ -67,6 +69,8 @@ export interface Tree {
   spawnedFrom: string | null;
   // Saplings only: the student whose miss planted it. Each student sees their own.
   ownerId?: string;
+  // Model challenges only: what to build. Answer = parts × num / den pieces.
+  model?: { shape: 'cake' | 'bridge'; parts: number; num: number; den: number };
 }
 
 // Server-side only. The answer key never reaches a browser.

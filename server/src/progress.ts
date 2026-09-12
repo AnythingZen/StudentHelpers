@@ -15,7 +15,7 @@ export interface Reflection {
   note: string;
 }
 
-export type ObjectiveKind = 'answer' | 'recall' | 'teach' | 'focus' | 'review' | 'reflect';
+export type ObjectiveKind = 'answer' | 'recall' | 'teach' | 'model' | 'focus' | 'review' | 'reflect';
 export interface Objective { kind: ObjectiveKind; label: string; progress: number; target: number; done: boolean }
 
 export interface Mission {
@@ -58,7 +58,7 @@ function rootResolver(world: ServerWorld) {
 }
 
 // Path order: prerequisites first, then nearest the entrance.
-function orderedConcepts(world: ServerWorld) {
+export function orderedConcepts(world: ServerWorld) {
   const depth = new Map<string, number>();
   const depthOf = (id: string, seen = new Set<string>()): number => {
     if (depth.has(id)) return depth.get(id)!;
@@ -98,6 +98,8 @@ export function playerProgress(world: ServerWorld, events: AnswerEvent[], reflec
     if (recall.length) add('recall', 'Answer one from memory', hits(recall), 1);
     const teach = base.filter(t => t.kind === 'teach');
     if (teach.length) add('teach', 'Help Mia understand it', hits(teach), 1);
+    const model = base.filter(t => t.kind === 'model');
+    if (model.length) add('model', model[0]!.model?.shape === 'bridge' ? 'Checkpoint: build the bridge' : 'Hands-on: serve the cake', hits(model), model.length);
     if (quests.length) {
       const n = Math.min(2, quests.length);
       add('focus', `Your teacher's focus quest (${plural(n, 'tree')})`, hits(quests), n);

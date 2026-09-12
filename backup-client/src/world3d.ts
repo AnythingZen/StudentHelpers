@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import type { Player, Tree, World } from '../../server/src/contract';
 import { Avatar } from './avatar';
+import { ChallengeView } from './challenge';
 import type { PlayerProgress } from './net';
 import { removeWithLabels } from './labels';
 import { conceptHealth, isLocked } from './rules';
@@ -65,7 +66,7 @@ export class ForestScene {
   private readonly ground: THREE.Mesh;
   private readonly path: THREE.Mesh;
   private readonly hemi: THREE.HemisphereLight;
-  private trees = new Map<string, TreeView>();
+  private trees = new Map<string, TreeView | ChallengeView>();
   private groves = new Map<string, { obj: CSS2DObject; el: HTMLDivElement }>();
   private bridges = new Map<string, Bridge>();
   private others = new Map<string, Other>();
@@ -183,18 +184,24 @@ export class ForestScene {
     if (world.subject !== this.subject) {
       this.subject = world.subject;
       this.applySkin(world.subject);
-      this.trees.forEach(v => this.scene.remove(v.group));
+      this.trees.forEach(v => removeWithLabels(this.scene, v.group));
       this.trees.clear();
     }
     const seen = new Set<string>();
     for (const t of world.trees) {
       seen.add(t.id);
       let view = this.trees.get(t.id);
-      if (!view) { view = new TreeView(t.id, this.skin); this.trees.set(t.id, view); this.scene.add(view.group); }
+      if (!view) {
+        view = t.kind === 'model' && t.model ? new ChallengeView(t.id, t.model) : new TreeView(t.id, this.skin);
+        this.trees.set(t.id, view);
+        this.scene.add(view.group);
+      }
       view.group.position.set(t.pos[0], 0, t.pos[2]);
+      // Face the path, so the student walks up to the front of a challenge.
+      if (view instanceof ChallengeView) view.group.rotation.y = Math.atan2(-t.pos[0], 4);
       view.setState(t.state, t.leitnerBox >= 2, lockedOf(t.conceptId));
     }
-    for (const [id, view] of this.trees) if (!seen.has(id)) { this.scene.remove(view.group); this.trees.delete(id); }
+    for (const [id, view] of this.trees) if (!seen.has(id)) { removeWithLabels(this.scene, view.group); this.trees.delete(id); }
 
     const changes: Array<{ conceptId: string; change: number }> = [];
     for (const c of world.concepts) {
@@ -245,6 +252,11 @@ export class ForestScene {
       o.yaw = p.yaw;
     }
     for (const [id, o] of this.others) if (!seen.has(id)) { removeWithLabels(this.scene, o.avatar.group); this.others.delete(id); }
+  }
+
+  model(id: string): ChallengeView | null {
+    const v = this.trees.get(id);
+    return v instanceof ChallengeView ? v : null;
   }
 
   setBeacon(at: [number, number] | null): void {

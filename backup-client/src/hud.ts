@@ -49,7 +49,8 @@ export function askConfidence(): Promise<Confidence> {
     };
     const onKey = (e: KeyboardEvent) => {
       const c = ({ Digit1: 'low', Digit2: 'medium', Digit3: 'high' } as const)[e.code as 'Digit1'];
-      if (c) { e.preventDefault(); done(c); }
+      // Stop here: the number keys also toggle challenge pieces, and must not do both.
+      if (c) { e.preventDefault(); e.stopImmediatePropagation(); done(c); }
     };
     window.addEventListener('keydown', onKey, true);
     el.querySelectorAll<HTMLButtonElement>('button').forEach(b => (b.onclick = () => done(b.dataset.c as Confidence)));

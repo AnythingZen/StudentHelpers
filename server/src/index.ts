@@ -7,6 +7,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createApp } from './app.js';
 import { withFallback, type Brain } from './brain.js';
+import { addChallenges } from './challenges.js';
 import { createFallbackBrain, freshWorld, loadFixture } from './fallbackBrain.js';
 
 // Local secrets: server/.env, then the repo-root .env Builder B's CLI also reads.
@@ -54,7 +55,7 @@ const { app, store } = createApp({
 });
 
 // The two demo worlds, always present with their fixture room codes.
-store.put({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7', generatedBy: 'sample' });
+store.put(addChallenges({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7', generatedBy: 'sample' }));
 store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN', generatedBy: 'sample' });
 
 app.listen(PORT, () => {
