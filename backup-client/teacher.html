@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mastery Grove · Teacher</title>
+    <link rel="stylesheet" href="/src/teacher/teacher.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Mastery Grove <span>Teacher</span></h1>
+      <label class="room-picker">Room <select id="room-select"><option value="">—</option></select></label>
+    </header>
+
+    <main>
+      <!-- 1. spawn a world -->
+      <section class="card spawn">
+        <h2>Spawn a world</h2>
+        <div class="syllabus">
+          <label>Subject <select id="subject"></select></label>
+          <label>Level <select id="level"></select></label>
+          <label>Topic <select id="topic"></select></label>
+        </div>
+        <p class="hint">MOE Singapore syllabus. Imagine any syllabus — we've loaded this one.</p>
+        <div class="tabs" role="tablist">
+          <button role="tab" data-kind="pdf" class="active">Upload PDF</button>
+          <button role="tab" data-kind="url">Paste a link</button>
+          <button role="tab" data-kind="text">Paste text</button>
+          <button role="tab" data-kind="prompt">Just a topic</button>
+        </div>
+        <div class="tab-body" data-kind="pdf"><input id="pdf" type="file" accept="application/pdf" /></div>
+        <div class="tab-body" data-kind="url" hidden>
+          <input id="url" type="url" placeholder="https://www.gutenberg.org/cache/epub/14838/pg14838.txt" />
+          <small>Works: Project Gutenberg, Wikipedia, OpenStax, public PDFs. Not Khan Academy.</small>
+        </div>
+        <div class="tab-body" data-kind="text" hidden><textarea id="text" placeholder="Paste the lesson or worksheet text…"></textarea></div>
+        <div class="tab-body" data-kind="prompt" hidden><small>Spawns from the syllabus alone — your safety net if an upload misbehaves.</small></div>
+        <button id="spawn" class="primary">Spawn the forest</button>
+        <p id="spawn-status" class="status" role="status"></p>
+      </section>
+
+      <!-- 2. the live room -->
+      <section class="card room" id="room-card" hidden>
+        <div class="join">
+          <div>
+            <div class="eyebrow">Students join with</div>
+            <div class="code" id="room-code">—</div>
+            <a id="join-link" target="_blank" rel="noopener"></a>
+          </div>
+          <div class="subject" id="room-subject"></div>
+        </div>
+        <div class="class-world">
+          <div class="eyebrow" id="class-goal">Class goal</div>
+          <div class="progress"><i id="class-bar"></i></div>
+          <div id="class-count"></div>
+        </div>
+        <div class="map-wrap">
+          <canvas id="map" width="560" height="640"></canvas>
+          <div id="tooltip" hidden></div>
+          <div class="legend">
+            <span><i style="background:rgb(63,154,95)"></i>mastered</span>
+            <span><i style="background:rgb(224,164,58)"></i>shaky</span>
+            <span><i style="background:rgb(138,90,59)"></i>not yet</span>
+            <span><i class="dot gold"></i>learned tree</span>
+            <span><i class="dot brown"></i>withered</span>
+            <span><i class="dot player"></i>student</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. what the class is stuck on -->
+      <section class="card insight" id="insight-card" hidden>
+        <h2>What the class is stuck on</h2>
+        <div id="weakest" class="weakest"></div>
+        <ol id="misconceptions" class="misconceptions"></ol>
+        <h2>Groves</h2>
+        <table class="groves"><thead><tr><th>Grove</th><th>Mastery</th><th>Attempts</th><th>Missed</th></tr></thead><tbody id="groves"></tbody></table>
+        <div class="actions">
+          <button id="next-session" class="secondary">Next Session → Memory Quest</button>
+        </div>
+        <p id="seed-note" class="note"></p>
+      </section>
+    </main>
+
+    <div id="toasts"></div>
+    <script type="module" src="/src/teacher/teacher.ts"></script>
+  </body>
+</html>

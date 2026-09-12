@@ -22,13 +22,20 @@ function entranceArc(count: number, z = ENTRANCE_Z): Vec3[] {
   });
 }
 
+const MIN_GAP = 2.5;   // trees closer than this overlap on screen and fight for the E prompt
+
 export function placeSapling(world: ServerWorld, saplingId: string): ServerWorld {
   const sap = world.trees.find(t => t.id === saplingId);
   const parent = sap?.spawnedFrom ? world.trees.find(t => t.id === sap.spawnedFrom) : undefined;
   if (!sap || !parent) return world;
   const n = world.trees.filter(t => t.spawnedFrom === parent.id).indexOf(sap);
-  const side = n % 2 === 0 ? 3 : -3;
-  return withPos(world, new Map([[saplingId, [parent.pos[0] + side, 0, parent.pos[2] - SAPLING_AHEAD]]]));
+  const side = n % 2 === 0 ? 1 : -1;
+  // Up the path from the parent, trying spots in order until one is clear of every other tree.
+  const offsets: Array<[number, number]> = [[3, 12], [-3, 12], [5, 10], [-5, 10], [0, 14], [6, 15], [-6, 15], [3, 17], [-3, 17]];
+  const others = world.trees.filter(t => t.id !== saplingId);
+  const candidates = offsets.map(([dx, dz]) => [parent.pos[0] + dx * side, 0, parent.pos[2] - dz] as Vec3);
+  const clear = candidates.find(c => others.every(t => distance(c, t.pos) >= MIN_GAP));
+  return withPos(world, new Map([[saplingId, clear ?? candidates[0]!]]));
 }
 
 // Trees answered last session and not yet retired come back to the entrance as

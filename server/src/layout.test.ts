@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { placeSapling, layoutReviews, placeNewTrees } from './layout.js';
 import { schedule } from './schedule.js';
+import { freshWorld, loadFixture } from './fallbackBrain.js';
 import type { ServerWorld, TreeWithAnswer } from './contract.js';
 
 const tree = (id: string, over: Partial<TreeWithAnswer> = {}): TreeWithAnswer => ({
@@ -19,6 +20,20 @@ describe('layout', () => {
     const sapId = w.trees.find(t => t.spawnedFrom === 't1')!.id;
     w = placeSapling(w, sapId);
     expect(w.trees.find(t => t.id === sapId)!.pos[2]).toBeLessThan(-40);
+  });
+
+  it('never plants a sapling on top of another tree', () => {
+    // On the real maths fixture the first-choice spot for t4's sapling is exactly
+    // where t15 (Mia's teach tree) stands.
+    let w = freshWorld(loadFixture('maths'));
+    w = schedule(w, 't4', false);
+    const sapId = w.trees.find(t => t.spawnedFrom === 't4')!.id;
+    w = placeSapling(w, sapId);
+    const sap = w.trees.find(t => t.id === sapId)!;
+    for (const t of w.trees.filter(x => x.id !== sapId)) {
+      expect(Math.hypot(sap.pos[0] - t.pos[0], sap.pos[2] - t.pos[2])).toBeGreaterThanOrEqual(2.5);
+    }
+    expect(sap.pos[2]).toBeLessThan(w.trees.find(t => t.id === 't4')!.pos[2]);
   });
 
   it('brings answered, un-retired trees to the entrance and leaves the rest', () => {

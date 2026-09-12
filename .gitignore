@@ -24,3 +24,6 @@ coverage/
 
 # backup client build output
 backup-client/dist/
+
+# walkthrough recorder output
+backup-client/walkthrough-out/

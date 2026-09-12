@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import type { Player, Tree, World } from '../../server/src/contract';
 import { Avatar } from './avatar';
+import { removeWithLabels } from './labels';
 import { conceptHealth, isLocked } from './rules';
 import { skinFor, type Skin } from './skins';
 import { TreeView } from './tree';
@@ -220,7 +221,7 @@ export class ForestScene {
       o.target.set(p.pos[0], 0, p.pos[2]);
       o.yaw = p.yaw;
     }
-    for (const [id, o] of this.others) if (!seen.has(id)) { this.scene.remove(o.avatar.group); this.others.delete(id); }
+    for (const [id, o] of this.others) if (!seen.has(id)) { removeWithLabels(this.scene, o.avatar.group); this.others.delete(id); }
   }
 
   playerPos(id: string): THREE.Vector3 | null { return this.others.get(id)?.avatar.group.position.clone() ?? null; }
