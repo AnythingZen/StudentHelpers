@@ -7,6 +7,7 @@ describe('mintRoomCode', () => {
       const code = mintRoomCode(new Set());
       expect(code).toMatch(/^[A-Z0-9]{4}$/);
       expect(code).not.toMatch(/[01OILSZB258]/);
+      expect(code).not.toMatch(/[AEIOUY]/); // no vowels, so no accidental words
     }
   });
 

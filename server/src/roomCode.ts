@@ -1,6 +1,9 @@
 // 4-character room codes a person can read out on stage and another can type.
 // No 0/O, 1/I/L, 5/S, 2/Z, 8/B — characters that get misheard or misread.
-const ALPHABET = 'ACDEFGHJKMNPQRTUVWXY3469';
+// No vowels (A E I O U Y) either: an early smoke test minted "JERK" onto what
+// would have been a projector in front of judges. Without vowels, codes can't
+// spell words.
+const ALPHABET = 'CDFGHJKMNPQRTVWX3469';
 
 export function mintRoomCode(taken: Set<string>, random: () => number = Math.random): string {
   for (let attempt = 0; attempt < 1000; attempt++) {

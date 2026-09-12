@@ -46,3 +46,31 @@ export function placeNewTrees(world: ServerWorld, ids: string[]): ServerWorld {
 
 export const distance = (a: Vec3, b: Vec3) => Math.hypot(a[0] - b[0], a[2] - b[2]);
 export type { Vec3, TreeWithAnswer };
+
+// A world from a real model arrives with no positions ([0,0,0] everywhere).
+// Give it a walkable layout: groves down the path in Bloom order (remember at the
+// entrance, apply deepest), level-ladder concepts last, trees in a ring per grove.
+const zero = (v: Vec3) => v[0] === 0 && v[1] === 0 && v[2] === 0;
+const BLOOM_DEPTH = { remember: 0, understand: 1, apply: 2 } as const;
+
+export function ensureLayout(world: ServerWorld): ServerWorld {
+  const needsGroves = world.concepts.length > 0 && world.concepts.every(c => zero(c.centre));
+  const concepts = needsGroves
+    ? [...world.concepts]
+        .sort((a, b) =>
+          Number(a.level !== world.syllabus.level) - Number(b.level !== world.syllabus.level) ||
+          BLOOM_DEPTH[a.bloom] - BLOOM_DEPTH[b.bloom])
+        .map((c, i) => ({ ...c, centre: [i % 2 === 0 ? 10 : -10, 0, -18 - i * 22] as Vec3 }))
+    : world.concepts;
+  const centreOf = new Map(concepts.map(c => [c.id, c.centre]));
+  const ringIndex = new Map<string, number>();
+  const trees = world.trees.map(t => {
+    if (!zero(t.pos)) return t;
+    const i = ringIndex.get(t.conceptId) ?? 0;
+    ringIndex.set(t.conceptId, i + 1);
+    const c = centreOf.get(t.conceptId) ?? [0, 0, -18];
+    const a = i * 2.4; // golden-angle-ish spread so trees don't line up
+    return { ...t, pos: [c[0] + Math.cos(a) * (3 + i * 0.6), 0, c[2] + Math.sin(a) * (3 + i * 0.6)] as Vec3 };
+  });
+  return { ...world, concepts: world.concepts.map(c => concepts.find(x => x.id === c.id)!), trees };
+}
