@@ -18,7 +18,9 @@ for (const file of ['../.env', '../../.env']) {
 }
 
 const PORT = Number(process.env.PORT ?? 3001);
-const SPAWN_TIMEOUT_MS = Number(process.env.SPAWN_TIMEOUT_SECONDS ?? 90) * 1000;
+// 240s: a first spawn of a scanned worksheet OCRs every page (~135s for a 36-page
+// exam, per Builder B) before the model runs. Cached re-spawns take ~45s.
+const SPAWN_TIMEOUT_MS = Number(process.env.SPAWN_TIMEOUT_SECONDS ?? 240) * 1000;
 const fallback = createFallbackBrain();
 
 async function loadZenBrain(): Promise<Brain | null> {
@@ -42,7 +44,9 @@ const clientDir = dir('../../backup-client/dist');
 
 const { app, store } = createApp({
   brain,
-  spawnTimeoutMs: SPAWN_TIMEOUT_MS,
+  // The route's own timeout is a little longer than the brain's, so a slow model
+  // falls back to the (clearly labelled) sample world instead of failing outright.
+  spawnTimeoutMs: SPAWN_TIMEOUT_MS + 30_000,
   demoSeed: process.env.DEMO_SEED === '0' ? null : undefined,
   // One origin, no CORS: the built web app (student forest at /, teacher console at
   // /teacher — `extensions` maps /teacher to teacher.html).
@@ -50,8 +54,8 @@ const { app, store } = createApp({
 });
 
 // The two demo worlds, always present with their fixture room codes.
-store.put({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7' });
-store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN' });
+store.put({ ...freshWorld(loadFixture('maths')), worldId: 'OAK7', generatedBy: 'sample' });
+store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN', generatedBy: 'sample' });
 
 app.listen(PORT, () => {
   console.log(`Mastery Grove server on http://localhost:${PORT}`);

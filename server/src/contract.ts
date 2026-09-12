@@ -79,6 +79,9 @@ export interface World<T extends Tree = Tree> {
   subject: string;
   source: Source;
   status: WorldStatus;
+  // Who produced the content. 'sample' means the committed fixture data — shown
+  // to the teacher as a warning, so a sample world is never passed off as AI output.
+  generatedBy?: 'ai' | 'sample';
   sessionIndex: number;
   concepts: Concept[];
   misconceptions: Misconception[];

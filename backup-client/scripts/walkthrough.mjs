@@ -233,7 +233,7 @@ try {
   const state = await api(`/api/state/${room}`);
   if (state.status !== 'ready') throw new Error(`world ${room} is ${state.status}`);
   const world = state.world;
-  usedSample = world.concepts.every(c => SAMPLE_CONCEPTS.has(c.name));
+  usedSample = world.generatedBy === 'sample' || world.concepts.every(c => SAMPLE_CONCEPTS.has(c.name));
   if (usedSample) console.warn('\n⚠️  This world is the committed SAMPLE data, not AI output. The video will say so.\n');
   s = now('teacher');
   await caption(teacher,

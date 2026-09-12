@@ -170,6 +170,28 @@ describe('GET /api/teacher', () => {
   });
 });
 
+describe('generatedBy — a sample world is never passed off as AI output', () => {
+  it('labels a world from the fallback brain as sample', async () => {
+    const { http, store } = setup();
+    const res = await http.post('/api/world').field({ level: 'Primary 5', subject: 'Mathematics', topic: 'Fractions', sourceKind: 'prompt' });
+    await store.settled(res.body.worldId);
+    expect((await http.get(`/api/state/${res.body.worldId}`)).body.world.generatedBy).toBe('sample');
+  });
+
+  it('labels a world from a real brain as ai', async () => {
+    const fallback = createFallbackBrain({ plantDelayMs: 0 });
+    const aiBrain: Brain = { ...fallback, name: 'zen', spawnWorld: async (i, s, on) => {
+      const w = await fallback.spawnWorld(i, s, on);
+      const { generatedBy: _ignored, ...fromModel } = w;       // a model's output carries no label
+      return { ...fromModel, concepts: w.concepts.map(c => ({ ...c, name: `AI ${c.name}` })) };
+    } };
+    const { http, store } = setup({ brain: aiBrain });
+    const res = await http.post('/api/world').field({ level: 'Primary 5', subject: 'Mathematics', topic: 'Fractions', sourceKind: 'prompt' });
+    await store.settled(res.body.worldId);
+    expect((await http.get(`/api/state/${res.body.worldId}`)).body.world.generatedBy).toBe('ai');
+  });
+});
+
 describe('demo seed honesty', () => {
   it('never attaches seeded class counts to an AI-generated world, even when ids collide', async () => {
     // A model-generated world reuses ids like "m3" for completely different misconceptions.

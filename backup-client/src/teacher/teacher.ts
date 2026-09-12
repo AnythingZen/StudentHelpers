@@ -136,6 +136,7 @@ function render(): void {
   }
 
   $('room-subject').textContent = view.subject;
+  $('sample-warning').hidden = world.generatedBy !== 'sample';
   $('class-goal').textContent = `🏰 The class is unlocking ${view.classWorld.goal}`;
   $('class-bar').style.width = `${view.classWorld.percent}%`;
   $('class-count').textContent = `${view.classWorld.mastered} / ${view.classWorld.total} · ${view.classWorld.percent}%`;

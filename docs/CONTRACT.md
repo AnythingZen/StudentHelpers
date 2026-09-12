@@ -204,8 +204,17 @@ the fox prompt — optional, omitted until the game layer lands at hour 5.
 
 ## Rules everyone implements the same way
 
-**Concept health** = `(healthy + regrown) / total` over that concept's **base
-trees only** — trees with `spawnedFrom === null`. Saplings never count, in either
+**Concept health = demonstrated mastery**: the share of a concept's **base trees**
+(`spawnedFrom === null`) the student has actually answered correctly — Leitner box
+**2 or higher**. *Amended with B's agreement, and what C's server enforces.* The
+original `(healthy + regrown) / total` counted untouched trees as mastered (every
+tree starts `'healthy'`), so every locked grove — the level ladder included — was
+unlocked from minute one, and a correct answer never added a bridge plank.
+
+Deploy Quest trees are marked `spawnedFrom: "quest:<misconceptionId>"`: like saplings
+they are session practice, excluded from health, cleared at the next session.
+Every world carries `generatedBy: 'ai' | 'sample'`; the teacher console warns on
+`'sample'`, so built-in demo content is never passed off as AI output. Saplings never count, in either
 the numerator or the denominator. (Counting them made one wrong answer on a
 4-tree concept drop health 1.0 → 0.60, right at the lock threshold, and knock
 out 40% of a bridge. See `docs/reviews/b-brain-c348b5b.md`.)

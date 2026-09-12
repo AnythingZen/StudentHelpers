@@ -105,6 +105,7 @@ export function createFallbackBrain(opts: FallbackBrainOptions = {}): Brain {
       const base = freshWorld(loadFixture(pickFixture(syllabus)));
       const world: ServerWorld = {
         ...base,
+        generatedBy: 'sample',
         syllabus,
         subject: `${syllabus.level} ${syllabus.subject} — ${syllabus.topic}`,
         source: sourceFor(input, syllabus),

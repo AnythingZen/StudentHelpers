@@ -166,7 +166,8 @@ export function createApp(deps: AppDeps) {
           }),
           deps.spawnTimeoutMs ?? 90_000, `spawn ${worldId}`,
         );
-        store.put(ensureLayout({ ...final, worldId, status: 'ready', sessionIndex: 0 }));
+        // Anything a brain returns without a label came from a model.
+        store.put(ensureLayout({ ...final, worldId, status: 'ready', sessionIndex: 0, generatedBy: final.generatedBy ?? 'ai' }));
       } catch (err) {
         log(`[world ${worldId}] spawn failed: ${(err as Error).message}`);
         store.update(worldId, w => ({ ...w, status: 'failed' }));
