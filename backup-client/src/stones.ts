@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import type { Tree } from '../../server/src/contract';
+import { removeWithLabels } from './labels';
 
 const FILL_SECONDS = 0.6;
 const STAND_RADIUS = 1.0;
@@ -16,6 +17,9 @@ export class AnswerStones {
   private rise = 0;
   private sinkAt: number | null = null;
   private fired = false;
+  // After an answer the student must step off every stone before one can fill
+  // again; otherwise standing still on a wrong stone re-submits it in a loop.
+  private armed = true;
   treeId: string | null = null;
 
   constructor(private readonly scene: THREE.Scene) {}
@@ -26,6 +30,7 @@ export class AnswerStones {
     this.clear();
     this.treeId = tree.id;
     this.fired = false;
+    this.armed = true;
     this.rise = 0;
     const treePos = new THREE.Vector3(...tree.pos);
     const toPlayer = new THREE.Vector3(from.x - treePos.x, 0, from.z - treePos.z);
@@ -80,10 +85,12 @@ export class AnswerStones {
     if (!this.treeId) return null;
     this.rise = Math.min(1, this.rise + dt / 0.4);
     let chosen: number | null = null;
+    const onAny = this.stones.some(s => Math.hypot(player.x - s.root.position.x, player.z - s.root.position.z) <= STAND_RADIUS);
+    if (!this.armed && !onAny) this.armed = true;
     this.stones.forEach((s, i) => {
       s.root.position.y = -0.5 + this.rise * 0.5;
       const d = Math.hypot(player.x - s.root.position.x, player.z - s.root.position.z);
-      const standing = this.rise >= 1 && d <= STAND_RADIUS && !this.fired;
+      const standing = this.rise >= 1 && d <= STAND_RADIUS && !this.fired && this.armed;
       s.fill = Math.max(0, Math.min(1, s.fill + (standing ? dt / FILL_SECONDS : -dt / 0.4)));
       s.disc.scale.setScalar(Math.max(0.001, s.fill));
       s.label.classList.toggle('active', standing);
@@ -92,13 +99,16 @@ export class AnswerStones {
     return chosen;
   }
 
+  /** Where each stone stands, in choice order. Used by the ?debug=1 test hook. */
+  positions(): Array<[number, number]> { return this.stones.map(s => [s.root.position.x, s.root.position.z]); }
+
   /** Let the student try again without walking away and back. */
-  rearm(): void { this.fired = false; this.stones.forEach(s => (s.fill = 0)); }
+  rearm(): void { this.fired = false; this.armed = false; this.stones.forEach(s => (s.fill = 0)); }
 
   sink(now: number): void { if (this.treeId) this.sinkAt = now; }
 
   clear(): void {
-    this.stones.forEach(s => this.scene.remove(s.root));   // 'removed' also deletes the label elements
+    this.stones.forEach(s => removeWithLabels(this.scene, s.root));   // stone labels are children — see labels.ts
     if (this.card) this.scene.remove(this.card);
     this.stones = []; this.card = null; this.treeId = null; this.sinkAt = null;
   }

@@ -78,6 +78,24 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
   let busy = false;                       // an answer is in flight or a prompt is open
   let offlineToastAt = 0;
   const keys = new Set<string>();
+  let autoTarget: THREE.Vector3 | null = null;   // ?debug=1 walkTo(), so recordings show real walking
+
+  // ?debug=1 exposes a small hook for the automated walkthrough recorder
+  // (scripts/walkthrough). Off by default; nothing here bypasses the server.
+  if (params.get('debug') === '1') {
+    Object.assign(window, {
+      __game: {
+        walkTo: (x: number, z: number) => { autoTarget = new THREE.Vector3(x, 0, z); },
+        arrived: () => autoTarget === null,
+        tree: (id: string) => world.trees.find(t => t.id === id) ?? null,
+        stones: () => stones.positions(),
+        player: () => ({ x: pos.x, z: pos.z }),
+        // Turn to face a point, so a recording's camera shows what matters (the tree, Mia).
+        face: (x: number, z: number) => { yaw = Math.atan2(-(x - pos.x), -(z - pos.z)); },
+        busy: () => busy,
+      },
+    });
+  }
 
   $('hud').hidden = false;
   $('hud-room').textContent = room;
@@ -228,9 +246,23 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
       if (keys.has('KeyD') || keys.has('ArrowRight')) { moveX += right.x; moveZ += right.z; }
       if (keys.has('KeyA') || keys.has('ArrowLeft')) { moveX -= right.x; moveZ -= right.z; }
     }
+    if (autoTarget && moveX === 0 && moveZ === 0) {
+      const dx = autoTarget.x - pos.x, dz = autoTarget.z - pos.z;
+      if (Math.hypot(dx, dz) < 0.25) autoTarget = null;
+      else {
+        moveX = dx; moveZ = dz;
+        // Turn smoothly toward where we're walking, so the camera follows naturally.
+        const want = Math.atan2(-dx, -dz);
+        const turn = Math.atan2(Math.sin(want - yaw), Math.cos(want - yaw));
+        yaw += turn * Math.min(1, dt * 6);
+      }
+    }
     const len = Math.hypot(moveX, moveZ);
     const speed = len > 0 ? (keys.has('ShiftLeft') || keys.has('ShiftRight') ? SPRINT : WALK) : 0;
-    if (len > 0) { pos.x += (moveX / len) * speed * dt; pos.z += (moveZ / len) * speed * dt; }
+    if (len > 0) {
+      const step = Math.min(speed * dt, autoTarget ? Math.hypot(autoTarget.x - pos.x, autoTarget.z - pos.z) : Infinity);
+      pos.x += (moveX / len) * step; pos.z += (moveZ / len) * step;
+    }
     pos.x = Math.max(-48, Math.min(48, pos.x));
     pos.z = Math.max(-140, Math.min(16, pos.z));
 
@@ -263,7 +295,7 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
         : near.tree.kind === 'recall' ? `E · Answer from memory — ${quest}`
         : `E · Quest: ${quest}`);
     }
-    $('look-hint').hidden = locked() || bubble.open;
+    $('look-hint').hidden = locked() || bubble.open || params.get('debug') === '1';
 
     forest.update(dt, t, now);
     forest.render();
