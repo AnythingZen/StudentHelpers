@@ -14,7 +14,7 @@ function world(trees: Tree[]): World {
   return {
     worldId: 'TEST', sessionIndex: 0,
     syllabus: { system: 'MOE-SG', level: 'Primary 5', subject: 'Mathematics', topic: 'Fractions' },
-    subject: 'P5 Maths', source: { kind: 'prompt', text: 'fractions' },
+    subject: 'P5 Maths', source: { kind: 'prompt', text: 'fractions' }, status: 'ready',
     concepts: [{ id: 'c1', name: 'c', bloom: 'remember', syllabusRef: '', level: 'Primary 5', prerequisites: [], centre: [0, 0, 0] }],
     misconceptions: [], trees,
   };

@@ -21,11 +21,19 @@ export type Source =
   | { kind: 'prompt'; text: string }
   | { kind: 'url';    url: string; title: string };
 
+// What C hands to spawnWorld(). Mirrors Source, plus the payload itself.
+export type SpawnInput =
+  | { kind: 'pdf';    filename: string; data: Buffer }
+  | { kind: 'url';    url: string }
+  | { kind: 'text';   label: string; text: string }
+  | { kind: 'prompt' };                                   // syllabus is the whole input
+
 export interface World {
   worldId: string;            // 4-char room code, e.g. "OAK7"
   syllabus: Syllabus;
   subject: string;            // display string, "Primary 5 Mathematics — Fractions"
   source: Source;
+  status: 'growing' | 'ready' | 'failed';   // polling flips growing -> ready
   sessionIndex: number;       // 0 on spawn, +1 per /next-session
   concepts: Concept[];        // a concept === a grove
   misconceptions: Misconception[];
