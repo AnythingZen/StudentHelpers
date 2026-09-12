@@ -1,13 +1,25 @@
 # Mastery Grove
 
-A teacher drops in a PDF worksheet. It spawns a 3D forest of questions from that
-document. Students walk the forest and answer trees. A wrong answer withers the
-tree — which then asks a scaffolding question instead of giving the answer — and
-a sapling of the same concept takes root further along the path. The teacher
+A teacher picks a subject, level and topic, then drops in a PDF worksheet or
+pastes a link. It spawns a 3D forest of questions from that source. Students walk
+the forest and answer trees. A wrong answer withers the tree — which then asks a
+scaffolding question instead of giving the answer — and a sapling of the same
+concept takes root further along the path. Recover, and the sapling asks you to
+*teach* it. Master everything and the next level's grove unlocks. The teacher
 watches a live heatmap of the forest keyed by *misconception*, not by miss-rate.
 
 **Track 3 · Learning Science in the Loop.** Desktop web, keyboard + mouse.
 7 hours, 3 builders.
+
+**Two worlds, one engine, one world type — a forest with a palette swap:**
+
+| World | Source | Role in the demo |
+|---|---|---|
+| **Maths · Primary 5 · Fractions** (MOE SG) | PDF worksheet | Carries the loop |
+| **English · Primary 3 · Reading** | Public-domain book URL | Carries the breadth claim |
+
+Fixtures for both are committed (`mockWorld.json`, `mockWorldReading.json`), so
+all three builders can work against real-shaped data from minute 15.
 
 ---
 
@@ -26,8 +38,8 @@ watches a live heatmap of the forest keyed by *misconception*, not by miss-rate.
 3. **[docs/DEMO.md](docs/DEMO.md)** — the 7-hour phase plan, the 90-second demo
    script, the citations slide, and what to say when judges push back.
 
-`mockWorld.json` is a valid world. **Code against it from minute 15** so nobody
-blocks on anybody.
+`mockWorld.json` and `mockWorldReading.json` are valid worlds. **Code against
+them from minute 15** so nobody blocks on anybody.
 
 ---
 
@@ -70,3 +82,8 @@ The PDF is the whole adoption story: the teacher uploads the worksheet she
 already wrote, and every generated question carries the page and passage it came
 from, so she can verify it. No content authoring, no accounts — just a room code
 on the board.
+
+**Sponsor note:** Epic is a children's reading platform, which is why a reading
+world is in the demo. Never ingest, scrape or reproduce their licensed library,
+and never imply a partnership — public-domain texts give the same demo with none
+of that exposure.

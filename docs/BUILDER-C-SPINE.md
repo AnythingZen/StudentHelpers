@@ -78,9 +78,10 @@ Clients poll this every 2s. No websockets, no SSE.
 `{ worldId, treeId, response }`. This route owns the whole loop:
 
 ```ts
-const correct = tree.kind === 'recall'
-  ? (await brain.gradeRecall(tree, response as string)).correct
-  : response === privateAnswers[treeId];
+const correct =
+  tree.kind === 'recall' ? (await brain.gradeRecall(tree, response as string)).correct
+: tree.kind === 'teach'  ? (await brain.gradeExplanation(tree, response as string)).passed
+:                          response === privateAnswers[treeId];
 
 let diagnosis = null;
 if (!correct) diagnosis = await brain.diagnose(tree, response, world);
@@ -131,25 +132,40 @@ Aggregate from `events[]`:
 Plain HTML + a canvas. No React, no framework. Three things on one screen:
 
 **1. Pick the syllabus, then upload.** Three dropdowns, populated from B's
-`syllabus.json`: **Subject → Level → Topic**. Default them to Mathematics /
-Primary 5 / Fractions so the demo needs no clicking, but *show them* — the
-selectors are what make this read as a platform rather than a one-off, and they
-carry the "imagine any syllabus, we've loaded this one" line without you having
-to build anything. Keep them to three `<select>` elements. No syllabus editor.
+`syllabus.json`: **Subject → Level → Topic**. Two subjects only:
 
-Then choose how to feed it. **Three tabs, one endpoint:**
+- **Mathematics · Primary 5 · Fractions** — spawned from a PDF worksheet.
+  **This one carries the demo loop.**
+- **English · Primary 3 · Reading Comprehension** — spawned from a public-domain
+  Project Gutenberg book URL. Sponsor-aligned (Epic is children's reading) and
+  it carries the breadth claim.
 
-- **Upload PDF** — the hero path, and the only one with provenance
+Two subjects at two levels is what proves the platform claim and the level dial
+at once, and it costs you nothing but a second entry in the dropdown — both
+fixtures are already committed. Keep it to three `<select>` elements. **No
+syllabus editor, no third subject.**
+
+**Both worlds are live at demo time.** Spawn the MATHS world on stage from the
+PDF worksheet; have the READING world **already spawned and sitting in the room
+list** so the cut to it is instant and cannot fail. Two rooms at once is also
+just what a real classroom looks like.
+
+Then choose how to feed it. **Four tabs, one endpoint:**
+
+- **Upload PDF** — the maths path, and the richest provenance
+- **Paste a link** — the reading path. Works on Project Gutenberg, Wikipedia,
+  OpenStax, and any public PDF URL. **Does not work on Khan Academy** (bot
+  challenge + JavaScript-rendered) — see B's brief. Keep an allowlist and test
+  your demo URL beforehand.
 - **Paste text** — a textarea; paste lesson content from anywhere
 - **Just a topic** — nothing but the dropdowns; spawns from the syllabus alone
 
-All three `POST /api/world`; only the `source` field differs. B's pipeline
-branches internally, so you do not. **There is no "paste a URL" tab** — see B's
-brief for why a Khan Academy link cannot work, and don't let it back in.
+All four `POST /api/world`; only the `source` field differs. B's pipeline
+branches internally, so you do not.
 
-The three tabs are worth the 20 minutes: they're what make this look like a
-platform rather than a PDF converter, and the "just a topic" tab is your
-safety net if the PDF upload misbehaves on stage.
+The tabs are worth 20 minutes: they're what make this look like a platform
+rather than a PDF converter, and "just a topic" is your safety net if an upload
+misbehaves on stage.
 
 Then get a big readable room code. While `status === 'growing'`, show "Reading
 your worksheet… 4 concepts found, planting 27 trees" — driven by the partials,

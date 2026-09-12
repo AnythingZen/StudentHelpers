@@ -59,6 +59,22 @@ client/
 `MeshLambertMaterial` is enough. One `DirectionalLight` + one `AmbientLight`.
 `flatShading: true` gives you the blocky look for free.
 
+### Skins — one lookup table, not a second world
+
+There is **one world type: a forest.** Do not build a second biome. What varies
+is a constants table keyed off `world.syllabus.subject` — ground and foliage
+palette, fog colour and density, ambient track, trunk and canopy silhouette:
+
+| Subject | Skin |
+|---|---|
+| Mathematics | cool birch — pale trunks, blue-grey fog, crisp light |
+| English | warm autumn oak — amber canopy, golden haze |
+
+Same geometry, same code path, different constants. ~15 minutes, and it reads as
+a different world in three seconds. Both fixtures are committed —
+`mockWorld.json` (Maths, Primary 5) and `mockWorldReading.json` (English,
+Primary 3) — so you can check both skins render before B's pipeline is live.
+
 **Asset loading is a 90-minute sink for zero judge points** — scaling,
 licensing, material debugging. There are `.glb` files available if you get
 ahead; that is an **hour-5 stretch behind a flag**, never on the critical path.
@@ -134,6 +150,12 @@ The card renders from the tree:
 - `kind: 'recall'` → the question + a text input and a submit button.
   ~25% of trees are recall. Recognition is not retrieval — this is what makes
   the Roediger & Karpicke citation honest.
+- `kind: 'teach'` → the question + a **larger** textarea. Frame it as the sapling
+  asking to be taught: *"Explain it to me and I'll grow."* Same submit path as
+  recall. Show `tree.rubric[]` as soft checkmarks that tick as the grader comes
+  back. This is the one card that should feel different from a quiz — give it
+  room, and animate the sapling growing into a full tree on success.
+  **Build this at 4:30**, after the main loop closes. It is droppable.
 - If `tree.citation` exists, show a small `📄 p.{page}` chip. Hovering shows the
   quote from the teacher's own worksheet. **Do not skip this** — it's the
   answer to "did the AI make this up?"

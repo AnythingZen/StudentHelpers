@@ -3,9 +3,23 @@
 Builder C owns this file and holds the clock. Everyone reads it at minute 5 so
 you all know what you are building toward.
 
-**Anchor:** MOE Singapore · Primary 5 · Mathematics · Fractions.
+**Two worlds, one engine. Maths leads, reading proves the breadth:**
+- **Mathematics · Primary 5 · Fractions** — from a PDF worksheet. **Carries the
+  loop**: a fraction error is legible in three seconds, and "they're comparing
+  numerators" is a precise, checkable diagnosis a judge cannot dispute.
+- **English · Primary 3 · Reading Comprehension** — from a public-domain book
+  URL. **Carries the breadth claim** and the sponsor's domain, with its own
+  heatmap and its own misconceptions.
+
 **The game is the product.** The syllabus is a label that makes the content
-defensible; it is not a feature to expand.
+defensible; it is not a feature to expand. One world type — a forest — with a
+palette swap per subject. Never a second biome.
+
+**Sponsor note:** Epic is a children's reading platform (40K+ kids' books), which
+is why the reading world is in the demo at all. **Never ingest, scrape or
+reproduce their library** — it is
+licensed content — and never imply a partnership. Public-domain texts from
+Project Gutenberg give the identical demo with none of that exposure.
 
 ---
 
@@ -31,25 +45,25 @@ defensible; it is not a feature to expand.
 
 ---
 
-## The 100-second demo
+## The demo — 150 seconds, and the slot is 3 minutes
 
-Run it in this order. Do not improvise; you have rehearsed this three times.
+Full loop in the maths world. Then a hard cut to reading. **Tell the loop once.**
 
 **0:00 — the problem, in one sentence.**
 > "Every AI homework tool helps a student finish tonight's work. We built one
 > that finds out what they misunderstood — and makes them walk back to it."
 
 **0:10 — the teacher spawns a world.**
-Show the three dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real
-P5 fractions worksheet on it. The forest plants itself live: *"Reading your
-worksheet… 4 concepts found, planting 27 trees."* A room code appears: **OAK7**.
+Dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real P5 fractions
+worksheet on it. The forest plants itself live: *"Reading your worksheet…
+4 concepts found, planting 27 trees."* Room code: **OAK7**.
 > "MOE Singapore syllabus, Primary 5. Imagine any syllabus — we've loaded this
 > one. And that's her actual worksheet; she authored nothing."
 
 **0:25 — the student joins and walks.**
-Enter `OAK7`. First-person, into the forest. Walk to a tree, press E, answer it
-right. The canopy holds.
-> "Groves are syllabus concepts. Walking deeper moves up Bloom's taxonomy."
+Enter `OAK7`. First-person into a cool birch forest. Walk to a tree, press E,
+answer it right. The canopy holds.
+> "Groves are syllabus concepts. Walking deeper climbs Bloom's taxonomy."
 
 **0:40 — the wrong answer. This is the whole product.**
 > *"Which is larger: 3/4 or 5/8?"*
@@ -68,23 +82,39 @@ Student solves it. Tree regrows.
 Walk on. A sapling of that same concept has taken root further along the path.
 > "That's distributed practice. Not a popup — the world itself."
 
-**1:05 — the teacher already knows.**
-Cut to the teacher console. The grove is amber. Hover it:
-> **"9 students think 5/8 is larger than 3/4 — they're comparing numerators."**
+**1:05 — teach the sapling. The beat that isn't a quiz.**
+The sapling asks to be taught: *"Explain it to me and I'll grow."* The student
+types how to compare two fractions with different denominators. Rubric points
+tick off. The sapling grows into a full tree.
+> "Explaining it to someone else is the strongest thing a learner can do. That's
+> the protégé effect, and here it's the mechanic — not a badge."
 
-> "Not 'nine students got question four wrong.' That's a gradebook. This is a
+**1:20 — the teacher already knows.**
+Teacher console. The grove is amber. Hover it:
+> **"11 students think 5/8 is larger than 3/4 — they're comparing numerators."**
+
+> "Not 'eleven students got question four wrong.' That's a gradebook. This is a
 > lesson plan."
 
 Click **Next Session** — the weak grove slides to the forest entrance.
 
-**1:25 — the climb.**
+**1:35 — the climb.**
 Back in the forest, the deep gate opens: **LEVEL UP · Primary 6 Fractions
 unlocked.**
 > "Mastery is the only key in this game. A Primary 3 child who clears Primary 5
 > fractions walks straight into Primary 6 — nobody has to promote them."
 
-**1:35 — close on the science.**
-The citations slide. Say the last line:
+**1:50 — the hard cut. Same engine, different subject.**
+Switch to room **FERN**: **English · Primary 3 · Reading Comprehension**, a warm
+autumn oak forest, spawned from a public-domain book URL — *The Tale of Peter
+Rabbit*. Show its heatmap:
+> **"9 students are guessing words from spelling instead of context."**
+
+> "Same engine, same diagnosis, same forest. A book instead of a worksheet,
+> Primary 3 instead of Primary 5. The syllabus is just the container."
+
+**2:05 — close on the science.**
+The citations slide. Last line:
 > "Other tools help a student finish homework tonight. This one knows what
 > they'll have forgotten by Thursday."
 
@@ -102,6 +132,15 @@ difference between citing a paper and applying one.
 | **Testing effect** — retrieval attempts produce more durable learning than re-reading | Roediger & Karpicke (2006), *Psychological Science* 17(3) | Every tree is a retrieval attempt; ~25% are free-recall, not multiple choice |
 | **Interleaving** — mixed concept order beats blocked order | Rohrer & Taylor (2007), *Instructional Science* 35 | `layout.ts` interleaves concepts along the path rather than grouping them |
 | **Bloom's taxonomy** — ordered cognitive demand | Anderson & Krathwohl (2001) | Grove depth: `remember` at the entrance → `understand` → `apply` deepest |
+| **Learning by teaching** — explaining to another learner beats reviewing | Fiorella & Mayer; Chi et al. on self-explanation | `teach` trees: the sapling asks to be taught, and grows on a graded explanation |
+
+**Do not put the Learning Pyramid on a slide** — the 90/75/50/30/20/10/5 figures
+have no traceable empirical source and the chart is widely criticised. At an
+event that asks for citations it is a liability. **Dunlosky et al. (2013)** is
+the citation you want for "which techniques actually work": it rates practice
+testing and distributed practice as high utility, which is exactly what we
+built, and rates rereading and highlighting as low. The mechanic is well
+supported; that particular chart is not.
 
 The free-recall trees matter more than they look. Roediger & Karpicke's effects
 are strongest for *generative* retrieval, not four-option recognition — a judge

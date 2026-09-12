@@ -67,7 +67,7 @@ of it — code against that from minute 15.
 ```ts
 type Bloom     = 'remember' | 'understand' | 'apply';
 type TreeState = 'healthy' | 'withered' | 'sapling' | 'regrown';
-type TreeKind  = 'choice' | 'recall';
+type TreeKind  = 'choice' | 'recall' | 'teach';
 
 interface Syllabus {
   system: 'MOE-SG';           // one system today. Do not generalise this.
@@ -118,6 +118,7 @@ interface Tree {
   kind: TreeKind;
   question: string;
   choices?: string[];         // kind === 'choice' only
+  rubric?: string[];          // kind === 'teach' only — points the explanation must hit
   explanation: string;
   citation: { page: number; quote: string } | null;  // provenance from the PDF
   state: TreeState;
@@ -193,6 +194,32 @@ the moment the product sells itself.
 **The game is the product; the syllabus is a label on it.** Do not spend build
 time on syllabus breadth.
 
+**Teach trees** (`kind: 'teach'`) — the highest-value mechanic and the only one
+that is visibly not a quiz. A teach tree only appears on a **sapling** the
+student has already recovered: it asks them to explain the concept in their own
+words *so the sapling can grow*. B grades the explanation against
+`tree.rubric[]` — does it actually address the misconception they had?
+
+This is learning by teaching (the protégé effect), and it is the deepest thing
+in the build. Schema goes in at minute 10; **grading is implemented at 4:30,
+after the main loop closes.** Droppable without damage if you are behind.
+
+**One world type. Always a forest.** Do not build a second biome or a second
+game type. The forest metaphor carries all four mechanics — wither is
+forgetting, saplings are spacing, forest health is mastery, dead patches are the
+heatmap — and a second world type would need its own coherent metaphor for all
+of them, plus double the work in A's segment, which is the riskiest.
+
+What you *do* get is a **skin**, keyed off `syllabus.subject`, as a lookup table
+of constants — ground and foliage palette, fog colour and density, ambient
+track, trunk/canopy silhouette. Same geometry, same code. Roughly 15 minutes,
+and it reads as a different world in three seconds.
+
+| Subject | Skin |
+|---|---|
+| Mathematics | cool birch — pale trunks, blue-grey fog, crisp |
+| English | warm autumn oak — amber canopy, golden haze |
+
 **Leitner, 3 boxes.** Box 1 = due this session. Box 2 = due next session.
 Box 3 = retired. Correct → box + 1 (max 3). Wrong → back to box 1.
 
@@ -250,6 +277,7 @@ rather than the problem.
 spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
+gradeExplanation(tree: Tree, text: string): Promise<Explanation>  // teach trees, 4:30
 schedule(world: World, treeId: string, correct: boolean): World   // pure, Leitner
 ```
 

@@ -44,6 +44,7 @@ Your public surface, exactly as in the CONTRACT:
 spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
+gradeExplanation(tree: Tree, text: string): Promise<Explanation>   // teach trees, 4:30
 schedule(world: World, treeId: string, correct: boolean): World
 ```
 
@@ -84,7 +85,28 @@ Getting around that needs a headless browser, which is a 90-minute sink and a
 terms-of-service problem. **Do not build it, and do not say "paste a Khan
 Academy link" on stage.**
 
-What the URL path *can* do is server-rendered pages, via the server-side tool:
+**Tested and working** (plain fetch returns real content, so `web_fetch`'s
+no-JavaScript constraint is satisfied):
+
+| Source | Result |
+|---|---|
+| **Project Gutenberg** `/cache/epub/<id>/pg<id>.txt` | ✅ plain text, public domain — **use this for the reading world** |
+| Simple Wikipedia | ✅ ~154 KB of real content, primary reading level |
+| Wikipedia / Wikibooks | ✅ |
+| OpenStax | ✅ |
+| CK-12 | ❌ 403 |
+| BBC Bitesize, Khan Academy | ❌ blocked / JS-rendered |
+
+Any **public PDF URL** also works without `web_fetch` at all — pass a document
+block with a URL source instead of a file buffer. That covers syllabus PDFs,
+past papers and worksheets hosted on school sites.
+
+**Never ingest the sponsor's library.** Epic's 40K books are licensed content;
+do not fetch, scrape or reproduce them, and do not imply a partnership. Public
+domain texts give the identical demo with none of that exposure.
+
+What the URL path *can* do beyond that is server-rendered pages, via the
+server-side tool:
 
 ```ts
 tools: [{
@@ -250,6 +272,32 @@ than forcing a bad label into the teacher's heatmap. A wrong diagnosis on the
 dashboard is worse than an honest gap.
 
 ---
+
+## 2b. `gradeExplanation` — the teach tree. Build this at 4:30, not before.
+
+```ts
+gradeExplanation(tree: Tree, text: string): Promise<{
+  passed: boolean; hit: string[]; missing: string[]; encouragement: string;
+}>
+```
+
+Same call shape as `gradeRecall`, different rubric: score the student's
+explanation against `tree.rubric[]` and return which points they hit and which
+they missed. Generous on wording, strict on substance — a child explaining
+something correctly in clumsy words has understood it.
+
+`encouragement` is one sentence, in the sapling's voice, naming what they got
+right. Never a grade, never a percentage.
+
+This is the protégé effect: explaining a concept to someone else produces better
+retention than reviewing it. Real citations for the slide — **Fiorella & Mayer**
+on learning by teaching, **Chi et al.** on self-explanation, and **Dunlosky et
+al. (2013)** for which techniques actually carry high utility.
+
+**Do not cite the Learning Pyramid** (the 90/75/50/30/20/10/5 figures). Those
+numbers have no traceable empirical source and the pyramid is widely criticised.
+At an event that asks for citations, using it is a risk that costs more than it
+gains. The mechanic is well supported; that particular chart is not.
 
 ## 3. `gradeRecall`
 
