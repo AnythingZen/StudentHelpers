@@ -1,0 +1,225 @@
+{
+  "_comment": "Shared fixture. Valid World instance per docs/CONTRACT.md. Includes answerIndex/answerText so Builder A can develop offline — the real GET /api/state strips these. Deliberately contains one withered tree and one sapling so all four visual states can be built on minute one.",
+  "worldId": "OAK7",
+  "subject": "Chemistry — The Mole",
+  "status": "ready",
+  "sourceDoc": { "filename": "moles-worksheet-wk3.pdf", "pages": 3 },
+  "sessionIndex": 0,
+  "concepts": [
+    {
+      "id": "c1",
+      "name": "The mole as a counting unit",
+      "bloom": "remember",
+      "prerequisites": [],
+      "centre": [0, 0, -18]
+    },
+    {
+      "id": "c2",
+      "name": "Molar mass",
+      "bloom": "understand",
+      "prerequisites": ["c1"],
+      "centre": [14, 0, -38]
+    },
+    {
+      "id": "c3",
+      "name": "Mass–mole conversions",
+      "bloom": "apply",
+      "prerequisites": ["c1", "c2"],
+      "centre": [-12, 0, -60]
+    },
+    {
+      "id": "c4",
+      "name": "Reacting mass stoichiometry",
+      "bloom": "apply",
+      "prerequisites": ["c3"],
+      "centre": [8, 0, -84]
+    }
+  ],
+  "misconceptions": [
+    { "id": "m1", "conceptId": "c1", "label": "Thinks a mole is a unit of mass rather than a count" },
+    { "id": "m2", "conceptId": "c1", "label": "Believes Avogadro's number changes between substances" },
+    { "id": "m3", "conceptId": "c2", "label": "Confuses molar mass with the number of molecules" },
+    { "id": "m4", "conceptId": "c2", "label": "Sums atomic numbers instead of atomic masses" },
+    { "id": "m5", "conceptId": "c3", "label": "Multiplies by molar mass when it should divide" },
+    { "id": "m6", "conceptId": "c3", "label": "Drops or invents units mid-calculation" },
+    { "id": "m7", "conceptId": "c4", "label": "Uses the mass ratio from the equation instead of the mole ratio" },
+    { "id": "m8", "conceptId": "c4", "label": "Ignores the limiting reagent and works from the excess one" },
+    { "id": "unclassified", "conceptId": "c1", "label": "Error not confidently classified" }
+  ],
+  "trees": [
+    {
+      "id": "t1",
+      "conceptId": "c1",
+      "pos": [-3, 0, -14],
+      "kind": "choice",
+      "question": "One mole of any substance contains how many particles?",
+      "choices": ["6.02 × 10²³", "6.02 × 10²²", "1.00 × 10²³", "It depends on the substance"],
+      "answerIndex": 0,
+      "explanation": "A mole is defined as a fixed count — Avogadro's number — regardless of what is being counted, exactly like a dozen.",
+      "citation": { "page": 1, "quote": "A mole is 6.02 × 10²³ particles of a substance." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t2",
+      "conceptId": "c1",
+      "pos": [4, 0, -20],
+      "kind": "recall",
+      "question": "In your own words, what does a mole count?",
+      "answerText": "A fixed number of particles (atoms, molecules or ions) — 6.02 × 10²³ of them.",
+      "explanation": "The mole counts particles, not grams. The mass of one mole differs between substances; the count never does.",
+      "citation": { "page": 1, "quote": "The mole is a counting unit, like a dozen or a ream." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t3",
+      "conceptId": "c1",
+      "pos": [-6, 0, -23],
+      "kind": "choice",
+      "question": "Which contains more particles: 1 mole of water or 1 mole of lead?",
+      "choices": ["Water", "Lead", "They contain the same number", "Cannot be determined"],
+      "answerIndex": 2,
+      "explanation": "Equal moles means equal particle counts. Their masses differ, but the count is identical.",
+      "citation": { "page": 1, "quote": "Equal numbers of moles contain equal numbers of particles." },
+      "state": "healthy",
+      "leitnerBox": 2,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t4",
+      "conceptId": "c2",
+      "pos": [12, 0, -34],
+      "kind": "choice",
+      "question": "What is the molar mass of CO₂? (C = 12.0, O = 16.0)",
+      "choices": ["28.0 g/mol", "44.0 g/mol", "44.0 molecules", "22.0 g/mol"],
+      "answerIndex": 1,
+      "explanation": "12.0 + (2 × 16.0) = 44.0 g/mol. The units are grams per mole — a mass, not a count.",
+      "citation": { "page": 2, "quote": "Molar mass is the sum of the atomic masses, expressed in g/mol." },
+      "state": "withered",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t5",
+      "conceptId": "c2",
+      "pos": [17, 0, -40],
+      "kind": "recall",
+      "question": "What are the units of molar mass, and why does that matter?",
+      "answerText": "g/mol — grams per mole. It converts between mass and number of moles.",
+      "explanation": "The units tell you the operation: g/mol divides into grams to give moles.",
+      "citation": { "page": 2, "quote": "Molar mass has units of g mol⁻¹." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t6",
+      "conceptId": "c2",
+      "pos": [10, 0, -43],
+      "kind": "choice",
+      "question": "A student calculates the molar mass of H₂O as 10 g/mol. What did they most likely do?",
+      "choices": [
+        "Added atomic numbers instead of atomic masses",
+        "Forgot the oxygen",
+        "Used the wrong Avogadro number",
+        "Divided instead of multiplied"
+      ],
+      "answerIndex": 0,
+      "explanation": "1 + 1 + 8 = 10 uses atomic numbers. Atomic masses give 1.0 + 1.0 + 16.0 = 18.0 g/mol.",
+      "citation": { "page": 2, "quote": "Use relative atomic mass, not atomic number." },
+      "state": "sapling",
+      "leitnerBox": 1,
+      "spawnedFrom": "t4"
+    },
+    {
+      "id": "t7",
+      "conceptId": "c3",
+      "pos": [-14, 0, -56],
+      "kind": "choice",
+      "question": "How many moles are in 88.0 g of CO₂?",
+      "choices": ["0.5 mol", "2.0 mol", "44.0 mol", "3872 mol"],
+      "answerIndex": 1,
+      "explanation": "88.0 g ÷ 44.0 g/mol = 2.0 mol. Dividing by molar mass cancels grams and leaves moles.",
+      "citation": { "page": 2, "quote": "moles = mass ÷ molar mass" },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t8",
+      "conceptId": "c3",
+      "pos": [-9, 0, -62],
+      "kind": "choice",
+      "question": "What is the mass of 0.25 mol of NaCl? (Na = 23.0, Cl = 35.5)",
+      "choices": ["14.6 g", "58.5 g", "234 g", "0.004 g"],
+      "answerIndex": 0,
+      "explanation": "0.25 mol × 58.5 g/mol = 14.6 g. Going from moles to mass, you multiply.",
+      "citation": { "page": 3, "quote": "mass = moles × molar mass" },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t9",
+      "conceptId": "c3",
+      "pos": [-16, 0, -66],
+      "kind": "recall",
+      "question": "You have grams and you want moles. Do you multiply or divide by molar mass, and how do the units prove it?",
+      "answerText": "Divide. g ÷ (g/mol) = mol, so the grams cancel and moles remain.",
+      "explanation": "Tracking units is the reliable check — it catches the multiply/divide error every time.",
+      "citation": { "page": 3, "quote": "Always check that your units cancel correctly." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t10",
+      "conceptId": "c4",
+      "pos": [6, 0, -80],
+      "kind": "choice",
+      "question": "For 2H₂ + O₂ → 2H₂O, how many moles of water come from 4 mol of H₂ with excess O₂?",
+      "choices": ["2 mol", "4 mol", "8 mol", "36 mol"],
+      "answerIndex": 1,
+      "explanation": "The mole ratio H₂ : H₂O is 2 : 2, so 4 mol of hydrogen gives 4 mol of water.",
+      "citation": { "page": 3, "quote": "Coefficients give the ratio in moles, not in grams." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t11",
+      "conceptId": "c4",
+      "pos": [11, 0, -86],
+      "kind": "choice",
+      "question": "In 2H₂ + O₂ → 2H₂O, a student says 2 g of H₂ makes 2 g of H₂O. What went wrong?",
+      "choices": [
+        "They used the coefficients as a mass ratio",
+        "They balanced the equation incorrectly",
+        "They forgot Avogadro's number",
+        "Nothing — it is correct"
+      ],
+      "answerIndex": 0,
+      "explanation": "Coefficients are mole ratios. Convert to moles, apply the ratio, then convert back to mass.",
+      "citation": { "page": 3, "quote": "Convert to moles before applying the ratio." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t12",
+      "conceptId": "c4",
+      "pos": [4, 0, -90],
+      "kind": "recall",
+      "question": "Why must you convert masses to moles before using the coefficients of a balanced equation?",
+      "answerText": "Because the coefficients express a ratio of particles (moles), and equal masses of different substances contain different numbers of particles.",
+      "explanation": "The equation counts particles. Mass is only a proxy, and a different one for every substance.",
+      "citation": { "page": 3, "quote": "A balanced equation is a statement about numbers of particles." },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    }
+  ]
+}

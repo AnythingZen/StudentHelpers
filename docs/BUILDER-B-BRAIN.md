@@ -1,0 +1,278 @@
+# BUILDER B — THE BRAIN
+
+**You own the PDF pipeline and every AI call.** This is the segment most likely
+to surprise you, so you start here and you start immediately.
+
+**Read `docs/CONTRACT.md` first.** You export four functions and nothing else.
+C calls them; A never does.
+
+---
+
+## Your stack
+
+```bash
+npm i ai@7.0.99 @ai-sdk/anthropic@4.0.53 zod@4.6.2
+```
+
+`ANTHROPIC_API_KEY` in `server/.env`. Never commit it.
+
+**The structured-output API has moved.** `generateObject` is not the documented
+path any more — it is `generateText` / `streamText` with `Output.object`.
+Verified against current AI SDK docs. Do not copy patterns from older projects.
+
+---
+
+## Your files
+
+```
+server/brain/
+  index.ts         the 4 exports, nothing else public
+  spawn.ts         PDF -> World
+  diagnose.ts      wrong answer -> misconception + scaffold
+  grade.ts         recall-tree text grading
+  schedule.ts      Leitner. pure, synchronous, unit-tested
+  schemas.ts       zod schemas shared with C
+  prompts.ts       the system prompts
+  __tests__/
+    schedule.test.ts    real unit tests, TDD
+    fixtures/           captured LLM responses for deterministic tests
+```
+
+Your public surface, exactly as in the CONTRACT:
+
+```ts
+spawnWorld(pdf: Buffer, subject: string, onPartial: (w: Partial<World>) => void): Promise<World>
+diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
+gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
+schedule(world: World, treeId: string, correct: boolean): World
+```
+
+---
+
+## 1. `spawnWorld` — the PDF is the product. This call is the whole feature.
+
+One call does everything: reads the PDF, writes the questions, tags Bloom
+levels, derives the prerequisite graph, and predicts the misconceptions.
+**No pdf.js.** Claude takes the PDF directly.
+
+### Verified constraints
+
+- Max request **32 MB**, max **600 pages** (drops to **100** if the context
+  window is under 1M tokens). A worksheet is fine.
+- PDFs must be standard — **no passwords, no encryption**. A teacher *will*
+  upload an encrypted one. Return a clean error, don't crash.
+- Scanned PDFs work (vision), so don't reject image-only pages.
+
+### The call
+
+```ts
+import { anthropic } from '@ai-sdk/anthropic';
+import { streamText, Output } from 'ai';
+
+const result = streamText({
+  model: anthropic('claude-opus-5'),
+  output: Output.object({ schema: WorldSpawnSchema }),
+  messages: [{
+    role: 'user',
+    content: [
+      { type: 'text', text: SPAWN_PROMPT(subject) },
+      { type: 'file', data: pdf, mediaType: 'application/pdf' },
+    ],
+  }],
+  providerOptions: { anthropic: { structuredOutputMode: 'auto' } },
+});
+
+for await (const partial of result.partialOutputStream) {
+  onPartial(partial);          // trees appear in the world as they generate
+}
+const world = await result.output;
+```
+
+Notes that will cost you time if you miss them:
+- `mediaType`, **not** `mimeType`. `mimeType` is the stale spelling in older docs.
+- `streamText` + `partialOutputStream` is why the forest visibly grows instead of
+  the teacher staring at a spinner for 60 seconds. Worth the 15 minutes.
+- `await result.output` rejects with `TypeValidationError` if the final object
+  fails the schema. Catch it and fall back (see below).
+
+### Two provider features to turn on
+
+**Prompt caching** on the document block. You will re-spawn the same worksheet
+forty times today during integration and rehearsal. Cache it. In raw Anthropic
+terms this is `cache_control: { type: 'ephemeral' }` on the document block; check
+the AI SDK's `providerOptions.anthropic` passthrough for the file part and wire
+it. If it fights you for more than 15 minutes, skip it — it's an optimisation.
+
+**Citations** — `citations: { enabled: true }` on the document block, which makes
+Claude return the page and passage each question came from. Fill
+`tree.citation = { page, quote }`. **This is a core feature, not polish**: it lets
+a teacher verify every question traces to their own material, which is the first
+objection any real teacher raises about generated content.
+
+The Bedrock docs show this shape as `providerOptions.<provider>.citations` on the
+file part. **Verify the exact path for the Anthropic provider at minute 20** —
+it's the one API shape in this plan I could not confirm first-hand for this
+provider. If the passthrough doesn't work, drop to `@anthropic-ai/sdk@0.125.0`
+directly for the spawn call only; the raw `document` block shape is confirmed.
+
+### `SPAWN_PROMPT` must ask for all five things
+
+1. **concepts** — 3–5 per worksheet. Any more and the forest is too big to walk.
+2. **prerequisites** per concept — concept ids only. *This is the world model.*
+   It's what locks groves behind mastery. Tell the model to produce a DAG and to
+   leave the entry concept's prerequisites empty.
+3. **trees** — 5–8 questions per concept, each tagged with its concept, with
+   `kind: 'choice'` (4 options) or `kind: 'recall'` (~25%, free text answer).
+4. **Bloom level** per concept: `remember` | `understand` | `apply`.
+5. **misconceptions** — 6–10 across the worksheet. Specific and diagnostic
+   ("thinks molar mass is molecular count"), never vague ("struggles with moles").
+   These become the enum `diagnose` classifies into, and the labels the teacher
+   sees on the heatmap. **If these are weak, the whole product is weak.**
+
+Also require, in the prompt: questions must be answerable from the document
+alone; every question carries the page it came from; no question restates
+another; explanations explain the *reasoning*, not just the answer.
+
+### Hard requirement: the cached fallback world
+
+**Commit a real, pre-generated `fallbackWorld.json`** from the actual demo
+worksheet, and make the server serve it if spawn fails or exceeds 90 seconds.
+Do this at hour 3, not hour 6. If the API rate-limits you on stage, the demo
+still runs and nobody in the room can tell.
+
+---
+
+## 2. `diagnose` — the part that makes this a tutor, not a quiz
+
+Runs on every wrong answer. `claude-sonnet-5`, `effort: 'low'` — it's in the hot
+path and the student is waiting.
+
+```ts
+const { output } = await generateText({
+  model: anthropic('claude-sonnet-5'),
+  instructions: DIAGNOSE_PROMPT,
+  prompt: `Concept: ${concept.name}
+Question: ${tree.question}
+Correct answer: ${correctAnswer}
+Student answered: ${studentAnswer}`,
+  output: Output.object({
+    schema: z.object({
+      misconceptionId: z.enum(worldMisconceptionIds),   // fixed enum, per world
+      confidence: z.number().min(0).max(1),
+      scaffoldHint: z.string(),
+      evidence: z.string(),
+    }),
+  }),
+  providerOptions: { anthropic: { effort: 'low' } },
+});
+```
+
+**The `z.enum` is the entire trick.** The model cannot invent a misconception —
+it must classify into that world's taxonomy. That's what makes the result a
+*measurement* C can aggregate across students, instead of prose a teacher has to
+read one at a time. Free-text diagnosis would kill the heatmap.
+
+`scaffoldHint` rules, put them in the prompt in these words:
+- It is **a question, never an answer.** "What are the units of molar mass?"
+- It never restates the correct option.
+- One sentence. It appears as the withered tree speaking to the student.
+- If the student asks to just be told, it refuses warmly and asks again.
+
+Build a `confidence < 0.5` path: emit `misconceptionId: 'unclassified'` rather
+than forcing a bad label into the teacher's heatmap. A wrong diagnosis on the
+dashboard is worse than an honest gap.
+
+---
+
+## 3. `gradeRecall`
+
+Free-text answer → `{ correct, why }`. `claude-sonnet-5`, `effort: 'low'`,
+boolean-plus-reason schema. Accept correct answers phrased differently, accept
+missing units if the number is right, reject the right word with wrong reasoning.
+Put those three rules in the prompt explicitly.
+
+---
+
+## 4. `schedule` — pure, synchronous, and the one thing you actually TDD
+
+No API calls. Deterministic. Write the tests first — red, green, refactor.
+
+```ts
+schedule(world: World, treeId: string, correct: boolean): World
+```
+
+Leitner, 3 boxes: correct → `box + 1` (cap 3); wrong → back to box 1.
+Then apply the wither/sapling rules exactly as written in the CONTRACT —
+identical semantics to what A renders, or the visuals desync from the state.
+
+Tests to write before the implementation:
+- correct on a healthy box-1 tree → box 2, stays `healthy`, no sapling
+- wrong on a healthy tree → `withered`, box 1, sapling spawned, `spawnedFrom` set
+- correct on a sapling → parent `regrown`, sapling `healthy`
+- wrong on a sapling → second sapling; a third wrong spawns **no** third sapling
+- box 3 is retired: no respawn even on a wrong answer in a later session
+- `conceptHealth` = (healthy + regrown) / total, per concept
+- `nextSession()` → box 1 + box 2 back to `healthy`, saplings cleared,
+  `sessionIndex` incremented
+
+## Deterministic mock mode — build this before you spend real tokens
+
+Capture 3–4 real LLM responses into `__tests__/fixtures/` and add a
+`BRAIN_MOCK=1` env flag that replays them instead of calling the API. You get:
+fast tests, no burned tokens during integration, and a working system when the
+wifi dies. C can develop against `BRAIN_MOCK=1` all afternoon.
+
+---
+
+## Agent architecture
+
+```mermaid
+flowchart TD
+    PDF[Teacher PDF] -->|file part + citations| SPAWN[spawnWorld · opus-5]
+    SPAWN -->|partialOutputStream| GROW[World: status=growing]
+    GROW --> READY[World: status=ready]
+
+    READY --> Q[Student answers a tree]
+    Q --> KIND{tree.kind}
+    KIND -->|choice| CHECK[compare answerIndex]
+    KIND -->|recall| GRADE[gradeRecall · sonnet-5]
+    GRADE --> CHECK
+
+    CHECK -->|correct| SCHED[schedule · pure Leitner]
+    CHECK -->|wrong| DIAG[diagnose · sonnet-5]
+    DIAG -->|misconceptionId from world enum| SCHED
+    DIAG -->|scaffoldHint| CARD[Withered tree speaks]
+
+    SCHED -->|withered + sapling| STATE[(In-memory world state)]
+    STATE --> HEAT[Teacher heatmap by misconception]
+    STATE --> NEXT[next-session: review queue to entrance]
+    NEXT --> READY
+```
+
+**State lives in exactly one place** — C's in-memory store, shaped as `World`.
+Your functions are stateless: they take a `World` and return a `World` or a
+`Diagnosis`. No module-level mutable state in `server/brain/`. That's what makes
+`schedule` testable and the integration boring.
+
+---
+
+## Checkpoints
+
+| Time | Must be true |
+|---|---|
+| 0:30 | Brain package scaffolded, key in `.env`, `schemas.ts` matches CONTRACT |
+| 1:00 | **One real PDF → valid world JSON printed to console.** Nothing else matters until this works. |
+| 1:30 | Citations + Bloom + prerequisites + misconceptions all populating |
+| 2:00 | `schedule` tests green; `BRAIN_MOCK=1` replays fixtures |
+| **2:30** | **Handoff: C can call `spawnWorld` and get a real world** |
+| 3:00 | `diagnose` returning sane misconception + scaffold on real wrong answers |
+| 3:30 | `gradeRecall` working on recall trees |
+| 4:00 | **`fallbackWorld.json` committed** |
+| 5:00 | Prompts tuned — spend this hour on misconception quality, it's the product |
+
+---
+
+## Do not touch
+
+`client/**` and `server/index.ts`. You expose four functions. If you're editing
+an express route, you're doing C's job.

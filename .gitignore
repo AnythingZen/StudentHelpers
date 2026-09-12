@@ -1,0 +1,20 @@
+node_modules/
+dist/
+build/
+.DS_Store
+
+# secrets — never commit
+.env
+.env.local
+.env.*.local
+server/.env
+
+# uploads + generated worlds (fallbackWorld.json IS committed, deliberately)
+uploads/
+*.log
+coverage/
+.vite/
+
+# demo recordings are large; keep them out of git
+*.mov
+*.mp4
