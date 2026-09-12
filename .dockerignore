@@ -1,12 +1,15 @@
 **/node_modules
 **/dist
+**/.venv
+**/.ocr-cache
 .git
 .claude
 docs
+demo
 client
-shared
 *.mov
 *.mp4
 **/*.tsbuildinfo
 **/.env
 **/.env.*
+!**/.env.example
