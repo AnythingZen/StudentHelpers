@@ -52,12 +52,13 @@ while someone types it. Generate from a curated syllable list, not random hex.
 ## The five routes. That is the whole backend.
 
 ### `POST /api/world`
-Multipart: `pdf` + `subject`. Do this in order:
+Multipart: `pdf` + `system` + `level` + `subject` + `topic` (the three dropdowns
+plus the fixed system). Do this in order:
 1. Validate: PDF mime type, **under 32 MB**, not encrypted. Reject cleanly with a
    readable message — a teacher will upload a password-protected PDF eventually.
 2. Mint a room code, store `{ worldId, status: 'growing', trees: [] }`
 3. **Return `{ worldId }` immediately.** Do not await generation.
-4. In the background: `brain.spawnWorld(pdf, subject, onPartial)`, and on each
+4. In the background: `brain.spawnWorld(pdf, syllabus, onPartial)`, and on each
    partial, run `layout()` over what exists and merge into the store so polling
    clients see the forest planting itself.
 5. On completion: `status = 'ready'`. On failure or **90-second timeout**: load
@@ -129,16 +130,23 @@ Aggregate from `events[]`:
 
 Plain HTML + a canvas. No React, no framework. Three things on one screen:
 
-**1. Upload + room code.** Drop a PDF, pick a subject, get a big readable room
-code. While `status === 'growing'`, show "Reading your worksheet… 6 concepts
-found, planting 34 trees" — driven by the partials, so it feels alive.
+**1. Pick the syllabus, then upload.** Three dropdowns, populated from B's
+`syllabus.json`: **Subject → Level → Topic**. Default them to Mathematics /
+Primary 5 / Fractions so the demo needs no clicking, but *show them* — the
+selectors are what make this read as a platform rather than a one-off, and they
+carry the "imagine any syllabus, we've loaded this one" line without you having
+to build anything. Keep them to three `<select>` elements. No syllabus editor.
+
+Then drop a PDF and get a big readable room code. While `status === 'growing'`,
+show "Reading your worksheet… 4 concepts found, planting 27 trees" — driven by
+the partials, so it feels alive.
 
 **2. The forest heatmap.** Top-down 2D canvas of the same coordinates A uses —
 one circle per grove at `concept.centre`, radius by tree count, colour by health:
 green → amber → dead brown. Hovering a dead grove shows the concept name **and
 the top misconception label with a count.**
 
-> "9 students think molar mass is the same as molecular count"
+> "9 students think 5/8 is larger than 3/4 — they're comparing numerators"
 
 **That sentence is the moment the judges remember.** A miss-rate says *9 students
 got Q4 wrong* — a gradebook. A misconception label says *here is what to

@@ -41,11 +41,16 @@ server/brain/
 Your public surface, exactly as in the CONTRACT:
 
 ```ts
-spawnWorld(pdf: Buffer, subject: string, onPartial: (w: Partial<World>) => void): Promise<World>
+spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
 schedule(world: World, treeId: string, correct: boolean): World
 ```
+
+You also own **`server/brain/syllabus.json`** — a small hand-written file of MOE
+Singapore Mathematics topics for Primary 3 through Primary 6. It feeds C's three
+dropdowns and anchors your spawn prompt. Ten minutes of typing, no cleverness
+required. One system, one subject. Do not generalise it.
 
 ---
 
@@ -75,7 +80,7 @@ const result = streamText({
   messages: [{
     role: 'user',
     content: [
-      { type: 'text', text: SPAWN_PROMPT(subject) },
+      { type: 'text', text: SPAWN_PROMPT(syllabus) },
       { type: 'file', data: pdf, mediaType: 'application/pdf' },
     ],
   }],
@@ -117,15 +122,27 @@ directly for the spawn call only; the raw `document` block shape is confirmed.
 
 ### `SPAWN_PROMPT` must ask for all five things
 
+The prompt is **anchored to the syllabus** the teacher picked — pass
+`system`, `level`, `subject`, `topic` in the text part, and tell the model to map
+every concept it finds to a named syllabus outcome in `syllabusRef`. The PDF
+supplies the content; the syllabus supplies the vocabulary. That is what makes
+the teacher heatmap read in the teacher's own language instead of the model's.
+
 1. **concepts** — 3–5 per worksheet. Any more and the forest is too big to walk.
+   Each carries `syllabusRef` and `level`.
 2. **prerequisites** per concept — concept ids only. *This is the world model.*
    It's what locks groves behind mastery. Tell the model to produce a DAG and to
    leave the entry concept's prerequisites empty.
+   **Plus one concept from the level above** (`level: 'Primary 6'` in a Primary 5
+   world), prerequisite on every other concept. That is the level ladder — the
+   deepest, locked grove that fires LEVEL UP when cleared. Ask for it explicitly
+   or the model won't produce it.
 3. **trees** — 5–8 questions per concept, each tagged with its concept, with
    `kind: 'choice'` (4 options) or `kind: 'recall'` (~25%, free text answer).
 4. **Bloom level** per concept: `remember` | `understand` | `apply`.
 5. **misconceptions** — 6–10 across the worksheet. Specific and diagnostic
-   ("thinks molar mass is molecular count"), never vague ("struggles with moles").
+   ("compares fractions by numerator alone, so thinks 5/8 > 3/4"), never vague
+   ("struggles with fractions").
    These become the enum `diagnose` classifies into, and the labels the teacher
    sees on the heatmap. **If these are weak, the whole product is weak.**
 
@@ -173,7 +190,8 @@ it must classify into that world's taxonomy. That's what makes the result a
 read one at a time. Free-text diagnosis would kill the heatmap.
 
 `scaffoldHint` rules, put them in the prompt in these words:
-- It is **a question, never an answer.** "What are the units of molar mass?"
+- It is **a question, never an answer.** "What would 3/4 look like written in
+  eighths?"
 - It never restates the correct option.
 - One sentence. It appears as the withered tree speaking to the student.
 - If the student asks to just be told, it refuses warmly and asks again.

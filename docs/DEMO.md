@@ -3,6 +3,10 @@
 Builder C owns this file and holds the clock. Everyone reads it at minute 5 so
 you all know what you are building toward.
 
+**Anchor:** MOE Singapore · Primary 5 · Mathematics · Fractions.
+**The game is the product.** The syllabus is a label that makes the content
+defensible; it is not a feature to expand.
+
 ---
 
 ## The 7-hour plan
@@ -10,10 +14,10 @@ you all know what you are building toward.
 | Time | Phase | What must be true at the end |
 |---|---|---|
 | **0:00–0:30** | **Lock** | `CONTRACT.md` read aloud. `mockWorld.json` committed. Vite + express scaffolds pushed. `development` + three feature branches. Cut list said out loud. |
-| 0:30–2:30 | **Parallel slices** | **A:** walking around a forest built from the mock. **B:** one real PDF → valid world JSON in the console. **C:** server up, teacher heatmap rendering from the mock. |
+| 0:30–2:30 | **Parallel slices** | **A:** walking around a forest built from the mock. **B:** one real PDF → valid world JSON in the console. **C:** three dropdowns + server up + heatmap rendering from the mock. |
 | **2:30–3:30** | **Integration #1 — GO/NO-GO** | A real generated world renders in the 3D scene. *If A's scene can't render the mock at 2:30, A drops to 2.5D. C makes that call.* |
-| 3:30–5:00 | **The loop closes** | Wrong answer → diagnosis → tree withers and speaks a scaffold → sapling respawns ahead → teacher heatmap updates live. |
-| 5:00–6:00 | **Juice** | Fog, ambient audio, sky shift, the regrow animation, heatmap legibility. Stretch only if ahead: `.glb` environment, `ts-fsrs` health number, Deploy Focus Quest. **Polish wins hackathons more reliably than features.** |
+| 3:30–5:00 | **The loop closes** | Wrong answer → diagnosis → tree withers and speaks a scaffold → sapling respawns ahead → teacher heatmap updates live. Level-ladder gate opens on mastery. |
+| 5:00–6:00 | **Juice** | Fog, ambient audio, sky shift, the regrow animation, the LEVEL UP banner, heatmap legibility. Stretch only if ahead: `.glb` environment, `ts-fsrs` health number, Deploy Focus Quest. **Polish wins hackathons more reliably than features.** |
 | **6:00–6:30** | **Freeze + record** | Hard code freeze. Full-flow screen capture in hand. |
 | 6:30–7:00 | **Rehearse** | Run it out loud three times. Timed. |
 
@@ -27,33 +31,36 @@ you all know what you are building toward.
 
 ---
 
-## The 90-second demo
+## The 100-second demo
 
 Run it in this order. Do not improvise; you have rehearsed this three times.
 
 **0:00 — the problem, in one sentence.**
-> "Every AI homework tool helps students finish work. We built one that finds out
-> what they misunderstood — and makes them come back to it."
+> "Every AI homework tool helps a student finish tonight's work. We built one
+> that finds out what they misunderstood — and makes them walk back to it."
 
 **0:10 — the teacher spawns a world.**
-Drag a real chemistry worksheet onto the teacher console. The forest plants
-itself live: *"Reading your worksheet… 4 concepts found, planting 27 trees."*
-A room code appears: **OAK7**.
-> "This is her actual Friday worksheet. She didn't author anything."
+Show the three dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real
+P5 fractions worksheet on it. The forest plants itself live: *"Reading your
+worksheet… 4 concepts found, planting 27 trees."* A room code appears: **OAK7**.
+> "MOE Singapore syllabus, Primary 5. Imagine any syllabus — we've loaded this
+> one. And that's her actual worksheet; she authored nothing."
 
 **0:25 — the student joins and walks.**
 Enter `OAK7`. First-person, into the forest. Walk to a tree, press E, answer it
 right. The canopy holds.
-> "Groves are concepts. Walking deeper moves up Bloom's taxonomy."
+> "Groves are syllabus concepts. Walking deeper moves up Bloom's taxonomy."
 
 **0:40 — the wrong answer. This is the whole product.**
-Answer one wrong. **The tree withers on screen.** It doesn't say "Wrong!" — it
-asks a question back:
-> *"What are the units of molar mass?"*
+> *"Which is larger: 3/4 or 5/8?"*
 
-Hover the `📄 p.2` chip — the question traces to a passage in the teacher's own
-PDF.
-> "It diagnosed the misconception, then scaffolded instead of answering."
+Answer **5/8**. **The tree withers on screen.** It doesn't say "Wrong!" — it asks
+a question back:
+> *"What would 3/4 look like written in eighths?"*
+
+Hover the `📄 p.2` chip — the question traces to a line in the teacher's own PDF.
+> "It classified the error — she's comparing numerators and ignoring the
+> denominators — then scaffolded instead of answering."
 
 Student solves it. Tree regrows.
 
@@ -63,17 +70,23 @@ Walk on. A sapling of that same concept has taken root further along the path.
 
 **1:05 — the teacher already knows.**
 Cut to the teacher console. The grove is amber. Hover it:
-> **"9 students think molar mass is the same as molecular count."**
+> **"9 students think 5/8 is larger than 3/4 — they're comparing numerators."**
 
 > "Not 'nine students got question four wrong.' That's a gradebook. This is a
 > lesson plan."
 
 Click **Next Session** — the weak grove slides to the forest entrance.
 
-**1:20 — close on the science.**
+**1:25 — the climb.**
+Back in the forest, the deep gate opens: **LEVEL UP · Primary 6 Fractions
+unlocked.**
+> "Mastery is the only key in this game. A Primary 3 child who clears Primary 5
+> fractions walks straight into Primary 6 — nobody has to promote them."
+
+**1:35 — close on the science.**
 The citations slide. Say the last line:
-> "Other tools help students finish homework tonight. This one knows what they'll
-> have forgotten by Thursday."
+> "Other tools help a student finish homework tonight. This one knows what
+> they'll have forgotten by Thursday."
 
 ---
 
@@ -92,8 +105,12 @@ difference between citing a paper and applying one.
 
 The free-recall trees matter more than they look. Roediger & Karpicke's effects
 are strongest for *generative* retrieval, not four-option recognition — a judge
-who knows the paper will check. Having real recall questions is what makes the
-citation honest rather than decorative.
+who knows the paper will check. Real recall questions are what make the citation
+honest rather than decorative.
+
+Our advisor studied learning theory formally and offered to back the science in
+the pitch. **Take her up on it before you present** — a second pair of eyes on
+this slide is free credibility.
 
 ---
 
@@ -102,23 +119,47 @@ citation honest rather than decorative.
 **"Isn't this just gamified flashcards?"**
 Flashcards decay on a timer you can't see. Here the forest *is* the memory
 state — a student can look at the treeline and see what they're losing. And the
-schedule isn't the student's to game: it's derived from a diagnosed
-misconception, not from whether they clicked "I knew that."
+schedule isn't the student's to game: it's driven by a diagnosed misconception,
+not by whether they clicked "I knew that."
+
+**"What about Khan Academy?"**
+Khan Academy has mastery tracking and practice, and does it well. Two things it
+doesn't do: it doesn't classify a wrong answer into a *named misconception* a
+teacher can act on, and it isn't a world a child wants to re-enter. We're not
+competing on content library — we're a game layer that any syllabus drops into.
 
 **"What does the AI actually do?"**
 Three things, all structured, none of them a chatbot: it reads the teacher's PDF
-into a concept graph with a prerequisite DAG; it classifies each wrong answer
-into that document's own misconception taxonomy — a constrained enum, so it
-can't invent a label; and it scaffolds with a question instead of an answer.
-The classification is what makes 45 students aggregatable into one heatmap.
+into a concept graph with a prerequisite DAG mapped to syllabus outcomes; it
+classifies each wrong answer into that document's own misconception taxonomy — a
+constrained enum, so it cannot invent a label; and it scaffolds with a question
+instead of an answer. The classification is what makes 45 students aggregatable
+into one heatmap.
 
 **"How do I know it didn't hallucinate the questions?"**
-Every question carries the page and passage it came from, using Claude's
-document citations. Hover any question to see the teacher's own text.
+Every question carries the page and passage it came from, using Claude's document
+citations. Hover any question to see the teacher's own text.
 
-**"Could a teacher really use this on Monday?"**
-That's the whole design. She uploads the worksheet she already wrote. No content
-authoring, no setup, no accounts — a room code on the board.
+**"Why Singapore MOE?"**
+Because it's a published national syllabus, so our content is checkable, and
+Singapore Maths is taught internationally. US standards vary district by district
+with no clean published spec — that's a data problem, not a product one, and we
+weren't going to fake it in 7 hours.
+
+**"Who pays for this?"**
+Parents first, as after-school practice — the level ladder is built for exactly
+that buyer, the parent who wants to see their child climb ahead of their grade.
+Schools are the slower, stickier second motion. We're not pitching a business
+today; we're proving the loop works.
+
+---
+
+**"Where does this go next?"** *(have this ready — judges always ask)*
+The PDF is just the first ingestion path. Paste a Khan Academy topic URL, or any
+lesson page, and the same pipeline spawns a world from it — the document becomes
+a world model, and the world model becomes a level. That's the platform: a
+syllabus is a container, and any source that describes a topic can fill it.
+**Not built today.** Say it as direction, not as a claim.
 
 ---
 
@@ -128,6 +169,8 @@ Honesty scores better than polish here, and every one of these was a deliberate
 trade to ship in 7 hours:
 
 - One room, one worksheet at a time; state is in memory and dies on restart.
+- One syllabus system, one subject, one topic. The container is real; the library
+  is not stocked.
 - Misconception taxonomy is generated per document and unvalidated by a teacher —
   a real deployment needs teacher review before it drives instruction.
 - Leitner 3-box, not a full FSRS/SM-2 scheduler. Right timescale for a single

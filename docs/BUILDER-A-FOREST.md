@@ -95,6 +95,13 @@ Rules:
   citations slide, so make the code actually do it).
 - **Locked groves** (`prerequisites` unsatisfied, see CONTRACT) render dark,
   desaturated, with a low fog wall, and the proximity trigger ignores them.
+- **The level-ladder grove** — exactly one concept has `level` above the world's
+  own (Primary 6 in a Primary 5 world). Put it deepest, behind a visible gate,
+  and make it look like a reward: taller trees, warmer light, visible from the
+  path so the student wants it. When its prerequisites clear, the gate opens and
+  you fire a **LEVEL UP · Primary 6 Fractions unlocked** banner.
+  This is a demo beat the pitch leans on — a student climbing above their own
+  grade. Make the banner big and give it a sound.
 - `placeSapling(world, parentTreeId)` → a position further down the path,
   roughly 90 seconds of walking ahead of the player's current spot.
 - `/api/next-session` re-layout: box-1 and box-2 trees move **near the entrance**.
