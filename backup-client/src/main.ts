@@ -30,7 +30,8 @@ store.set('mg-player', playerId);
 
 // ---------------- join screen ----------------
 const params = new URLSearchParams(location.search);
-$<HTMLInputElement>('join-room').value = (params.get('room') ?? 'OAK7').toUpperCase();
+// The bare link (as printed on the demo slide) puts everyone in the audience room.
+$<HTMLInputElement>('join-room').value = (params.get('room') ?? 'CAKE').toUpperCase();
 $<HTMLInputElement>('join-name').value = store.get('mg-name') ?? '';
 api.worlds().then(({ worlds }) => {
   for (const w of worlds.filter(x => x.status === 'ready').slice(-6)) {
@@ -70,7 +71,7 @@ $<HTMLFormElement>('join').addEventListener('submit', e => {
 // the demo laptop, a second player's tab, and automated screenshots.
 if (params.get('name')) {
   $('join').hidden = true;
-  void join((params.get('room') ?? 'OAK7').toUpperCase(), params.get('name')!.slice(0, 24));
+  void join((params.get('room') ?? 'CAKE').toUpperCase(), params.get('name')!.slice(0, 24));
 }
 
 // ---------------- the game ----------------
