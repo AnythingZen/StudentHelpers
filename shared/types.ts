@@ -114,7 +114,9 @@ export interface AnswerResponse {
   retention: number;
   calibration: Calibration | null;
 }
-export type AnswerResult = AnswerResponse;   // the contract uses both names
+// The older, smaller result shape Builder A's client was written against. Kept as a
+// subset so A's client keeps compiling; the server always returns the full AnswerResponse.
+export type AnswerResult = Omit<AnswerResponse, 'xp' | 'mastery' | 'retention' | 'calibration'>;
 
 // Client event bus (A's scene <-> C's network layer).
 export type GameEvent =
