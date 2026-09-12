@@ -270,7 +270,8 @@ function start(room: string, name: string, first: StateResponse): void {
   function nearestTree(): { tree: Tree; locked: boolean } | null {
     let best: { tree: Tree; locked: boolean; d: number } | null = null;
     for (const t of world.trees) {
-      const d = Math.hypot(t.pos[0] - pos.x, t.pos[2] - pos.z);
+      // A challenge is a table or a bridge, not a trunk: measure to its edge, so standing beside it picks it.
+      const d = Math.hypot(t.pos[0] - pos.x, t.pos[2] - pos.z) - (t.kind === 'model' ? 1.6 : 0);
       if (d <= INTERACT_RANGE && (!best || d < best.d)) best = { tree: t, locked: lockedFor(t.conceptId), d };
     }
     return best;

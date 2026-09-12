@@ -34,7 +34,8 @@ export function placeSapling(world: ServerWorld, saplingId: string): ServerWorld
   const offsets: Array<[number, number]> = [[3, 12], [-3, 12], [5, 10], [-5, 10], [0, 14], [6, 15], [-6, 15], [3, 17], [-3, 17]];
   const others = world.trees.filter(t => t.id !== saplingId);
   const candidates = offsets.map(([dx, dz]) => [parent.pos[0] + dx * side, 0, parent.pos[2] - dz] as Vec3);
-  const clear = candidates.find(c => others.every(t => distance(c, t.pos) >= MIN_GAP));
+  // Hands-on challenges are big props: keep saplings well clear, or the E prompt picks the sapling.
+  const clear = candidates.find(c => others.every(t => distance(c, t.pos) >= (t.kind === 'model' ? 6 : MIN_GAP)));
   return withPos(world, new Map([[saplingId, clear ?? candidates[0]!]]));
 }
 
