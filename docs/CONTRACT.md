@@ -82,13 +82,14 @@ type Source =
   | { kind: 'pdf';    filename: string; pages: number }   // hero path, has provenance
   | { kind: 'text';   label: string; chars: number }      // pasted lesson content
   | { kind: 'prompt'; text: string }                      // topic only, no provenance
-  | { kind: 'url';    url: string; title: string };       // STRETCH — see B's brief
+  | { kind: 'url';    url: string; title: string };       // reading world uses this; never Khan
 
 interface World {
   worldId: string;            // 4-char room code, e.g. "OAK7"
   syllabus: Syllabus;
   subject: string;            // display string, "Primary 5 Mathematics — Fractions"
   source: Source;
+  status: 'growing' | 'ready' | 'failed';   // polling flips growing -> ready
   sessionIndex: number;       // 0 on spawn, +1 per /next-session
   concepts: Concept[];        // a concept === a grove
   misconceptions: Misconception[];
@@ -108,7 +109,7 @@ interface Concept {
 interface Misconception {
   id: string;                 // "m1"
   conceptId: string;
-  label: string;              // "Confuses molar mass with molecular count"
+  label: string;              // "Compares fractions by numerator alone, so 5/8 > 3/4"
 }
 
 interface Tree {
@@ -139,15 +140,19 @@ depends on having the answer client-side.
 
 ---
 
-## The four endpoints. That is the entire backend.
+## The six endpoints. That is the entire backend.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| `POST` | `/api/world` | multipart: `pdf`, `subject` | `{ worldId }` immediately |
-| `GET` | `/api/state/:worldId` | — | `{ status, world }` (answers stripped) |
-| `POST` | `/api/answer` | `{ worldId, treeId, response }` | see below |
+| `POST` | `/api/world` | multipart: `system`, `level`, `subject`, `topic`, `sourceKind`, plus `pdf` **or** `url` **or** `text` | `{ worldId }` immediately |
+| `GET` | `/api/state/:worldId` | — | `{ status, world, xp, mastery, retention }` (answers stripped) |
+| `POST` | `/api/answer` | `{ worldId, treeId, response, confidence? }` | see below |
 | `POST` | `/api/next-session/:worldId` | — | `{ world }` |
-| `GET` | `/api/teacher/:worldId` | — | aggregate, see C's brief |
+| `GET` | `/api/teacher/:worldId` | — | aggregate + Class World bar, see C's brief |
+| `POST` | `/api/deploy-quest/:worldId` | `{ misconceptionId }` | `{ addedTreeIds }` — hour 5 |
+
+`sourceKind` is `'pdf' | 'url' | 'text' | 'prompt'`. For `prompt`, send none of
+the three payload fields; the syllabus dropdowns are the whole input.
 
 `POST /api/world` returns the room code **straight away** and generates in the
 background. `status` goes `growing` → `ready` and `trees[]` grows as generation

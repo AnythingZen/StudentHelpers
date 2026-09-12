@@ -38,6 +38,10 @@ all three builders can work against real-shaped data from minute 15.
 
 ## Read in this order
 
+0. **[docs/START-HERE.md](docs/START-HERE.md)** — **first, every time.** Who is
+   who, the commit-hash handshake, what changed since earlier drafts, and the
+   skeleton-first failsafe. The docs were revised many times during planning, so
+   assume any copy you read before the clock started is stale.
 1. **[docs/CONTRACT.md](docs/CONTRACT.md)** — everyone, first, before any code.
    The shared data shape, the five endpoints, the rules all three of you must
    implement identically, and the cut list.

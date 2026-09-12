@@ -31,7 +31,7 @@ single-room demo.
 
 ```
 server/
-  index.ts        express app, the 5 routes
+  index.ts        express app, the 6 routes
   store.ts        the Map, room codes, answer keys held private
   teacher/
     index.html    teacher console
@@ -49,7 +49,7 @@ while someone types it. Generate from a curated syllable list, not random hex.
 
 ---
 
-## The five routes. That is the whole backend.
+## The six routes. That is the whole backend.
 
 ### `POST /api/world`
 Multipart: `pdf` + `system` + `level` + `subject` + `topic` (the three dropdowns
@@ -216,6 +216,17 @@ Retention is a **proxy**, not a memory model. Say so if asked; do not imply FSRS
 
 ---
 
+## You own the walking skeleton — minute 0 to 45
+
+Before anything is real, build the whole path with fakes: `server/` serves both
+fixtures and answers `/api/answer` in the real response shape with canned values;
+`client/` renders boxes and calls those endpoints. Hand it to Roshan and Zen at
+0:45. Each of them then replaces one fake behind the same interface.
+
+From that point **`development` must always run a demo.** If a merge breaks it,
+revert the merge first and debug second. This is the project's failsafe — not a
+backup copy, but a build order in which nothing is ever unrunnable.
+
 ## You also own shipping
 
 Nobody else will do these, and every one of them has sunk a hackathon team:
@@ -236,7 +247,8 @@ Nobody else will do these, and every one of them has sunk a hackathon team:
 
 | Time | Must be true |
 |---|---|
-| 0:30 | Express up, `GET /api/state` serving `mockWorld.json`, room codes minting |
+| 0:10 | `shared/types.ts` committed from the CONTRACT interfaces, then frozen |
+| **0:45** | **Walking skeleton runs end to end on fakes** — server serves both fixtures and canned `/api/answer` responses; client renders boxes you can walk around. See `START-HERE.md`, step 3. |
 | 1:15 | Teacher page renders the heatmap from the mock |
 | 2:00 | `POST /api/answer` working against mock answers, `events[]` logging |
 | **2:30** | **Integration #1: A polls your server, B's real world is in the store** |
@@ -253,4 +265,4 @@ Nobody else will do these, and every one of them has sunk a hackathon team:
 ## Do not touch
 
 `client/src/**` (A's) and `server/brain/**` (B's). You import `layout` from A
-and the four functions from B. If you're writing a prompt, you're doing B's job.
+and the six functions from B. If you're writing a prompt, you're doing B's job.

@@ -3,7 +3,7 @@
 **You own the PDF pipeline and every AI call.** This is the segment most likely
 to surprise you, so you start here and you start immediately.
 
-**Read `docs/CONTRACT.md` first.** You export four functions and nothing else.
+**Read `docs/CONTRACT.md` first.** You export **six** functions and nothing else.
 C calls them; A never does.
 
 ---
@@ -26,7 +26,7 @@ Verified against current AI SDK docs. Do not copy patterns from older projects.
 
 ```
 server/brain/
-  index.ts         the 4 exports, nothing else public
+  index.ts         the 6 exports, nothing else public
   spawn.ts         PDF -> World
   diagnose.ts      wrong answer -> misconception + scaffold
   grade.ts         recall-tree text grading
@@ -420,5 +420,5 @@ Your functions are stateless: they take a `World` and return a `World` or a
 
 ## Do not touch
 
-`client/**` and `server/index.ts`. You expose four functions. If you're editing
+`client/**` and `server/index.ts`. You expose six functions. If you're editing
 an express route, you're doing C's job.
