@@ -65,6 +65,8 @@ export interface Tree {
   // Saplings: the parent tree's id. Deploy Quest trees: "quest:<misconceptionId>".
   // Either way the tree is session practice — excluded from mastery, cleared next session.
   spawnedFrom: string | null;
+  // Saplings only: the student whose miss planted it. Each student sees their own.
+  ownerId?: string;
 }
 
 // Server-side only. The answer key never reaches a browser.
@@ -82,6 +84,9 @@ export interface World<T extends Tree = Tree> {
   // Who produced the content. 'sample' means the committed fixture data — shown
   // to the teacher as a warning, so a sample world is never passed off as AI output.
   generatedBy?: 'ai' | 'sample';
+  // Shown to the teacher when the world isn't quite what they asked for,
+  // e.g. a link that couldn't be read, so it was grown from the topic instead.
+  notice?: string;
   sessionIndex: number;
   concepts: Concept[];
   misconceptions: Misconception[];
@@ -142,4 +147,5 @@ export interface AnswerEvent {
   correct: boolean;
   misconceptionId: string | null;
   confidence: Confidence | null;
+  name?: string;
 }

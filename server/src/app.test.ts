@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
-import { createApp } from './app.js';
+import { createApp, topicHintFromUrl } from './app.js';
+import { withFallback } from './brain.js';
 import { createFallbackBrain, freshWorld, loadFixture } from './fallbackBrain.js';
 import type { Brain } from './brain.js';
 import type { ServerWorld } from './contract.js';
@@ -13,6 +14,9 @@ const setup = (over: { brain?: Brain; world?: ServerWorld } = {}) => {
   return { ...built, http: request(built.app), world };
 };
 beforeEach(() => { clock = 1_000_000; });
+
+const reflect = (http: ReturnType<typeof request>, body: object) =>
+  http.post('/api/reflect').send({ worldId: 'OAK7', playerId: 'p1', name: 'Alex', rating: 3, ...body });
 
 const answer = (http: request.Agent | ReturnType<typeof request>, body: object) =>
   (http as ReturnType<typeof request>).post('/api/answer').send({ worldId: 'OAK7', playerId: 'p1', ...body });
@@ -90,7 +94,8 @@ describe('POST /api/answer', () => {
     const { http, store } = setup();
     await answer(http, { treeId: 't1', response: 0 });
     await answer(http, { treeId: 't2', response: 'no, same amount, both divided by 5' });
-    await answer(http, { treeId: 't3', response: 0 }); // c1 now mastered -> c2 unlocks
+    await answer(http, { treeId: 't3', response: 0 });
+    expect((await reflect(http, { conceptId: 'c1' })).status).toBe(200); // p1's first mission done -> c2 unlocks
     const res = await answer(http, { treeId: 't4', response: 0, confidence: 'high' }); // 5/8 — wrong
     expect(res.body).toMatchObject({ correct: false, treeState: 'withered', calibration: 'overconfident' });
     expect(res.body.misconceptionLabel).toBeTruthy();
@@ -105,6 +110,7 @@ describe('POST /api/answer', () => {
     for (const [treeId, response] of [['t1', 0], ['t3', 0], ['t2', 'no, same amount, both divided by 5']] as const) {
       await answer(http, { treeId, response });
     }
+    await reflect(http, { conceptId: 'c1' });
     await answer(http, { treeId: 't4', response: 0 });
     expect((await answer(http, { treeId: 't4', response: 1 })).body.treeState).toBe('regrown');
   });
@@ -130,12 +136,13 @@ describe('POST /api/answer', () => {
     for (const [treeId, response] of [['t1', 0], ['t3', 0], ['t2', 'no, same amount, both divided by 5']] as const) {
       await answer(http, { treeId, response });
     }
+    await reflect(http, { conceptId: 'c1' });
     const res = await answer(http, { treeId: 't15', response:
       "You can't compare the top numbers unless the bottom numbers match. Make a common denominator: " +
       '3/4 = 6/8, and 6/8 is bigger than 5/8 because the denominator sets the size of each part.' });
     expect(res.body.correct).toBe(true);
     expect(res.body.explanation.encouragement).toBeTruthy();
-    expect(res.body.xp).toBe(30 + 25);
+    expect(res.body.xp).toBe(30 + 25 + 20); // 3 answers, Mia, and the finished first mission
   });
 
   it('returns JSON, not a crash, for malformed JSON', async () => {
@@ -268,5 +275,83 @@ describe('misc', () => {
     const missing = await http.get('/api/nope');
     expect(missing.status).toBe(404);
     expect(missing.body.error).toBeTruthy();
+  });
+});
+
+describe('missions, per student', () => {
+  it('a mission completes only through reflection, and unlocks the next grove for that student alone', async () => {
+    const { http } = setup();
+    expect((await reflect(http, { conceptId: 'c1' })).body.error).toMatch(/not yet/i);
+    for (const [treeId, response] of [['t1', 0], ['t3', 0], ['t2', 'no, same amount, both divided by 5']] as const) {
+      await answer(http, { treeId, response, name: 'Alex' });
+    }
+    const done = await reflect(http, { conceptId: 'c1', rating: 4, note: 'divide top and bottom by the same number' });
+    expect(done.status).toBe(200);
+    expect(done.body.accuracy).toBe(1);
+    expect(done.body.me.missions.find((m: { conceptId: string }) => m.conceptId === 'c2').unlocked).toBe(true);
+    expect((await answer(http, { treeId: 't4', response: 1 })).status).toBe(200);
+    expect((await answer(http, { treeId: 't4', response: 1, playerId: 'p2' })).status).toBe(409);
+
+    const state = await http.get('/api/state/OAK7?playerId=p1');
+    expect(state.body.me.current).toBe('c2');
+    expect(state.body.mastery).toBeCloseTo(1 / 5);
+    expect(JSON.stringify(state.body)).not.toContain('answerIndex');
+  });
+
+  it('a student\'s sapling is theirs: other students don\'t see it', async () => {
+    const { http } = setup();
+    const res = await answer(http, { treeId: 't1', response: 2 });
+    expect(res.body.saplingId).toBeTruthy();
+    const mine = (await http.get('/api/state/OAK7?playerId=p1')).body.world.trees;
+    const theirs = (await http.get('/api/state/OAK7?playerId=p2')).body.world.trees;
+    expect(mine.some((t: { id: string }) => t.id === res.body.saplingId)).toBe(true);
+    expect(theirs.some((t: { id: string }) => t.id === res.body.saplingId)).toBe(false);
+    expect(theirs.find((t: { id: string }) => t.id === 't1').state).toBe('healthy');
+  });
+
+  it('the teacher sees each student: mission, status and last misconception', async () => {
+    const { http } = setup();
+    await answer(http, { treeId: 't1', response: 2, name: 'Alex', confidence: 'high' });
+    await http.post('/api/presence/OAK7').send({ playerId: 'p9', name: 'Bea', pos: [0, 0, 0], yaw: 0 });
+    const view = (await http.get('/api/teacher/OAK7')).body;
+    const names = view.students.map((s: { name: string }) => s.name).sort();
+    expect(names).toEqual(['Alex', 'Bea']);
+    const alex = view.students.find((s: { name: string }) => s.name === 'Alex');
+    expect(alex.currentMission.conceptId).toBe('c1');
+    expect(alex.calibration.overconfident).toBe(1);
+    expect(alex.lastMisconception).toBeTruthy();
+  });
+});
+
+describe('a link the AI cannot read', () => {
+  it('grows a real world from the link\'s topic instead of passing off the sample, and tells the teacher', async () => {
+    const fallback = createFallbackBrain({ plantDelayMs: 0 });
+    const aiWorld = { ...freshWorld(loadFixture('maths')), generatedBy: undefined };
+    const topics: string[] = [];
+    const zen: Brain = {
+      ...fallback, name: 'zen',
+      spawnWorld: async (input, syllabus) => {
+        if (input.kind === 'url') throw new Error('returned only 303 chars of text (JS-rendered page?)');
+        topics.push(syllabus.topic);
+        return aiWorld as ServerWorld;
+      },
+    };
+    const { http, store } = setup({ brain: withFallback(zen, fallback, { spawnTimeoutMs: 1000, callTimeoutMs: 1000, log: () => {} }) });
+    const res = await http.post('/api/world').field({
+      level: 'Primary 5', subject: 'Mathematics', topic: 'Fractions', sourceKind: 'url',
+      url: 'https://www.khanacademy.org/math/arithmetic/fraction-arithmetic/arith-review-equivalent-fractions/a/equivalent-fractions',
+    });
+    await store.settled(res.body.worldId);
+    const w = store.require(res.body.worldId);
+    expect(w.generatedBy).toBe('ai');
+    expect(topics).toEqual(['Fractions: equivalent fractions']);
+    expect(w.notice).toMatch(/khanacademy\.org/);
+    expect((await http.get(`/api/teacher/${w.worldId}`)).body.notice).toMatch(/generated from its topic/);
+  });
+
+  it('pulls topic words out of a link', () => {
+    expect(topicHintFromUrl('https://www.khanacademy.org/math/cc-fifth-grade-math/imp-fractions-3')).toBe('fractions');
+    expect(topicHintFromUrl('https://en.wikipedia.org/wiki/Photosynthesis')).toBe('photosynthesis');
+    expect(topicHintFromUrl('not a url')).toBe('');
   });
 });
