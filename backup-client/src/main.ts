@@ -2,7 +2,8 @@
 // walking onto stones, help Mia, watch bridges rebuild.
 import * as THREE from 'three';
 import type { AnswerResponse, Concept, Tree, World } from '../../server/src/contract';
-import { Avatar, makeFox } from './avatar';
+import { Avatar, makeFox, makeProfessorByte } from './avatar';
+import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { askConfidence, banner, Bubble, setBars, setPrompt, toast } from './hud';
 import { api } from './net';
 import { isLocked } from './rules';
@@ -71,6 +72,26 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
   // A tiny fox at your heel — its job is the confidence prompt.
   const fox = makeFox();
   scene.add(fox);
+  const byte = makeProfessorByte();
+  const byteTag = new CSS2DObject(Object.assign(document.createElement('div'), { className: 'label name-tag', textContent: 'Professor Byte' }));
+  byteTag.position.y = 3.2;
+  byte.group.add(byteTag);
+  byte.group.visible = false;
+  byteTag.visible = false;
+  scene.add(byte.group);
+  let byteHideAt = 0;
+  // Stand him beside the tree, turned toward the student.
+  const summonByte = (tree: Tree) => {
+    const tx = tree.pos[0], tz = tree.pos[2];
+    const away = new THREE.Vector3(pos.x - tx, 0, pos.z - tz).normalize();
+    const side = new THREE.Vector3(-away.z, 0, away.x);
+    byte.group.position.set(tx + side.x * 1.9 + away.x * 0.8, 0, tz + side.z * 1.9 + away.z * 0.8);
+    byte.group.rotation.y = Math.atan2(pos.x - byte.group.position.x, pos.z - byte.group.position.z);
+    byte.group.visible = true;
+    byteTag.visible = true;
+    byteHideAt = performance.now() + 9500;
+    return byte.group.position.clone().setY(3.9);
+  };
 
   let world = initial;
   const pos = new THREE.Vector3(0, 0, 12);
@@ -148,7 +169,8 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     busy = true;
     document.exitPointerLock();
     if (tree.kind === 'recall') {
-      const text = await bubble.ask(new THREE.Vector3(tree.pos[0], 4.5, tree.pos[2]), 'From memory', tree.question, 'Type your answer…');
+      const cite = tree.citation ? `  📄 p.${tree.citation.page}` : '';
+      const text = await bubble.ask(new THREE.Vector3(tree.pos[0], 4.5, tree.pos[2]), 'From memory', `${tree.question}${cite}`, 'Type your answer…');
       if (text) await submit(tree, text); else busy = false;
       return;
     }
@@ -194,7 +216,7 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     stones.rearm();
     const lead = res.calibration === 'overconfident' ? 'You were very sure about that one. ' : '';
     const hint = res.scaffoldHint ?? 'What is the question really asking you?';
-    bubble.say(new THREE.Vector3(tree.pos[0], 5.2, tree.pos[2]), 'Professor Byte', lead + hint, 9000);
+    bubble.say(summonByte(tree), 'Professor Byte', lead + hint, 9000);
     toast(`⚠️ ${quest} is unstable`, 'bad');
     if (res.saplingId) toast(`🌱 A sapling of ${concept?.name ?? 'this idea'} took root further up the path`, '', 4500);
   }
@@ -297,6 +319,8 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     }
     $('look-hint').hidden = locked() || bubble.open || params.get('debug') === '1';
 
+    if (byte.group.visible && now > byteHideAt) { byte.group.visible = false; byteTag.visible = false; }
+    if (byte.group.visible) byte.animate(dt, 0);
     forest.update(dt, t, now);
     forest.render();
   });

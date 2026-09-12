@@ -43,6 +43,20 @@ export class Avatar {
   jump(t: number): void { this.group.position.y = Math.max(0, Math.sin(t * 9)) * 0.5; }
 }
 
+// Professor Byte, the AI tutor, as a character in the world: a robed blocky NPC
+// with a wizard's hat. He appears beside a tree when an answer is wrong and asks a
+// question back — the AI made visible as an agent rather than a chat box.
+export function makeProfessorByte(): Avatar {
+  const byte = new Avatar(0x5b3a9e, 0xf1c7a3, 0xd9d9d9);
+  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.75, 7), new THREE.MeshLambertMaterial({ color: 0x3d2670, flatShading: true }));
+  hat.position.y = 2.72;
+  hat.castShadow = true;
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.06, 12), new THREE.MeshLambertMaterial({ color: 0x3d2670, flatShading: true }));
+  brim.position.y = 2.36;
+  byte.group.add(hat, brim);
+  return byte;
+}
+
 // The companion. Its job is the confidence prompt, so it should read as a fox.
 export function makeFox(): THREE.Group {
   const fox = new THREE.Group();

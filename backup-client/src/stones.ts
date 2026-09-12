@@ -39,7 +39,7 @@ export class AnswerStones {
     const side = new THREE.Vector3(-toPlayer.z, 0, toPlayer.x);
     const choices = tree.choices ?? [];
 
-    choices.forEach((text, i) => {
+    choices.forEach((_choice, i) => {
       const offset = (i - (choices.length - 1) / 2) * 2.4;
       const pos = treePos.clone().addScaledVector(toPlayer, 3.4 - Math.abs(offset) * 0.18).addScaledVector(side, offset);
       const root = new THREE.Group();
@@ -54,9 +54,11 @@ export class AnswerStones {
       disc.position.y = 0.21;
       disc.scale.setScalar(0.001);
       root.add(disc);
+      // A big letter on the stone; the full answer is listed on the question card.
+      // Long answers floating over the stones collided with each other on screen.
       const label = document.createElement('div');
       label.className = 'label stone-label';
-      label.textContent = text;
+      label.textContent = 'ABCDEF'[i] ?? String(i + 1);
       const tag = new CSS2DObject(label);
       tag.position.y = 1.2;
       root.add(tag);
@@ -66,9 +68,23 @@ export class AnswerStones {
 
     const cardEl = document.createElement('div');
     cardEl.className = 'label question-card';
-    cardEl.innerHTML = `<b></b><small></small>`;
+    cardEl.innerHTML = `<b></b><ol class="options"></ol><small></small><em class="cite"></em>`;
     cardEl.querySelector('b')!.textContent = tree.question;
+    const list = cardEl.querySelector('.options')!;
+    choices.forEach((text, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span></span> ';
+      li.querySelector('span')!.textContent = 'ABCDEF'[i] ?? String(i + 1);
+      li.append(document.createTextNode(text));
+      list.append(li);
+    });
     cardEl.querySelector('small')!.textContent = `${questName} · walk onto a stone to answer`;
+    // The page and passage this question came from, verified against the worksheet by the server.
+    const cite = cardEl.querySelector<HTMLElement>('.cite')!;
+    if (tree.citation) {
+      const quote = tree.citation.quote.length > 90 ? `${tree.citation.quote.slice(0, 89)}…` : tree.citation.quote;
+      cite.textContent = `📄 Worksheet p.${tree.citation.page} — “${quote}”`;
+    } else cite.remove();
     this.card = new CSS2DObject(cardEl);
     this.card.position.set(treePos.x, 5.6, treePos.z);
     this.scene.add(this.card);
