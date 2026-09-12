@@ -182,6 +182,29 @@ describe('POST /api/deploy-quest', () => {
   });
 });
 
+describe('Deploy Quest never punishes the class', () => {
+  it('does not lower mastery or re-lock a grove, and its trees clear at the next session', async () => {
+    const { http, store } = setup();
+    for (const [treeId, response] of [['t1', 0], ['t3', 0], ['t2', 'no, same amount, both divided by 5']] as const) {
+      await answer(http, { treeId, response });
+    }
+    const before = (await http.get('/api/teacher/OAK7')).body;
+    const healthOf = (v: { concepts: Array<{ id: string; health: number; locked: boolean }> }, id: string) => v.concepts.find(c => c.id === id)!;
+    expect(healthOf(before, 'c1').health).toBe(1);
+    expect(healthOf(before, 'c2').locked).toBe(false);
+
+    const res = await http.post('/api/deploy-quest/OAK7').send({ misconceptionId: 'm1' }); // m1 belongs to c1
+    expect(res.body.addedTreeIds.length).toBeGreaterThan(0);
+    const after = (await http.get('/api/teacher/OAK7')).body;
+    expect(healthOf(after, 'c1').health).toBe(1);        // the intervention didn't dilute mastery
+    expect(healthOf(after, 'c2').locked).toBe(false);    // …or re-lock the grove the student had opened
+
+    await http.post('/api/next-session/OAK7');
+    const ids = new Set(store.require('OAK7').trees.map(t => t.id));
+    for (const id of res.body.addedTreeIds) expect(ids.has(id)).toBe(false);
+  });
+});
+
 describe('presence', () => {
   it('lists real players and seeded classmates, including Mia, and forgets stale players', async () => {
     const { http } = setup();

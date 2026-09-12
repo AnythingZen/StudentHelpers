@@ -9,6 +9,14 @@ import { createApp } from './app.js';
 import { withFallback, type Brain } from './brain.js';
 import { createFallbackBrain, freshWorld, loadFixture } from './fallbackBrain.js';
 
+// Local secrets: server/.env, then the repo-root .env Builder B's CLI also reads.
+// Node's built-in loader never overrides a variable that is already set, so values
+// from the host (e.g. Railway's variables) always win in production.
+for (const file of ['../.env', '../../.env']) {
+  try { process.loadEnvFile(fileURLToPath(new URL(file, import.meta.url))); }
+  catch (err) { if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err; }
+}
+
 const PORT = Number(process.env.PORT ?? 3001);
 const SPAWN_TIMEOUT_MS = Number(process.env.SPAWN_TIMEOUT_SECONDS ?? 90) * 1000;
 const fallback = createFallbackBrain();
@@ -47,7 +55,7 @@ store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN' });
 
 app.listen(PORT, () => {
   console.log(`Mastery Grove server on http://localhost:${PORT}`);
-  console.log(`  brain:   ${brain.name}`);
+  console.log(`  brain:   ${brain.name}${zen ? ` (${process.env.LLM_PROVIDER ?? 'zai'})` : process.env.BRAIN === 'zen' ? '' : '  — set BRAIN=zen for the real AI'}`);
   const built = existsSync(clientDir) ? '' : '   (run: npm run build --prefix backup-client)';
   console.log(`  student: http://localhost:${PORT}/?room=OAK7&name=Alex${built}`);
   console.log(`  teacher: http://localhost:${PORT}/teacher?room=OAK7${built}`);

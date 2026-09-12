@@ -62,6 +62,8 @@ export interface Tree {
   citation: { page: number; quote: string } | null;
   state: TreeState;
   leitnerBox: 1 | 2 | 3;
+  // Saplings: the parent tree's id. Deploy Quest trees: "quest:<misconceptionId>".
+  // Either way the tree is session practice — excluded from mastery, cleared next session.
   spawnedFrom: string | null;
 }
 

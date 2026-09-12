@@ -284,7 +284,12 @@ export function createApp(deps: AppDeps) {
     const quest = await brain.focusQuest(world, misconceptionId);
     const current = store.require(worldId);
     const taken = new Set(current.trees.map(t => t.id));
-    const added = quest.filter(t => !taken.has(t.id));
+    // Focus trees are today's practice, not part of the grove: marked like saplings
+    // (spawnedFrom set) so they never dilute mastery — deploying an intervention must
+    // not re-lock a grove the class had opened — and nextSession clears them.
+    const added = quest
+      .filter(t => !taken.has(t.id))
+      .map(t => ({ ...t, state: 'healthy' as const, leitnerBox: 1 as const, spawnedFrom: `quest:${misconceptionId}` }));
     const withQuest: ServerWorld = { ...current, trees: [...current.trees, ...added] };
     store.put(placeNewTrees(withQuest, added.map(t => t.id)));
     res.json({ addedTreeIds: added.map(t => t.id) });
