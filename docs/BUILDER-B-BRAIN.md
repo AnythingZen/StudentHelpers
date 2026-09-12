@@ -175,6 +175,33 @@ Notes that will cost you time if you miss them:
 - `await result.output` rejects with `TypeValidationError` if the final object
   fails the schema. Catch it and fall back (see below).
 
+### PDFs with typeset maths — send the PDF itself on Claude
+
+**Tested:** `unpdf` on a worksheet with fractions written three ways.
+
+```
+inline   "3/4 or 5/8"      → "3/4 or 5/8"        survives
+unicode  "¾ or ⅝"          → "¾ or ⅝"            survives
+stacked  3 over 4          → "3\n4 or 5\n8"      FRACTION BAR LOST
+stacked  1/2 + 1/3         → "1\n2 + 1\n3"       ambiguous — reads as 12 + 13
+```
+
+Real worksheets stack their fractions. A text-only model receives the maths
+already broken, so it can *read* the text but can't recover what was meant.
+Under the current design this affects **both providers**, because the PDF is
+extracted to text before either model sees it.
+
+Anthropic's docs: *"When a PDF is sent to Claude, the system converts each page
+into an image and extracts the corresponding text. Claude analyzes both."* So:
+
+- **`LLM_PROVIDER=anthropic` + `pdf` source → send the native file part**
+  (`{ type: 'file', data, mediaType: 'application/pdf' }`). Claude sees the page
+  image, stacked fractions and all. It also reads scanned worksheets.
+- **Still run `unpdf`** on the same PDF, but only to verify citations (below).
+- **GLM, as configured, is text-only.** Fine for `text`, `prompt` and Gutenberg
+  `url` sources, and fine for diagnosis — that input is the generated question,
+  which is already clean. **Don't spawn typeset maths PDFs on it.**
+
 ### Citations — the model writes them, the server verifies them
 
 **Correction to an earlier version of this brief:** it said to turn on Claude's
@@ -188,7 +215,12 @@ teacher's own text" is our answer to "did the AI make this up?", so it has to be
 true. Verify every citation against the extracted text before the world ships:
 
 ```ts
-const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+// Letters and digits only. Text extraction loses stacked fraction bars — a page
+// that shows 3 over 4 extracts as "3\n4" — while the model quotes it as "3/4".
+// Whitespace-only normalisation wrongly drops those real quotes. Tested on a
+// generated worksheet: this version keeps all 4 real quotes and drops both
+// invented ones.
+const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 
 function verifyCitations(world: World, pages: string[]): World {
   return { ...world, trees: world.trees.map(t => {

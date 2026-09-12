@@ -56,7 +56,20 @@ and spawns an empty forest. Fix: under ~200 characters extracted, fail with a
 clear "looks scanned — paste the text or pick a topic" error. (By reading; text
 extraction cannot OCR.)
 
-**4. Commit message claims a change that isn't in the commit.** `e479d07` says
+**4. Stacked fractions lose their bar in text extraction — this hits the demo
+worksheet.** Tested `unpdf` on a generated worksheet: inline `3/4` and Unicode `¾`
+survive, but a stacked 3-over-4 extracts as `"3\n4"`, and 1/2 + 1/3 as
+`"1\n2 + 1\n3"` (reads as 12 + 13). Your pipeline extracts text for *both*
+providers, so Claude never gets to see the page. Anthropic's docs confirm Claude's
+native PDF input includes a page image. **Fix:** on `anthropic`, send the native
+file part for `pdf` sources and use `unpdf` text only for citation verification.
+GLM stays fine for text / prompt / Gutenberg sources and for diagnosis.
+
+Also: the verification snippet first pushed to your brief normalised whitespace
+only, and that **wrongly drops real stacked-fraction quotes**. Corrected to a
+letters-and-digits comparison; tested 6/6 (keeps 4 real quotes, drops 2 invented).
+
+**5. Commit message claims a change that isn't in the commit.** `e479d07` says
 *".env.example gains ZAI_* keys (C, please copy)"* — the diff contains no
 `.env.example` change. C has nothing to copy.
 
