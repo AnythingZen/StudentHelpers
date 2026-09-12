@@ -128,14 +128,71 @@ so it runs in Node.
 
 ---
 
-## Movement
+## Movement and the avatar — THIRD PERSON. Decide at minute 30.
 
-`PointerLockControls`, click-to-capture, WASD + mouse look, eye height ~1.7.
+`PointerLockControls` for mouse-look, WASD to move, click-to-capture. But the
+camera sits **behind and slightly above a visible avatar**, not in the player's
+head.
+
+This is the one decision on the whole list that is expensive to change later,
+because it is camera plus controls. **Make it at minute 30 and do not revisit.**
+A visible blocky avatar is the strongest single signal that this is a game and
+not a web form — more than pets, bars or cosmetics.
+
+How, cheaply: keep the controls object as the logical player position, put the
+avatar `Group` at that position, face it along the look vector, and place the
+camera at `position - lookDir * 6 + up * 2.5`. Lerp the camera toward that target
+each frame so it trails rather than snaps.
+
+The avatar is primitives: box torso, box head, four cylinder limbs, a walk bob
+driven by a sine of distance travelled. **No rig, no animation library, no
+imported model.** 30 minutes, and it changes how the whole thing reads.
+
 Clamp the player to a square. **No collisions, no physics** — walking through
 trunks is invisible in a 3-minute demo and collision costs you an hour.
 
 Add Shift-to-sprint. You will thank yourself during rehearsal when you have to
 cross the forest forty times.
+
+## The game layer — hour 5, in this order, each one droppable
+
+Read the game-layer section of `CONTRACT.md` for the shared definitions. Yours:
+
+**1. NPCs (~25 min).** One blocky NPC per grove with a nameplate — **Professor
+Byte**. Same primitives as the avatar, different palette. He idles, turns to
+face you when you are near, and **never follows you.** The scaffold hint comes
+out of a world-space speech bubble above him instead of a card. Same API text —
+it just comes from a character's mouth now. This is what makes the AI visible as
+an agent rather than a text box.
+
+**2. The three bars (~20 min).** HUD overlay, stacked, from `/api/state`:
+
+```
+XP         ███████████░░  grey    — grows fast, means least
+MASTERY    █████████░░░░  bright  — the real thing
+RETENTION  ███████░░░░░░  bright  — a proxy, see CONTRACT
+```
+
+XP must look *less* important than the other two. The pitch line is "the game
+rewards the second bar", so the UI has to earn it.
+
+**3. Quest copy (~10 min, zero code).** Never show "Question 4 of 27". Use the
+quest table in `CONTRACT.md`: *Quest accepted: the Fraction Bridge* · *⚠️ The
+Fraction Bridge is unstable* · *🔨 Bridge Repair +1* · *🏆 FRACTION MASTER* ·
+*⚔️ Memory Quest available* · *🏰 NEW AREA UNLOCKED*. Pure text, biggest
+feel-per-minute on the whole list.
+
+**4. The fox (~15 min).** One companion that trots near the avatar. Before any
+answer it asks **"How sure are you?"** — low / medium / high. Send it with the
+answer. That is metacognitive calibration, a real Track 3 mechanic. One pet with
+a job beats four pets with cosmetics. **No owl, no turtle, no octopus.**
+
+**Never build:** avatar cosmetics, emotes, world decorations, badge shelves,
+multiplayer, a second biome.
+
+**The loop comes first.** If 3:30–5:00 has not closed wither → diagnosis →
+sapling → regrow, you do not start the game layer. A walking simulator with
+beautiful bars loses to an ugly working loop.
 
 ---
 
@@ -176,14 +233,15 @@ root further along the path."*
 
 | Time | Must be true |
 |---|---|
-| 0:30 | Vite scaffold pushed, three.js importing, grey scene renders |
-| 1:15 | Ground + sky + fog, WASD + mouse look feels okay |
+| 0:30 | Vite scaffold pushed, three.js importing, grey scene renders. **Third-person camera decided and stubbed.** |
+| 1:15 | Ground + sky + fog, WASD + mouse look, avatar visible from behind |
 | 2:00 | Forest built from `mockWorld.json`, groves visibly clustered |
 | **2:30** | **GO/NO-GO — can you walk around a forest built from the mock?** |
 | 3:00 | Proximity trigger + question card, wired to the mock |
 | 3:30 | Rendering a **real** generated world from `/api/state` |
 | 4:30 | Wither + sapling + regrow all animating off real `/api/answer` |
 | 5:00 | Locked groves render dark and refuse entry |
+| 5:00–6:00 | Game layer in order: NPCs → three bars → quest copy → fox |
 | 6:00 | Polish frozen |
 
 ### Your fallback is not optional

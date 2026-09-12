@@ -28,10 +28,10 @@ Project Gutenberg give the identical demo with none of that exposure.
 | Time | Phase | What must be true at the end |
 |---|---|---|
 | **0:00–0:30** | **Lock** | `CONTRACT.md` read aloud. `mockWorld.json` committed. Vite + express scaffolds pushed. `development` + three feature branches. Cut list said out loud. |
-| 0:30–2:30 | **Parallel slices** | **A:** walking around a forest built from the mock. **B:** one real PDF → valid world JSON in the console. **C:** three dropdowns + server up + heatmap rendering from the mock. |
+| 0:30–2:30 | **Parallel slices** | **A:** third-person camera decided at 0:30, then walking a forest built from the mock with a visible avatar. **B:** one real PDF → valid world JSON in the console. **C:** dropdowns + server up + heatmap rendering from the mock. |
 | **2:30–3:30** | **Integration #1 — GO/NO-GO** | A real generated world renders in the 3D scene. *If A's scene can't render the mock at 2:30, A drops to 2.5D. C makes that call.* |
 | 3:30–5:00 | **The loop closes** | Wrong answer → diagnosis → tree withers and speaks a scaffold → sapling respawns ahead → teacher heatmap updates live. Level-ladder gate opens on mastery. |
-| 5:00–6:00 | **Juice** | Fog, ambient audio, sky shift, the regrow animation, the LEVEL UP banner, heatmap legibility. Stretch only if ahead: `.glb` environment, `ts-fsrs` health number, Deploy Focus Quest. **Polish wins hackathons more reliably than features.** |
+| 5:00–6:00 | **The game layer** | In priority order, each droppable: NPCs (Professor Byte) → the three bars → quest copy → Class World bar → **Deploy Quest** → the fox's confidence prompt. Then fog, ambient audio, the regrow animation. **Cut from the back of that list, never the front.** Dropped entirely if the loop isn't closed. |
 | **6:00–6:30** | **Freeze + record** | Hard code freeze. Full-flow screen capture in hand. |
 | 6:30–7:00 | **Rehearse** | Run it out loud three times. Timed. |
 
@@ -45,76 +45,85 @@ Project Gutenberg give the identical demo with none of that exposure.
 
 ---
 
-## The demo — 150 seconds, and the slot is 3 minutes
+## The demo — ~160 seconds. The slot is 3 minutes.
 
 Full loop in the maths world. Then a hard cut to reading. **Tell the loop once.**
 
-**0:00 — the problem, in one sentence.**
+**0:00 — the hook.**
 > "Every AI homework tool helps a student finish tonight's work. We built one
 > that finds out what they misunderstood — and makes them walk back to it."
 
-**0:10 — the teacher spawns a world.**
-Dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real P5 fractions
-worksheet on it. The forest plants itself live: *"Reading your worksheet…
-4 concepts found, planting 27 trees."* Room code: **OAK7**.
-> "MOE Singapore syllabus, Primary 5. Imagine any syllabus — we've loaded this
-> one. And that's her actual worksheet; she authored nothing."
+**0:12 — the teacher spawns a world.**
+Dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real P5 worksheet on
+it. The forest plants itself live: *"Reading your worksheet… 4 concepts found,
+planting 27 trees."* Room code: **OAK7**.
+> "MOE Singapore syllabus. Imagine any syllabus — we've loaded this one. That's
+> her actual worksheet; she authored nothing."
 
-**0:25 — the student joins and walks.**
-Enter `OAK7`. First-person into a cool birch forest. Walk to a tree, press E,
-answer it right. The canopy holds.
+**0:28 — the student walks in. This has to read as a game in two seconds.**
+Enter `OAK7`. **Third person** — a blocky avatar, a fox trotting alongside,
+three bars in the corner. Walk to the first grove:
+> **Quest accepted: the Fraction Bridge**
+
 > "Groves are syllabus concepts. Walking deeper climbs Bloom's taxonomy."
 
-**0:40 — the wrong answer. This is the whole product.**
-> *"Which is larger: 3/4 or 5/8?"*
+**0:45 — the wrong answer. This is the whole product.**
+The fox asks first: **"How sure are you?"** → tap **high**.
+> *"Which is larger: 3/4 or 5/8?"* → answer **5/8**.
 
-Answer **5/8**. **The tree withers on screen.** It doesn't say "Wrong!" — it asks
-a question back:
-> *"What would 3/4 look like written in eighths?"*
+**The tree withers.** And **Professor Byte** — an NPC standing in the grove —
+turns and speaks. Not a chat box; a character:
+> *"You were very sure about that one. What would 3/4 look like written in
+> eighths?"*
 
-Hover the `📄 p.2` chip — the question traces to a line in the teacher's own PDF.
-> "It classified the error — she's comparing numerators and ignoring the
-> denominators — then scaffolded instead of answering."
+Hover the `📄 p.2` chip — it traces to a line in the teacher's own PDF.
+> "It classified the error — comparing numerators, ignoring denominators — and
+> it noticed she was *confident* while being wrong. Then it scaffolded. It never
+> gave the answer."
 
-Student solves it. Tree regrows.
+**1:05 — repair.**
+Student solves it. **🔨 Bridge Repair +1.** The tree regrows. Point at the bars:
+> "XP jumped. Mastery barely moved. The game rewards the second bar — that's the
+> whole design."
 
-**0:55 — spacing, made visible.**
-Walk on. A sapling of that same concept has taken root further along the path.
-> "That's distributed practice. Not a popup — the world itself."
+**1:20 — spacing, then teaching.**
+Walk on: a **sapling** of that same concept has taken root ahead.
+> "Distributed practice. Not a popup — the world."
 
-**1:05 — teach the sapling. The beat that isn't a quiz.**
 The sapling asks to be taught: *"Explain it to me and I'll grow."* The student
-types how to compare two fractions with different denominators. Rubric points
-tick off. The sapling grows into a full tree.
-> "Explaining it to someone else is the strongest thing a learner can do. That's
-> the protégé effect, and here it's the mechanic — not a badge."
+types how to compare unlike fractions. Rubric points tick off. It grows.
+> "Explaining it to someone else is the strongest thing a learner can do."
 
-**1:20 — the teacher already knows.**
-Teacher console. The grove is amber. Hover it:
+**1:35 — the teacher already knows.**
+Teacher console. The grove is amber. Hover:
 > **"11 students think 5/8 is larger than 3/4 — they're comparing numerators."**
 
+And the Class World bar, not a leaderboard:
+> 🏰 **The class is unlocking the Castle Library — 81%**
+
 > "Not 'eleven students got question four wrong.' That's a gradebook. This is a
-> lesson plan."
+> lesson plan. And nobody is ranked against anybody."
 
-Click **Next Session** — the weak grove slides to the forest entrance.
+**1:50 — Deploy Quest. The circuit closes.**
+Click **Deploy**. Five new trees targeting only that misconception appear in the
+student's forest within one poll.
+> "Student game → AI diagnosis → teacher intervention → student mastery. That's
+> the whole loop, and it just happened in four seconds."
 
-**1:35 — the climb.**
-Back in the forest, the deep gate opens: **LEVEL UP · Primary 6 Fractions
-unlocked.**
+**2:05 — the climb.**
+The deep gate opens: **🏰 NEW AREA UNLOCKED · Primary 6 Fractions.**
 > "Mastery is the only key in this game. A Primary 3 child who clears Primary 5
-> fractions walks straight into Primary 6 — nobody has to promote them."
+> fractions walks into Primary 6 — nobody has to promote them."
 
-**1:50 — the hard cut. Same engine, different subject.**
-Switch to room **FERN**: **English · Primary 3 · Reading Comprehension**, a warm
-autumn oak forest, spawned from a public-domain book URL — *The Tale of Peter
-Rabbit*. Show its heatmap:
+**2:15 — same engine, different subject.**
+Cut to room **FERN**: **English · Primary 3 · Reading**, warm autumn oak, spawned
+from a public-domain book URL. Its own heatmap:
 > **"9 students are guessing words from spelling instead of context."**
 
-> "Same engine, same diagnosis, same forest. A book instead of a worksheet,
-> Primary 3 instead of Primary 5. The syllabus is just the container."
+> "A book instead of a worksheet, Primary 3 instead of Primary 5. Same engine.
+> The syllabus is just the container."
 
-**2:05 — close on the science.**
-The citations slide. Last line:
+**2:30 — close on the science.**
 > "Other tools help a student finish homework tonight. This one knows what
 > they'll have forgotten by Thursday."
 
@@ -133,6 +142,7 @@ difference between citing a paper and applying one.
 | **Interleaving** — mixed concept order beats blocked order | Rohrer & Taylor (2007), *Instructional Science* 35 | `layout.ts` interleaves concepts along the path rather than grouping them |
 | **Bloom's taxonomy** — ordered cognitive demand | Anderson & Krathwohl (2001) | Grove depth: `remember` at the entrance → `understand` → `apply` deepest |
 | **Learning by teaching** — explaining to another learner beats reviewing | Fiorella & Mayer; Chi et al. on self-explanation | `teach` trees: the sapling asks to be taught, and grows on a graded explanation |
+| **Metacognitive monitoring** — learners are poor judges of their own knowing, and calibration improves learning | Dunlosky & Metcalfe on metacognition | The fox's confidence prompt; a high-confidence wrong answer changes the scaffold |
 
 **Do not put the Learning Pyramid on a slide** — the 90/75/50/30/20/10/5 figures
 have no traceable empirical source and the chart is widely criticised. At an

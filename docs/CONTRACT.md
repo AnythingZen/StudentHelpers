@@ -154,7 +154,9 @@ background. `status` goes `growing` → `ready` and `trees[]` grows as generatio
 streams. Clients poll `GET /api/state` every 2s — so the forest visibly plants
 itself. No SSE, no websockets.
 
-`response` in `/api/answer` is `number` (choice index) or `string` (recall text).
+`response` in `/api/answer` is `number` (choice index) or `string` (recall or
+explanation text). It also carries `confidence: 'low' | 'medium' | 'high'` from
+the fox prompt — optional, omitted until the game layer lands at hour 5.
 
 ### `POST /api/answer` response
 
@@ -167,6 +169,10 @@ itself. No SSE, no websockets.
   scaffoldHint: string | null;       // a QUESTION, never the answer
   saplingId: string | null;          // new sapling spawned further up the path
   conceptHealth: number;             // 0..1 for the answered tree's concept
+  xp: number;                        // see the game layer — grows fast, means least
+  mastery: number;                   // 0..1, mean conceptHealth
+  retention: number;                 // 0..1, share of trees in Leitner box 2 or 3
+  calibration: 'overconfident' | 'underconfident' | 'calibrated' | null;
 }
 ```
 
@@ -203,6 +209,106 @@ words *so the sapling can grow*. B grades the explanation against
 This is learning by teaching (the protégé effect), and it is the deepest thing
 in the build. Schema goes in at minute 10; **grading is implemented at 4:30,
 after the main loop closes.** Droppable without damage if you are behind.
+
+## The game layer — this is a game, not a quiz with trees
+
+The learning loop is the product, but the **feel** is what makes a judge want to
+touch it. These are shared definitions so all three builders compute and name
+the same things. Build order matters: see "what goes early" at the end.
+
+### Avatar — third person. Decide this at minute 30, never later.
+
+The student has a **visible blocky avatar** and the camera sits behind it.
+This is the single strongest signal that this is a game and not a web form, and
+it is the *only* item on this list that is expensive to retrofit, because it is a
+camera and controls decision. Mouse-look stays on `PointerLockControls`; the
+avatar mesh rides the controls position and the camera pulls back along the look
+vector. Blocky humanoid from primitives — box torso, box head, cylinder limbs,
+a walk bob. No rig, no animation library, no imported model.
+
+### NPCs — the tutor is a character standing in the grove
+
+The scaffold hint is not delivered by a tree and not by a chat box. **Professor
+Byte** is a blocky NPC with a nameplate who stands in the grove and speaks in a
+world-space bubble. Same text, same API response — it just comes out of a
+character's mouth. That is what makes the AI visible as an agent.
+
+Each grove gets one NPC. They idle, they turn to face you, they never follow you
+around. No dialogue trees, no branching conversation, no voice.
+
+### The companion — one pet, and it has a real job
+
+**One** companion, a fox, that trots near the avatar. Before you answer any tree,
+it asks: **"How sure are you?"** — three buttons, low / medium / high. That is
+confidence rating, and comparing stated confidence against correctness is
+**metacognitive calibration**, a real Track 3 mechanic with real literature
+behind it.
+
+One pet with a job beats four pets with cosmetics. Do not build owls, turtles or
+octopuses.
+
+### The three bars — the whole point of the pitch
+
+```ts
+xp        = 10 * correctAnswers + 25 * teachPassed        // grows fast, means little
+mastery   = mean(conceptHealth) across the world           // 0..1, the real thing
+retention = share of trees in Leitner box 2 or 3           // 0..1, a PROXY
+```
+
+Show all three in the HUD, stacked, with **XP visibly the least important**.
+"The game rewards the second bar" is the line, so the UI has to earn it —
+mastery and retention get the bright colour, XP gets grey.
+
+**Retention is a proxy**, not a memory model. Say so if a judge asks; do not
+imply it is FSRS. (`ts-fsrs` would give a real retrievability number and is a
+stretch, not a promise.)
+
+### Quest framing — free, and it changes everything
+
+Pure copy, zero code. Never show "Question 4 of 27".
+
+| Instead of | Say |
+|---|---|
+| Entering a grove | **Quest accepted: the Fraction Bridge** |
+| A withered tree | **⚠️ The Fraction Bridge is unstable** |
+| Answering again | **🔨 Bridge Repair +1** |
+| Concept mastered | **🏆 FRACTION MASTER — bridge repaired** |
+| Next session review | **⚔️ Memory Quest available** |
+| Level ladder opening | **🏰 NEW AREA UNLOCKED** |
+
+### Class World — a shared goal, never a leaderboard
+
+A ranked list demotivates everyone below the top three. Instead, one shared bar:
+
+> 🏰 **The class is unlocking the Castle Library** — 81%
+> 37 / 45 students have mastered today's concept
+
+Cohort numbers are seeded for the demo; the event pipeline behind them is real.
+
+### Deploy Quest — the teacher closes the loop
+
+On the teacher console: the weakest misconception, and a button that generates a
+**5-tree focus quest** targeting only that misconception and drops it into the
+world. Student game → AI diagnosis → teacher intervention → student mastery.
+That is the full circuit, and it is the last beat of the demo.
+
+### What goes early, and what waits
+
+**Minute 30 (structural, painful later):** third-person camera + avatar mesh.
+
+**Hour 5, the juice hour (cheap, high impact, droppable in this order):**
+NPC characters → the three bars → quest copy → Class World bar → Deploy Quest →
+fox confidence prompt.
+
+**Never:** avatar cosmetics, emotes, world decorations, badge shelves, four pets,
+real multiplayer, five subject worlds, a second biome. These are cost without
+learning value.
+
+**The loop still comes first.** If the 3:30–5:00 window has not closed the loop —
+wrong answer, diagnosis, wither, sapling, heatmap — the game layer does not get
+started. A walking simulator with beautiful bars loses to an ugly working loop.
+
+---
 
 **One world type. Always a forest.** Do not build a second biome or a second
 game type. The forest metaphor carries all four mechanics — wither is

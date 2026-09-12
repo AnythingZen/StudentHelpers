@@ -186,9 +186,33 @@ a room, and make sure it renders correctly before you polish anything else.
 **3. Next Session button.** One click, calls `/api/next-session`, heatmap
 visibly re-arranges with the weak groves pulled to the entrance.
 
-Optional, if you're ahead at hour 5: a **Deploy Focus Quest** button that spawns
-a 5-tree mini-world targeting only the weakest misconception. Closes the loop
-teacher → student. Cut it without hesitation if you're behind.
+**4. Class World — a shared goal, never a leaderboard.** One bar, not a ranking:
+
+> 🏰 **The class is unlocking the Castle Library** — 81%
+> 37 / 45 students have mastered today's concept
+
+A ranked list demotivates everyone below the top three, and your own instinct on
+that was right. Cohort numbers are seeded for the demo; the per-event pipeline
+behind them is real. ~15 min.
+
+**5. Deploy Quest — the last beat of the demo.** Show the weakest misconception
+and a button. On click, call `brain.focusQuest(world, misconceptionId)`, run
+`layout()` over the five returned trees, merge them into the world near the
+entrance. The student's forest grows new trees within one 2s poll.
+
+Student game → AI diagnosis → teacher intervention → student mastery. **Nothing
+else in the build connects all four**, so this ranks above the skin and above
+`ts-fsrs` if you are choosing. ~25 min.
+
+**Also expose the three bars** on `/api/state` so A's HUD has something to read:
+
+```ts
+xp        = 10 * correctAnswers + 25 * teachPassed   // grows fast, means least
+mastery   = mean(conceptHealth)                       // 0..1, the real thing
+retention = share of trees in Leitner box 2 or 3      // 0..1, a PROXY
+```
+
+Retention is a **proxy**, not a memory model. Say so if asked; do not imply FSRS.
 
 ---
 

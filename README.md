@@ -11,7 +11,20 @@ watches a live heatmap of the forest keyed by *misconception*, not by miss-rate.
 **Track 3 · Learning Science in the Loop.** Desktop web, keyboard + mouse.
 7 hours, 3 builders.
 
-**Two worlds, one engine, one world type — a forest with a palette swap:**
+**It is a game, not a quiz with trees.** Third-person blocky avatar, NPC tutors
+who speak in the world instead of a chat box, a fox companion that asks how sure
+you are before you answer, quest framing throughout, three progression bars
+where XP is deliberately the least important, a shared Class World goal instead
+of a leaderboard, and a teacher Deploy Quest button that drops a targeted
+intervention into the student's forest live. See the game-layer section of
+[docs/CONTRACT.md](docs/CONTRACT.md).
+
+**Third person is decided at minute 30.** It is the only item on that list that
+is expensive to retrofit, because it is a camera and controls decision.
+Everything else is hour-5 polish and each piece is droppable.
+
+**Two worlds, one engine, one world type — a forest with a palette swap. Never
+a second biome:**
 
 | World | Source | Role in the demo |
 |---|---|---|
@@ -69,6 +82,17 @@ Builder A drops to 2.5D top-down. Builder C makes that call.
 - **The backup video at 6:00.** Recorded, watched back, on the presenting laptop.
 
 ---
+
+## What we are deliberately NOT building
+
+No auth, no accounts, no database, no multiplayer, no mobile, no touch, no
+collisions, no physics. No avatar cosmetics, emotes, world decorations or badge
+shelves. **One** companion with a real job, not four pets. No second biome, no
+second game type, no syllabus abstraction layer. One student at a time.
+
+The loop comes first: if 3:30–5:00 hasn't closed wither → diagnosis → sapling →
+regrow, the game layer doesn't get started. A walking simulator with beautiful
+bars loses to an ugly working loop.
 
 ## Why this wins the track
 

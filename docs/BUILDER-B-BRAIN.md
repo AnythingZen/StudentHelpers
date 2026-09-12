@@ -45,6 +45,7 @@ spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => vo
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
 gradeExplanation(tree: Tree, text: string): Promise<Explanation>   // teach trees, 4:30
+focusQuest(world: World, misconceptionId: string): Promise<Tree[]>  // Deploy Quest, hour 5
 schedule(world: World, treeId: string, correct: boolean): World
 ```
 
@@ -298,6 +299,36 @@ al. (2013)** for which techniques actually carry high utility.
 numbers have no traceable empirical source and the pyramid is widely criticised.
 At an event that asks for citations, using it is a risk that costs more than it
 gains. The mechanic is well supported; that particular chart is not.
+
+## 2c. `focusQuest` — the teacher's Deploy button. Hour 5.
+
+```ts
+focusQuest(world: World, misconceptionId: string): Promise<Tree[]>   // 5 trees
+```
+
+`claude-opus-5` — it runs once per click and wants the quality. Generate **five
+trees targeting only that one misconception**, rising in difficulty, mixing
+`choice` and one `teach`. Same schema, same `Output.object`, so C drops them
+straight into the world and A renders them with no new code.
+
+This is the beat that closes the circuit: student game → AI diagnosis → teacher
+intervention → student mastery. Nothing else in the build connects all four.
+
+## 2d. Confidence calibration — nearly free, real Track 3 credit
+
+`/api/answer` carries `confidence: 'low' | 'medium' | 'high'` from the fox. You
+do not need a model call for this — it is a comparison:
+
+| Confidence | Correct? | `calibration` |
+|---|---|---|
+| high | wrong | `overconfident` |
+| low | right | `underconfident` |
+| anything else | — | `calibrated` |
+
+Feed it into the scaffold prompt: an overconfident student needs "are you sure?
+check X" before a hint; an underconfident one needs "you were right — trust
+that." **Metacognitive monitoring**, which is exactly what Track 3 names, for
+about ten lines of code.
 
 ## 3. `gradeRecall`
 
