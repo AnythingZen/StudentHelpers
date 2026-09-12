@@ -18,3 +18,7 @@ coverage/
 # demo recordings are large; keep them out of git
 *.mov
 *.mp4
+
+# brain
+server/brain/node_modules/
+server/brain/.venv/

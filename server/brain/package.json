@@ -1,0 +1,21 @@
+{
+  "name": "brain",
+  "private": true,
+  "type": "module",
+  "description": "Builder B — PDF/URL -> World, diagnosis, grading, Leitner. C imports from ./brain.",
+  "scripts": {
+    "test": "vitest run",
+    "spawn": "tsx cli.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.53",
+    "ai": "7.0.99",
+    "dotenv": "^17.2.3",
+    "zod": "4.6.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "^3"
+  }
+}
