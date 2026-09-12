@@ -278,7 +278,7 @@ function start(room: string, name: string, first: StateResponse): void {
   });
   window.addEventListener('keyup', e => keys.delete(e.code));
   window.addEventListener('blur', () => keys.clear());
-  canvas.addEventListener('click', () => { if (!bubble.open && !challenge) canvas.requestPointerLock(); });
+  canvas.addEventListener('click', () => { if (!bubble.open && !challenge && !TOUCH) canvas.requestPointerLock(); });
   document.addEventListener('mousemove', e => {
     if (!locked()) return;
     yaw -= e.movementX * 0.0025;
