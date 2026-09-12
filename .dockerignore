@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+.git
+.claude
+docs
+client
+shared
+*.mov
+*.mp4
+**/*.tsbuildinfo
+**/.env
+**/.env.*
