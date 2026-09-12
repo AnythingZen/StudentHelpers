@@ -2,19 +2,24 @@
   "name": "mastery-grove-backup-client",
   "private": true,
   "type": "module",
-  "description": "Builder C's standalone student client — the team's backup forest. Separate from Builder A's client/ so the two never conflict.",
-  "engines": { "node": ">=22.12" },
+  "description": "Builder C's standalone student client \u2014 the team's backup forest. Separate from Builder A's client/ so the two never conflict.",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && tsc -p tsconfig.node.json && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "three": "0.186.0"
   },
   "devDependencies": {
+    "@types/node": "22.20.2",
     "@types/three": "0.186.0",
     "typescript": "5.9.3",
-    "vite": "8.3.0"
+    "vite": "8.3.0",
+    "vitest": "3.2.7"
   }
 }

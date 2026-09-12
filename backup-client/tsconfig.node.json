@@ -3,22 +3,14 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
     "strict": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
     "noEmit": true,
     "types": [
-      "vite/client"
+      "node"
     ]
   },
   "include": [
-    "src",
-    "../server/src/contract.ts",
-    "../server/src/schedule.ts"
+    "vite.config.ts"
   ]
 }

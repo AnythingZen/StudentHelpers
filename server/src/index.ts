@@ -30,17 +30,15 @@ async function loadZenBrain(): Promise<Brain | null> {
 const zen = await loadZenBrain();
 const brain = zen ? withFallback(zen, fallback, { spawnTimeoutMs: SPAWN_TIMEOUT_MS, callTimeoutMs: 15_000 }) : fallback;
 const dir = (rel: string) => fileURLToPath(new URL(rel, import.meta.url));
-const teacherDir = dir('../teacher');
 const clientDir = dir('../../backup-client/dist');
 
 const { app, store } = createApp({
   brain,
   spawnTimeoutMs: SPAWN_TIMEOUT_MS,
   demoSeed: process.env.DEMO_SEED === '0' ? null : undefined,
-  mount: a => {
-    if (existsSync(teacherDir)) a.use('/teacher', express.static(teacherDir));
-    if (existsSync(clientDir)) a.use('/', express.static(clientDir));
-  },
+  // One origin, no CORS: the built web app (student forest at /, teacher console at
+  // /teacher — `extensions` maps /teacher to teacher.html).
+  mount: a => { if (existsSync(clientDir)) a.use('/', express.static(clientDir, { extensions: ['html'] })); },
 });
 
 // The two demo worlds, always present with their fixture room codes.
@@ -50,7 +48,8 @@ store.put({ ...freshWorld(loadFixture('reading')), worldId: 'FERN' });
 app.listen(PORT, () => {
   console.log(`Mastery Grove server on http://localhost:${PORT}`);
   console.log(`  brain:   ${brain.name}`);
-  console.log(`  student: http://localhost:${PORT}/${existsSync(clientDir) ? '' : '   (build backup-client first)'}`);
-  console.log(`  teacher: http://localhost:${PORT}/teacher/${existsSync(teacherDir) ? '' : '   (no teacher console yet)'}`);
+  const built = existsSync(clientDir) ? '' : '   (run: npm run build --prefix backup-client)';
+  console.log(`  student: http://localhost:${PORT}/?room=OAK7&name=Alex${built}`);
+  console.log(`  teacher: http://localhost:${PORT}/teacher?room=OAK7${built}`);
   console.log(`  rooms:   OAK7 (Primary 5 Maths) · FERN (Primary 3 Reading)`);
 });
