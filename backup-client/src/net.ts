@@ -12,8 +12,17 @@ export interface WorldSummary {
   level: string; topic: string; generatedBy: 'ai' | 'sample' | null;
 }
 
+// A request that never answers (a dropped connection) must not leave the game stuck
+// "busy" forever: give up after 20s, so the caller shows an error and re-arms.
+const TIMEOUT_MS = 20_000;
+
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, { ...init, headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) } });
+  let res: Response;
+  try {
+    res = await fetch(path, { ...init, signal: AbortSignal.timeout(TIMEOUT_MS), headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) } });
+  } catch (err) {
+    throw new Error((err as Error).name === 'TimeoutError' ? 'The server took too long — try that again.' : "Can't reach the server — check your connection.");
+  }
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error((body as { error?: string }).error ?? `Request failed (${res.status})`);
   return body as T;

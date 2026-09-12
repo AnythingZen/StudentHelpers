@@ -136,8 +136,8 @@ async function travelTo(page, concept) {
   await walkTo(page, cx, cz + 6);
 }
 
-const nextAnswer = page => page.waitForResponse(
-  r => r.url().includes('/api/answer') && r.request().method() === 'POST', { timeout: 90_000 }).then(r => r.json());
+const nextAnswer = (page, timeout = 90_000) => page.waitForResponse(
+  r => r.url().includes('/api/answer') && r.request().method() === 'POST', { timeout }).then(r => r.json());
 
 // Rubric points ("Says the denominator is…") rewritten as a student talking ("the
 // denominator is…"). Pasting the teacher's explanation fails, rightly: the real grader
@@ -182,21 +182,36 @@ async function showcaseQuestion(page, tree, grove, first) {
     await fastForward('student', k > 0 ? 2 : 1, async () => {
       if (k > 0) {                                             // step off before the next stone can count
         const [px, pz] = await playerPos(page);
-        const dx = tree.pos[0] - px, dz = tree.pos[2] - pz, d = Math.hypot(dx, dz) || 1;
-        await walkTo(page, px + (dx / d) * 1.8, pz + (dz / d) * 1.8);
+        const dx = px - tree.pos[0], dz = pz - tree.pos[2], d = Math.hypot(dx, dz) || 1;
+        await walkTo(page, px + (dx / d) * 2.2, pz + (dz / d) * 2.2);
       }
       await walkTo(page, stones[i][0], stones[i][1]);
       await page.waitForSelector('#fox:not([hidden])', { timeout: 10_000 });
       await face(page, tree);
     });
     if (first && k === 0) await beat(page, 'The fox asks: how sure are you?', 'confidence before every answer', 'The fox asks how sure you are.');
-    const r = await fastForward('student', 3, async () => {       // the AI grading and diagnosing
-      const response = nextAnswer(page);
-      await page.keyboard.press(k === 0 ? 'Digit3' : 'Digit2');
-      const res = await response;
-      await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
-      return res;
-    });
+    let r = null;
+    for (let attempt = 0; attempt < 3 && !r; attempt++) {
+      if (attempt > 0) {                                       // a request that never came back: step off, step on again
+        console.warn(`answer on ${tree.id} stone ${i} got no response — retrying`);
+        await fastForward('student', 3, async () => {
+          await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 30_000 });
+          const [px, pz] = await playerPos(page);
+          const dx = px - tree.pos[0], dz = pz - tree.pos[2], d = Math.hypot(dx, dz) || 1;
+          await walkTo(page, px + (dx / d) * 2.2, pz + (dz / d) * 2.2);
+          await walkTo(page, stones[i][0], stones[i][1]);
+          await page.waitForSelector('#fox:not([hidden])', { timeout: 10_000 });
+        });
+      }
+      r = await fastForward('student', 3, async () => {         // the AI grading and diagnosing
+        const response = nextAnswer(page, 30_000).catch(() => null);
+        await page.keyboard.press(k === 0 ? 'Digit3' : 'Digit2');
+        const res = await response;
+        if (res) await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
+        return res;
+      });
+    }
+    if (!r) throw new Error(`no response to an answer on ${tree.id}`);
     if (r.correct) {
       known.set(rootOf(tree), i);
       if (wrongShown) {
