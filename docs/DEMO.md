@@ -155,11 +155,16 @@ today; we're proving the loop works.
 ---
 
 **"Where does this go next?"** *(have this ready — judges always ask)*
-The PDF is just the first ingestion path. Paste a Khan Academy topic URL, or any
-lesson page, and the same pipeline spawns a world from it — the document becomes
-a world model, and the world model becomes a level. That's the platform: a
-syllabus is a container, and any source that describes a topic can fill it.
-**Not built today.** Say it as direction, not as a claim.
+Ingestion is decoupled from the world, so anything that describes a topic can
+fill it. Today that's three paths: a PDF, pasted lesson text, or just a topic
+from the syllabus. Next is any server-rendered source page, with the same
+page-level provenance. A syllabus is the container; the game is the product.
+
+**Do not say "paste a Khan Academy link."** We checked: Khan Academy sits behind
+a bot challenge and is JavaScript-rendered, and Claude's web fetch tool doesn't
+read JS-rendered pages. It would take a headless-browser scraper to get in.
+If a judge asks specifically, say that — knowing exactly why something doesn't
+work reads as competence. Claiming it works and getting caught does not.
 
 ---
 

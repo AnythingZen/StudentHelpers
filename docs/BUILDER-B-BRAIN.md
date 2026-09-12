@@ -54,7 +54,56 @@ required. One system, one subject. Do not generalise it.
 
 ---
 
-## 1. `spawnWorld` — the PDF is the product. This call is the whole feature.
+## 0. Four ingestion paths, one pipeline
+
+`spawnWorld` branches only on how it builds the message content. Everything after
+that — schema, streaming, layout, diagnosis — is identical. Keep the branch to
+about six lines; do not fork the pipeline.
+
+| `source.kind` | Message content | Provenance | Build it? |
+|---|---|---|---|
+| `pdf` | `{ type: 'file', mediaType: 'application/pdf' }` | page + quote | **Core.** The hero path. |
+| `text` | the pasted text in the text part | none (`citation: null`) | **Yes** — same code as `prompt` |
+| `prompt` | topic description only, no document | none | **Yes** — ~zero cost |
+| `url` | `web_fetch` server tool | page + quote | **Hour-5 stretch only** |
+
+`text` and `prompt` are effectively free, and they make the product demo as a
+platform rather than a PDF converter. Build them.
+
+### The URL path — read this before you promise it to anyone
+
+**A Khan Academy link does not work.** Two independent blockers, both checked:
+
+1. Khan Academy sits behind an active bot challenge — even `robots.txt` returns a
+   JavaScript interstitial, and a lesson page returns a ~3 KB shell with no
+   content in it.
+2. Claude's `web_fetch` tool does not support JavaScript-rendered sites. The docs
+   say so explicitly. Khan Academy is a React SPA.
+
+Getting around that needs a headless browser, which is a 90-minute sink and a
+terms-of-service problem. **Do not build it, and do not say "paste a Khan
+Academy link" on stage.**
+
+What the URL path *can* do is server-rendered pages, via the server-side tool:
+
+```ts
+tools: [{
+  type: 'web_fetch_20250910',
+  name: 'web_fetch',
+  max_uses: 3,
+  allowed_domains: ['...'],        // curate an allowlist; never leave it open
+  citations: { enabled: true },
+  max_content_tokens: 100000,
+}]
+```
+
+If you build it, **test your demo URL first** and keep the allowlist tight. If
+any third-party content ever ships for real, its licence needs checking — not a
+hackathon problem, but don't claim otherwise in the pitch.
+
+---
+
+## 1. `spawnWorld` — the PDF is the hero path. This call is the whole feature.
 
 One call does everything: reads the PDF, writes the questions, tags Bloom
 levels, derives the prerequisite graph, and predicts the misconceptions.

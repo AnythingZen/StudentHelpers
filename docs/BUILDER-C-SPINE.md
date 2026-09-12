@@ -137,9 +137,23 @@ selectors are what make this read as a platform rather than a one-off, and they
 carry the "imagine any syllabus, we've loaded this one" line without you having
 to build anything. Keep them to three `<select>` elements. No syllabus editor.
 
-Then drop a PDF and get a big readable room code. While `status === 'growing'`,
-show "Reading your worksheet… 4 concepts found, planting 27 trees" — driven by
-the partials, so it feels alive.
+Then choose how to feed it. **Three tabs, one endpoint:**
+
+- **Upload PDF** — the hero path, and the only one with provenance
+- **Paste text** — a textarea; paste lesson content from anywhere
+- **Just a topic** — nothing but the dropdowns; spawns from the syllabus alone
+
+All three `POST /api/world`; only the `source` field differs. B's pipeline
+branches internally, so you do not. **There is no "paste a URL" tab** — see B's
+brief for why a Khan Academy link cannot work, and don't let it back in.
+
+The three tabs are worth the 20 minutes: they're what make this look like a
+platform rather than a PDF converter, and the "just a topic" tab is your
+safety net if the PDF upload misbehaves on stage.
+
+Then get a big readable room code. While `status === 'growing'`, show "Reading
+your worksheet… 4 concepts found, planting 27 trees" — driven by the partials,
+so it feels alive.
 
 **2. The forest heatmap.** Top-down 2D canvas of the same coordinates A uses —
 one circle per grove at `concept.centre`, radius by tree count, colour by health:

@@ -9,7 +9,11 @@
   },
   "subject": "Primary 5 Mathematics — Fractions",
   "status": "ready",
-  "sourceDoc": { "filename": "p5-maths-fractions-wk3.pdf", "pages": 3 },
+  "source": {
+    "kind": "pdf",
+    "filename": "p5-maths-fractions-wk3.pdf",
+    "pages": 3
+  },
   "sessionIndex": 0,
   "concepts": [
     {
@@ -17,6 +21,7 @@
       "name": "Equivalent fractions",
       "bloom": "remember",
       "syllabusRef": "P5 · Fractions · Expressing a fraction in its simplest form",
+      "level": "Primary 5",
       "prerequisites": [],
       "centre": [0, 0, -18]
     },
@@ -25,6 +30,7 @@
       "name": "Comparing and ordering unlike fractions",
       "bloom": "understand",
       "syllabusRef": "P5 · Fractions · Comparing and ordering fractions with unlike denominators",
+      "level": "Primary 5",
       "prerequisites": ["c1"],
       "centre": [14, 0, -38]
     },
@@ -33,6 +39,7 @@
       "name": "Adding and subtracting unlike fractions",
       "bloom": "apply",
       "syllabusRef": "P5 · Fractions · Adding and subtracting mixed numbers and unlike fractions",
+      "level": "Primary 5",
       "prerequisites": ["c1", "c2"],
       "centre": [-12, 0, -60]
     },
@@ -41,20 +48,66 @@
       "name": "Fraction of a quantity in word problems",
       "bloom": "apply",
       "syllabusRef": "P5 · Fractions · Solving word problems involving fractions of a set",
+      "level": "Primary 5",
       "prerequisites": ["c3"],
       "centre": [8, 0, -84]
+    },
+    {
+      "id": "c5",
+      "name": "Dividing a fraction by a whole number",
+      "bloom": "apply",
+      "syllabusRef": "P6 · Fractions · Dividing a proper fraction by a whole number",
+      "level": "Primary 6",
+      "prerequisites": ["c1", "c2", "c3", "c4"],
+      "centre": [0, 0, -112]
     }
   ],
   "misconceptions": [
-    { "id": "m1", "conceptId": "c1", "label": "Thinks a fraction changes value when simplified" },
-    { "id": "m2", "conceptId": "c1", "label": "Divides only the numerator when simplifying" },
-    { "id": "m3", "conceptId": "c2", "label": "Compares fractions by numerator alone, so 5/8 > 3/4" },
-    { "id": "m4", "conceptId": "c2", "label": "Thinks a larger denominator always means a larger fraction" },
-    { "id": "m5", "conceptId": "c3", "label": "Adds numerators and denominators separately: 1/2 + 1/3 = 2/5" },
-    { "id": "m6", "conceptId": "c3", "label": "Finds a common denominator but forgets to convert the numerators" },
-    { "id": "m7", "conceptId": "c4", "label": "Takes the fraction of the wrong whole" },
-    { "id": "m8", "conceptId": "c4", "label": "Divides when the problem calls for multiplying by the fraction" },
-    { "id": "unclassified", "conceptId": "c1", "label": "Error not confidently classified" }
+    {
+      "id": "m1",
+      "conceptId": "c1",
+      "label": "Thinks a fraction changes value when simplified"
+    },
+    {
+      "id": "m2",
+      "conceptId": "c1",
+      "label": "Divides only the numerator when simplifying"
+    },
+    {
+      "id": "m3",
+      "conceptId": "c2",
+      "label": "Compares fractions by numerator alone, so 5/8 > 3/4"
+    },
+    {
+      "id": "m4",
+      "conceptId": "c2",
+      "label": "Thinks a larger denominator always means a larger fraction"
+    },
+    {
+      "id": "m5",
+      "conceptId": "c3",
+      "label": "Adds numerators and denominators separately: 1/2 + 1/3 = 2/5"
+    },
+    {
+      "id": "m6",
+      "conceptId": "c3",
+      "label": "Finds a common denominator but forgets to convert the numerators"
+    },
+    {
+      "id": "m7",
+      "conceptId": "c4",
+      "label": "Takes the fraction of the wrong whole"
+    },
+    {
+      "id": "m8",
+      "conceptId": "c4",
+      "label": "Divides when the problem calls for multiplying by the fraction"
+    },
+    {
+      "id": "unclassified",
+      "conceptId": "c1",
+      "label": "Error not confidently classified"
+    }
   ],
   "trees": [
     {
@@ -66,7 +119,10 @@
       "choices": ["3/4", "2/3", "6/4", "8/6"],
       "answerIndex": 0,
       "explanation": "Divide the numerator and the denominator by the same number: 6 ÷ 2 = 3 and 8 ÷ 2 = 4, giving 3/4. The amount does not change.",
-      "citation": { "page": 1, "quote": "A fraction is in its simplest form when the numerator and denominator have no common factor other than 1." },
+      "citation": {
+        "page": 1,
+        "quote": "A fraction is in its simplest form when the numerator and denominator have no common factor other than 1."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -79,7 +135,10 @@
       "question": "When you simplify 10/15 to 2/3, does the amount get smaller? Explain in one sentence.",
       "answerText": "No — it is the same amount written a different way, because the numerator and denominator were both divided by 5.",
       "explanation": "Simplifying renames a fraction; it never changes how much it represents.",
-      "citation": { "page": 1, "quote": "Equivalent fractions represent the same amount." },
+      "citation": {
+        "page": 1,
+        "quote": "Equivalent fractions represent the same amount."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -93,7 +152,10 @@
       "choices": ["3/4", "9/4", "3/12", "4/3"],
       "answerIndex": 0,
       "explanation": "The largest common factor of 9 and 12 is 3: 9 ÷ 3 = 3 and 12 ÷ 3 = 4.",
-      "citation": { "page": 1, "quote": "Divide both the numerator and the denominator by their greatest common factor." },
+      "citation": {
+        "page": 1,
+        "quote": "Divide both the numerator and the denominator by their greatest common factor."
+      },
       "state": "healthy",
       "leitnerBox": 2,
       "spawnedFrom": null
@@ -107,7 +169,10 @@
       "choices": ["5/8", "3/4", "They are equal", "Cannot tell without a diagram"],
       "answerIndex": 1,
       "explanation": "Make the denominators the same: 3/4 = 6/8, and 6/8 is larger than 5/8. A bigger numerator does not mean a bigger fraction unless the denominators match.",
-      "citation": { "page": 2, "quote": "To compare unlike fractions, first express them with a common denominator." },
+      "citation": {
+        "page": 2,
+        "quote": "To compare unlike fractions, first express them with a common denominator."
+      },
       "state": "withered",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -120,7 +185,10 @@
       "question": "Why can't you decide which of two fractions is larger just by looking at the numerators?",
       "answerText": "Because the denominators tell you how big each part is, so the parts being counted may be different sizes.",
       "explanation": "The denominator sets the size of the piece. Counting pieces only compares fairly when the pieces are the same size.",
-      "citation": { "page": 2, "quote": "The denominator tells us the number of equal parts the whole is divided into." },
+      "citation": {
+        "page": 2,
+        "quote": "The denominator tells us the number of equal parts the whole is divided into."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -134,7 +202,10 @@
       "choices": ["3/5, 2/3, 7/10", "2/3, 3/5, 7/10", "7/10, 2/3, 3/5", "3/5, 7/10, 2/3"],
       "answerIndex": 0,
       "explanation": "Using a denominator of 30: 3/5 = 18/30, 2/3 = 20/30, 7/10 = 21/30.",
-      "citation": { "page": 2, "quote": "Order fractions by converting them to a common denominator." },
+      "citation": {
+        "page": 2,
+        "quote": "Order fractions by converting them to a common denominator."
+      },
       "state": "sapling",
       "leitnerBox": 1,
       "spawnedFrom": "t4"
@@ -148,7 +219,10 @@
       "choices": ["5/6", "2/5", "1/5", "2/6"],
       "answerIndex": 0,
       "explanation": "Convert to sixths: 3/6 + 2/6 = 5/6. Adding the numerators and denominators separately would give 2/5, which is smaller than 1/2 — impossible when you add something to 1/2.",
-      "citation": { "page": 2, "quote": "Fractions can only be added when they have the same denominator." },
+      "citation": {
+        "page": 2,
+        "quote": "Fractions can only be added when they have the same denominator."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -162,7 +236,10 @@
       "choices": ["7/20", "1/1", "1/20", "5/9"],
       "answerIndex": 0,
       "explanation": "Using twentieths: 15/20 − 8/20 = 7/20.",
-      "citation": { "page": 3, "quote": "Express both fractions with a common denominator before subtracting." },
+      "citation": {
+        "page": 3,
+        "quote": "Express both fractions with a common denominator before subtracting."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -175,7 +252,10 @@
       "question": "A classmate says 1/2 + 1/3 = 2/5. Without giving the right answer, explain how they could tell their answer must be wrong.",
       "answerText": "Because 2/5 is less than 1/2, and adding a positive amount to 1/2 has to give something bigger than 1/2.",
       "explanation": "Estimating before calculating catches this error every time — a sum cannot be smaller than what you started with.",
-      "citation": { "page": 3, "quote": "Estimate first, then check that your answer is reasonable." },
+      "citation": {
+        "page": 3,
+        "quote": "Estimate first, then check that your answer is reasonable."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -189,7 +269,10 @@
       "choices": ["9", "8", "64", "3"],
       "answerIndex": 0,
       "explanation": "24 ÷ 8 = 3 pupils per eighth, and 3 × 3 = 9.",
-      "citation": { "page": 3, "quote": "To find a fraction of a set, divide by the denominator and multiply by the numerator." },
+      "citation": {
+        "page": 3,
+        "quote": "To find a fraction of a set, divide by the denominator and multiply by the numerator."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -203,7 +286,10 @@
       "choices": ["$6", "$10", "$12", "$4"],
       "answerIndex": 0,
       "explanation": "The book costs $12, leaving $18. One third of $18 is $6. The second fraction applies to the remainder, not the original $30.",
-      "citation": { "page": 3, "quote": "Read carefully to identify which whole each fraction refers to." },
+      "citation": {
+        "page": 3,
+        "quote": "Read carefully to identify which whole each fraction refers to."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -216,7 +302,43 @@
       "question": "In a two-step fraction problem, how do you work out which 'whole' the second fraction belongs to?",
       "answerText": "Read what the sentence refers to — usually the amount remaining after the first step, not the original total.",
       "explanation": "Naming the whole before calculating is the single most reliable guard against this error.",
-      "citation": { "page": 3, "quote": "Always state what the fraction is a fraction of." },
+      "citation": {
+        "page": 3,
+        "quote": "Always state what the fraction is a fraction of."
+      },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t13",
+      "conceptId": "c5",
+      "pos": [-2, 0, -110],
+      "kind": "choice",
+      "question": "What is 1/2 ÷ 4?",
+      "choices": ["1/8", "2", "4/2", "1/6"],
+      "answerIndex": 0,
+      "explanation": "Sharing a half among 4 gives eighths: 1/2 ÷ 4 = 1/8. Dividing by a whole number makes the fraction smaller.",
+      "citation": {
+        "page": 3,
+        "quote": "Dividing a proper fraction by a whole number gives a smaller fraction."
+      },
+      "state": "healthy",
+      "leitnerBox": 1,
+      "spawnedFrom": null
+    },
+    {
+      "id": "t14",
+      "conceptId": "c5",
+      "pos": [3, 0, -114],
+      "kind": "recall",
+      "question": "Why does dividing 3/4 by 3 give a smaller answer, when dividing usually feels like it should?",
+      "answerText": "Because you are sharing 3/4 into 3 equal parts, so each part is smaller — 1/4.",
+      "explanation": "Division by a whole number splits the amount you already have; it cannot make it bigger.",
+      "citation": {
+        "page": 3,
+        "quote": "Share the fraction equally among the given number of groups."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null

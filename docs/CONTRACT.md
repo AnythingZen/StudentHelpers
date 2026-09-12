@@ -76,12 +76,19 @@ interface Syllabus {
   topic: string;              // "Fractions"
 }
 
+// Where the world's content came from. Ingestion is DECOUPLED from world
+// generation: everything downstream of the spawn call is identical for all four.
+type Source =
+  | { kind: 'pdf';    filename: string; pages: number }   // hero path, has provenance
+  | { kind: 'text';   label: string; chars: number }      // pasted lesson content
+  | { kind: 'prompt'; text: string }                      // topic only, no provenance
+  | { kind: 'url';    url: string; title: string };       // STRETCH — see B's brief
+
 interface World {
   worldId: string;            // 4-char room code, e.g. "OAK7"
   syllabus: Syllabus;
   subject: string;            // display string, "Primary 5 Mathematics — Fractions"
-  status: 'growing' | 'ready' | 'failed';
-  sourceDoc: { filename: string; pages: number };
+  source: Source;
   sessionIndex: number;       // 0 on spawn, +1 per /next-session
   concepts: Concept[];        // a concept === a grove
   misconceptions: Misconception[];
