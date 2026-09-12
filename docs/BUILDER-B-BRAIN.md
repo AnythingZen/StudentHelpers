@@ -217,6 +217,11 @@ the teacher heatmap read in the teacher's own language instead of the model's.
    ("struggles with fractions").
    These become the enum `diagnose` classifies into, and the labels the teacher
    sees on the heatmap. **If these are weak, the whole product is weak.**
+6. **`questName`** per concept — a short, concrete place name that fits the
+   concept: *The Fraction Bridge*, *The Numerator Falls*, *The Context Clue
+   Crossing*. It titles the quest, labels the bridge and appears in every toast,
+   so it is the most-seen string in the game. Ask for it in the same call;
+   it costs nothing extra. No puns that obscure what the concept is.
 
 Also require, in the prompt: questions must be answerable from the document
 alone; every question carries the page it came from; no question restates
@@ -287,8 +292,10 @@ explanation against `tree.rubric[]` and return which points they hit and which
 they missed. Generous on wording, strict on substance — a child explaining
 something correctly in clumsy words has understood it.
 
-`encouragement` is one sentence, in the sapling's voice, naming what they got
-right. Never a grade, never a percentage.
+`encouragement` is one sentence **in the voice of Mia, the classmate the student
+just helped** — "Oh! So you make the bottoms the same first. Thanks!" Name what
+they got right. Never a grade, never a percentage. Teach trees are now a social
+interaction in the world, so the grader's output is dialogue.
 
 This is the protégé effect: explaining a concept to someone else produces better
 retention than reviewing it. Real citations for the slide — **Fiorella & Mayer**

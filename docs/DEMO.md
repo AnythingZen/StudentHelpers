@@ -30,8 +30,8 @@ Project Gutenberg give the identical demo with none of that exposure.
 | **0:00–0:30** | **Lock** | `CONTRACT.md` read aloud. `mockWorld.json` committed. Vite + express scaffolds pushed. `development` + three feature branches. Cut list said out loud. |
 | 0:30–2:30 | **Parallel slices** | **A:** third-person camera decided at 0:30, then walking a forest built from the mock with a visible avatar. **B:** one real PDF → valid world JSON in the console. **C:** dropdowns + server up + heatmap rendering from the mock. |
 | **2:30–3:30** | **Integration #1 — GO/NO-GO** | A real generated world renders in the 3D scene. *If A's scene can't render the mock at 2:30, A drops to 2.5D. C makes that call.* |
-| 3:30–5:00 | **The loop closes** | Wrong answer → diagnosis → tree withers and speaks a scaffold → sapling respawns ahead → teacher heatmap updates live. Level-ladder gate opens on mastery. |
-| 5:00–6:00 | **The game layer** | In priority order, each droppable: NPCs (Professor Byte) → the three bars → quest copy → Class World bar → **Deploy Quest** → the fox's confidence prompt. Then fog, ambient audio, the regrow animation. **Cut from the back of that list, never the front.** Dropped entirely if the loop isn't closed. |
+| 3:30–5:00 | **The loop closes — interactively** | You answer by **walking into a stone**. Wrong → tree withers → a plank falls from the bridge → sapling ahead → repair → plank returns. **Other players** walk the forest. **Mia** is stuck at a teach tree and you help her. Heatmap updates live. *Stones fall back to the card if not solid by 3:30.* |
+| 5:00–6:00 | **Polish** | Cut from the back of this list, never the front: Professor Byte walks over → the fox → Class World bar → **Deploy Quest** → skins → fog and ambient audio. Interactivity is already in the loop by now; this hour is about feel. |
 | **6:00–6:30** | **Freeze + record** | Hard code freeze. Full-flow screen capture in hand. |
 | 6:30–7:00 | **Rehearse** | Run it out loud three times. Timed. |
 
@@ -45,87 +45,99 @@ Project Gutenberg give the identical demo with none of that exposure.
 
 ---
 
-## The demo — ~160 seconds. The slot is 3 minutes.
+## The demo — ~165 seconds. The slot is 3 minutes.
 
-Full loop in the maths world. Then a hard cut to reading. **Tell the loop once.**
+**Judges are scoring interactive.** So the demo should look like someone
+*playing*, not someone clicking through a quiz. Nobody touches the mouse to
+answer a question in this entire script — you walk.
 
 **0:00 — the hook.**
 > "Every AI homework tool helps a student finish tonight's work. We built one
 > that finds out what they misunderstood — and makes them walk back to it."
 
 **0:12 — the teacher spawns a world.**
-Dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real P5 worksheet on
-it. The forest plants itself live: *"Reading your worksheet… 4 concepts found,
-planting 27 trees."* Room code: **OAK7**.
+Dropdowns: **Mathematics · Primary 5 · Fractions.** Drop a real P5 worksheet.
+The forest plants itself live. Room code: **OAK7**.
 > "MOE Singapore syllabus. Imagine any syllabus — we've loaded this one. That's
 > her actual worksheet; she authored nothing."
 
-**0:28 — the student walks in. This has to read as a game in two seconds.**
-Enter `OAK7`. **Third person** — a blocky avatar, a fox trotting alongside,
-three bars in the corner. Walk to the first grove:
-> **Quest accepted: the Fraction Bridge**
+**0:25 — two players walk in.** *(Second browser window, already open.)*
+Enter `OAK7` on both. Two blocky avatars, third person, a fox at your heel.
+Three classmates are already wandering the forest.
+> "It's a shared world. That other avatar is a real second player — and those
+> three are classmates working through the same worksheet."
 
-> "Groves are syllabus concepts. Walking deeper climbs Bloom's taxonomy."
+**0:40 — accept a quest.** Walk to a tree, press E:
+> **Quest accepted: The Fraction Bridge**
 
-**0:45 — the wrong answer. This is the whole product.**
-The fox asks first: **"How sure are you?"** → tap **high**.
-> *"Which is larger: 3/4 or 5/8?"* → answer **5/8**.
+Four stones **rise out of the ground**, each with an answer floating above it.
+> *"Which is larger: 3/4 or 5/8?"*
 
-**The tree withers.** And **Professor Byte** — an NPC standing in the grove —
-turns and speaks. Not a chat box; a character:
+**0:48 — the wrong answer, physically.**
+The fox asks: *how sure are you?* → press **3**, high.
+**Walk onto the 5/8 stone.** The ring fills. The stones sink — the tree
+**withers** — and on the bridge ahead, **a plank tilts and falls into the gap**.
+Professor Byte walks over, turns to you:
 > *"You were very sure about that one. What would 3/4 look like written in
 > eighths?"*
 
-Hover the `📄 p.2` chip — it traces to a line in the teacher's own PDF.
-> "It classified the error — comparing numerators, ignoring denominators — and
-> it noticed she was *confident* while being wrong. Then it scaffolded. It never
-> gave the answer."
+> "It diagnosed the error — comparing numerators — and noticed she was
+> confident while wrong. Then it scaffolded. It never gave the answer."
 
-**1:05 — repair.**
-Student solves it. **🔨 Bridge Repair +1.** The tree regrows. Point at the bars:
-> "XP jumped. Mastery barely moved. The game rewards the second bar — that's the
-> whole design."
+Hover `📄 p.2` — it traces to the teacher's own worksheet.
 
-**1:20 — spacing, then teaching.**
-Walk on: a **sapling** of that same concept has taken root ahead.
-> "Distributed practice. Not a popup — the world."
+**1:08 — repair.** Walk onto the right stone. **The plank flies back into the
+bridge** with a thunk. *🔨 Bridge Repair +1.* Point at the bars:
+> "XP jumped. Mastery barely moved. The game rewards the second bar."
 
-The sapling asks to be taught: *"Explain it to me and I'll grow."* The student
-types how to compare unlike fractions. Rubric points tick off. It grows.
-> "Explaining it to someone else is the strongest thing a learner can do."
+**1:20 — help a classmate.**
+A sapling of the same concept has sprouted up the path — and **Mia** is standing
+at it, stuck.
+> *"Mia is stuck on The Fraction Bridge. Help her."*
 
-**1:35 — the teacher already knows.**
-Teacher console. The grove is amber. Hover:
+Type how you compare unlike fractions into her speech bubble. Rubric points tick.
+Mia straightens up, jumps — *"Oh! So you make the bottoms the same first!"* —
+and her tree grows.
+> "Explaining it to someone else is the strongest thing a learner can do — so we
+> put someone in the world who needs you to explain it."
+
+**1:38 — cross.** The bridge is whole. **Walk across it.**
+> "Mastery is the only key. You don't unlock the next grove by answering ten
+> questions; you unlock it by rebuilding the bridge."
+
+**1:48 — the teacher already knows.**
+Teacher console. Hover the amber grove:
 > **"11 students think 5/8 is larger than 3/4 — they're comparing numerators."**
 
-And the Class World bar, not a leaderboard:
 > 🏰 **The class is unlocking the Castle Library — 81%**
 
-> "Not 'eleven students got question four wrong.' That's a gradebook. This is a
-> lesson plan. And nobody is ranked against anybody."
+> "Not a gradebook — a lesson plan. And nobody is ranked against anybody."
 
-**1:50 — Deploy Quest. The circuit closes.**
-Click **Deploy**. Five new trees targeting only that misconception appear in the
-student's forest within one poll.
-> "Student game → AI diagnosis → teacher intervention → student mastery. That's
-> the whole loop, and it just happened in four seconds."
+**2:00 — Deploy Quest.** Click **Deploy.** Cut back to the forest: five new trees
+rise near the entrance, targeting only that misconception.
+> "Student game, AI diagnosis, teacher intervention, student mastery — the whole
+> circuit, in four seconds."
 
-**2:05 — the climb.**
-The deep gate opens: **🏰 NEW AREA UNLOCKED · Primary 6 Fractions.**
-> "Mastery is the only key in this game. A Primary 3 child who clears Primary 5
-> fractions walks into Primary 6 — nobody has to promote them."
+**2:12 — the climb.** Across the final, longest bridge:
+**🏰 NEW AREA UNLOCKED · Primary 6 Fractions.**
+> "A Primary 3 child who clears Primary 5 fractions walks into Primary 6.
+> Nobody has to promote them."
 
-**2:15 — same engine, different subject.**
-Cut to room **FERN**: **English · Primary 3 · Reading**, warm autumn oak, spawned
-from a public-domain book URL. Its own heatmap:
-> **"9 students are guessing words from spelling instead of context."**
+**2:22 — same engine, different subject.** Cut to **FERN**: English · Primary 3,
+warm autumn oak, spawned from a public-domain book URL. Its own heatmap.
+> "A book instead of a worksheet. Same engine. The syllabus is the container."
 
-> "A book instead of a worksheet, Primary 3 instead of Primary 5. Same engine.
-> The syllabus is just the container."
-
-**2:30 — close on the science.**
+**2:35 — close.**
 > "Other tools help a student finish homework tonight. This one knows what
 > they'll have forgotten by Thursday."
+
+### Rehearsal note on the second browser
+
+The two-player beat is the most impressive moment in the demo **and** the one
+most likely to go wrong live. Open both windows before you start, in the same
+room, and check both avatars are visible. If the real second player isn't
+showing, **don't mention it** — the three seeded classmates are already walking
+around and the line still works: *"It's a shared world."*
 
 ---
 

@@ -19,6 +19,7 @@
     {
       "id": "r1",
       "name": "Retelling events in order",
+      "questName": "The Story Path",
       "bloom": "remember",
       "syllabusRef": "P3 English · Reading · Sequencing events in a narrative",
       "level": "Primary 3",
@@ -28,6 +29,7 @@
     {
       "id": "r2",
       "name": "Working out a word from context",
+      "questName": "The Context Clue Crossing",
       "bloom": "understand",
       "syllabusRef": "P3 English · Reading · Using context clues to infer word meaning",
       "level": "Primary 3",
@@ -37,6 +39,7 @@
     {
       "id": "r3",
       "name": "Inferring how a character feels and why",
+      "questName": "Peter's Hollow",
       "bloom": "understand",
       "syllabusRef": "P3 English · Reading · Inferring feelings and motives from actions",
       "level": "Primary 3",
@@ -46,6 +49,7 @@
     {
       "id": "r4",
       "name": "Main idea versus supporting detail",
+      "questName": "The Big Idea Oak",
       "bloom": "apply",
       "syllabusRef": "P3 English · Reading · Identifying the central message of a text",
       "level": "Primary 3",
@@ -55,6 +59,7 @@
     {
       "id": "r5",
       "name": "Predicting and justifying with evidence",
+      "questName": "The Primary 4 Lookout",
       "bloom": "apply",
       "syllabusRef": "P4 English · Reading · Making predictions supported by textual evidence",
       "level": "Primary 4",
@@ -63,14 +68,46 @@
     }
   ],
   "misconceptions": [
-    { "id": "rm1", "conceptId": "r1", "label": "Retells events out of order, or merges two episodes into one" },
-    { "id": "rm2", "conceptId": "r2", "label": "Guesses a word from how it looks rather than from the sentence around it" },
-    { "id": "rm3", "conceptId": "r3", "label": "Reports what a character did instead of why — literal instead of inferential" },
-    { "id": "rm4", "conceptId": "r3", "label": "Treats a feeling as stated in the text when it has to be inferred" },
-    { "id": "rm5", "conceptId": "r4", "label": "Picks a vivid detail as the main idea" },
-    { "id": "rm6", "conceptId": "r4", "label": "Answers from own experience rather than from the text" },
-    { "id": "rm7", "conceptId": "r5", "label": "Predicts without pointing to anything in the text as evidence" },
-    { "id": "unclassified", "conceptId": "r1", "label": "Error not confidently classified" }
+    {
+      "id": "rm1",
+      "conceptId": "r1",
+      "label": "Retells events out of order, or merges two episodes into one"
+    },
+    {
+      "id": "rm2",
+      "conceptId": "r2",
+      "label": "Guesses a word from how it looks rather than from the sentence around it"
+    },
+    {
+      "id": "rm3",
+      "conceptId": "r3",
+      "label": "Reports what a character did instead of why — literal instead of inferential"
+    },
+    {
+      "id": "rm4",
+      "conceptId": "r3",
+      "label": "Treats a feeling as stated in the text when it has to be inferred"
+    },
+    {
+      "id": "rm5",
+      "conceptId": "r4",
+      "label": "Picks a vivid detail as the main idea"
+    },
+    {
+      "id": "rm6",
+      "conceptId": "r4",
+      "label": "Answers from own experience rather than from the text"
+    },
+    {
+      "id": "rm7",
+      "conceptId": "r5",
+      "label": "Predicts without pointing to anything in the text as evidence"
+    },
+    {
+      "id": "unclassified",
+      "conceptId": "r1",
+      "label": "Error not confidently classified"
+    }
   ],
   "trees": [
     {
@@ -79,15 +116,13 @@
       "pos": [-3, 0, -14],
       "kind": "choice",
       "question": "What does Peter do FIRST after his mother goes out?",
-      "choices": [
-        "He squeezes under the gate into Mr McGregor's garden",
-        "He is caught in the gooseberry net",
-        "He eats blackberries with his sisters",
-        "He loses both his shoes"
-      ],
+      "choices": ["He squeezes under the gate into Mr McGregor's garden", "He is caught in the gooseberry net", "He eats blackberries with his sisters", "He loses both his shoes"],
       "answerIndex": 0,
       "explanation": "The story goes in order: he disobeys and goes under the gate, then eats, then is chased, then loses his shoes. Getting into the garden comes first.",
-      "citation": { "page": 1, "quote": "But Peter, who was very naughty, ran straight away to Mr. McGregor's garden, and squeezed under the gate!" },
+      "citation": {
+        "page": 1,
+        "quote": "But Peter, who was very naughty, ran straight away to Mr. McGregor's garden, and squeezed under the gate!"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -100,7 +135,10 @@
       "question": "Retell what happens to Peter in three steps, in order.",
       "answerText": "He sneaks into the garden, he eats vegetables and is spotted by Mr McGregor, and he escapes losing his shoes and jacket.",
       "explanation": "Any three steps in the right order are fine — what matters is that the order matches the story.",
-      "citation": { "page": 1, "quote": "Mr. McGregor was after him in no time." },
+      "citation": {
+        "page": 1,
+        "quote": "Mr. McGregor was after him in no time."
+      },
       "state": "healthy",
       "leitnerBox": 2,
       "spawnedFrom": null
@@ -114,7 +152,10 @@
       "choices": ["Moved very quickly", "Walked slowly", "Fell over", "Shouted loudly"],
       "answerIndex": 0,
       "explanation": "He is frightened and being chased, so 'rushed' must mean moving fast. The sentence around the word tells you.",
-      "citation": { "page": 2, "quote": "Peter was most dreadfully frightened; he rushed all over the garden." },
+      "citation": {
+        "page": 2,
+        "quote": "Peter was most dreadfully frightened; he rushed all over the garden."
+      },
       "state": "withered",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -127,7 +168,10 @@
       "question": "\"He was out of breath and trembling with fright.\" What does 'trembling' tell you about Peter's body?",
       "answerText": "That he was shaking, because he was afraid.",
       "explanation": "'With fright' sits right next to the word — the sentence hands you the meaning.",
-      "citation": { "page": 2, "quote": "he was out of breath and trembling with fright" },
+      "citation": {
+        "page": 2,
+        "quote": "he was out of breath and trembling with fright"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -145,7 +189,10 @@
         "Does not simply say 'look it up in a dictionary'"
       ],
       "explanation": "Explaining the strategy out loud is what fixes it. If you can teach it, you have it.",
-      "citation": { "page": 2, "quote": "he implored her to exert herself" },
+      "citation": {
+        "page": 2,
+        "quote": "he implored her to exert herself"
+      },
       "state": "sapling",
       "leitnerBox": 1,
       "spawnedFrom": "s3"
@@ -156,15 +203,13 @@
       "pos": [-15, 0, -55],
       "kind": "choice",
       "question": "Why does Peter go into Mr McGregor's garden even though his mother told him not to?",
-      "choices": [
-        "He is curious and does not want to obey",
-        "The text says he was hungry and had no food",
-        "His sisters dared him to go",
-        "He is looking for his father"
-      ],
+      "choices": ["He is curious and does not want to obey", "The text says he was hungry and had no food", "His sisters dared him to go", "He is looking for his father"],
       "answerIndex": 0,
       "explanation": "The story never gives a reason directly — it says he was 'very naughty' and ran straight there. You infer the motive from what he does.",
-      "citation": { "page": 1, "quote": "But Peter, who was very naughty, ran straight away" },
+      "citation": {
+        "page": 1,
+        "quote": "But Peter, who was very naughty, ran straight away"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -177,7 +222,10 @@
       "question": "How does Peter feel when he cannot find the gate? How do you know?",
       "answerText": "Frightened and panicked — the text says he was 'most dreadfully frightened' and rushed all over the garden.",
       "explanation": "Point to the words that show it. A feeling you can quote is stated; a feeling you work out is inferred.",
-      "citation": { "page": 2, "quote": "Peter was most dreadfully frightened" },
+      "citation": {
+        "page": 2,
+        "quote": "Peter was most dreadfully frightened"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -195,7 +243,10 @@
         "Points at something in the text as the clue"
       ],
       "explanation": "Separating action from motive is the whole skill of inference. Teaching it is the best way to hold onto it.",
-      "citation": { "page": 1, "quote": "who was very naughty" },
+      "citation": {
+        "page": 1,
+        "quote": "who was very naughty"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -206,15 +257,13 @@
       "pos": [7, 0, -80],
       "kind": "choice",
       "question": "What is the main idea of the story?",
-      "choices": [
-        "Disobeying can get you into trouble",
-        "Rabbits like eating radishes",
-        "Mr McGregor keeps a large garden",
-        "Peter loses his shoes and his jacket"
-      ],
+      "choices": ["Disobeying can get you into trouble", "Rabbits like eating radishes", "Mr McGregor keeps a large garden", "Peter loses his shoes and his jacket"],
       "answerIndex": 0,
       "explanation": "The other three are true details from the story, but only the first is what the whole story is about.",
-      "citation": { "page": 3, "quote": "Peter was not very well during the evening." },
+      "citation": {
+        "page": 3,
+        "quote": "Peter was not very well during the evening."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -225,15 +274,13 @@
       "pos": [12, 0, -86],
       "kind": "choice",
       "question": "A reader says the main idea is \"Peter lost his jacket and shoes.\" What mistake are they making?",
-      "choices": [
-        "They picked a detail instead of the main idea",
-        "They read the story out of order",
-        "They guessed a word wrongly",
-        "They used their own experience"
-      ],
+      "choices": ["They picked a detail instead of the main idea", "They read the story out of order", "They guessed a word wrongly", "They used their own experience"],
       "answerIndex": 0,
       "explanation": "It is a real event in the story, but it is one detail. The main idea covers the whole text.",
-      "citation": { "page": 3, "quote": "his mother was busy cooking" },
+      "citation": {
+        "page": 3,
+        "quote": "his mother was busy cooking"
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -250,7 +297,10 @@
         "Uses the story rather than speaking only in the abstract"
       ],
       "explanation": "A rule the student can state in their own words is a rule they will still have next week.",
-      "citation": { "page": 3, "quote": "Peter was not very well during the evening." },
+      "citation": {
+        "page": 3,
+        "quote": "Peter was not very well during the evening."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null
@@ -263,7 +313,10 @@
       "question": "Do you think Peter will go back into the garden? Give one piece of evidence from the story for your answer.",
       "answerText": "Either answer is fine if it cites the text — for example, he was made ill and put to bed, which suggests he learned his lesson; or he was called 'very naughty', which suggests he might.",
       "explanation": "A prediction is only as good as the evidence behind it. The claim matters less than the quote.",
-      "citation": { "page": 3, "quote": "Peter was not very well during the evening." },
+      "citation": {
+        "page": 3,
+        "quote": "Peter was not very well during the evening."
+      },
       "state": "healthy",
       "leitnerBox": 1,
       "spawnedFrom": null

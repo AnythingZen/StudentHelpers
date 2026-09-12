@@ -11,6 +11,11 @@ watches a live heatmap of the forest keyed by *misconception*, not by miss-rate.
 **Track 3 · Learning Science in the Loop.** Desktop web, keyboard + mouse.
 7 hours, 3 builders.
 
+**Interactive first — that's what the judges score.** You answer by walking
+your avatar onto answer stones, not by clicking a card. Locked groves sit behind
+bridges you rebuild plank by plank, then walk across. Other players share the
+forest with you. Teaching means helping a stuck classmate standing in the world.
+
 **It is a game, not a quiz with trees.** Third-person blocky avatar, NPC tutors
 who speak in the world instead of a chat box, a fox companion that asks how sure
 you are before you answer, quest framing throughout, three progression bars

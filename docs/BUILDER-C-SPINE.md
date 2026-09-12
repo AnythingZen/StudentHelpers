@@ -31,12 +31,16 @@ single-room demo.
 
 ```
 server/
-  index.ts        express app, the 6 routes
+  index.ts        express app, the 8 routes
   store.ts        the Map, room codes, answer keys held private
   teacher/
     index.html    teacher console
     console.ts    upload, room code, heatmap, next session
   .env.example
+
+client/src/
+  hud.ts          YOURS — bars, quest toasts, banners, fox prompt
+  hud.css         YOURS
 ```
 
 ---
@@ -49,7 +53,7 @@ while someone types it. Generate from a curated syllable list, not random hex.
 
 ---
 
-## The six routes. That is the whole backend.
+## The eight routes. That is the whole backend.
 
 ### `POST /api/world`
 Multipart: `pdf` + `system` + `level` + `subject` + `topic` (the three dropdowns
@@ -111,6 +115,24 @@ derives from that log — build it once, read it everywhere.
 `sessionIndex++`, box-1 and box-2 trees → `healthy`, saplings cleared, then
 re-layout with the review queue **near the entrance**. Returns the new world.
 This is your demo's second act: proof the system remembers across sessions.
+
+### `POST /api/presence/:worldId` and `GET /api/presence/:worldId`
+
+Other people in the forest — a core interactive feature, not polish. A plain
+`Map<playerId, { name, pos, yaw, lastSeen }>` per world. POST upserts, GET
+returns everyone seen in the last 3s **plus three seeded classmates**:
+
+```ts
+{ players: [{ playerId, name, pos, yaw, seeded }] }
+```
+
+Seeded classmates walk slow wander loops you compute server-side from the clock
+— `pos = centre + [cos(t/9), 0, sin(t/9)] * radius` is plenty. One of them, **Mia**,
+stands still at a `teach` tree instead, looking stuck.
+
+Clients poll this at **500ms**, separately from state. It's tiny and in memory.
+On stage, a second browser window in the same room shows up as a real player.
+If that ever misbehaves, the seeded classmates are still walking around.
 
 ### `GET /api/teacher/:worldId`
 Aggregate from `events[]`:
@@ -216,6 +238,27 @@ Retention is a **proxy**, not a memory model. Say so if asked; do not imply FSRS
 
 ---
 
+## You also own the HUD — `client/src/hud.ts` and `hud.css`
+
+The only two files in `client/` that are yours. You **subscribe** to A's
+`state.ts` event bus (see the client seam in `CONTRACT.md`) and never touch the
+three.js scene. A never writes HUD HTML. That split keeps the busiest directory
+in the project conflict-free.
+
+What you render, all plain HTML + CSS over the canvas:
+
+- **The three bars** — XP greyed, mastery and retention bright. "The game rewards
+  the second bar" has to be visible at a glance.
+- **Quest toasts** off `questStart`, `plankPlaced`, `plankLost` — *Quest
+  accepted: The Fraction Bridge* · *🔨 Bridge Repair +1* · *⚠️ A plank fell*.
+- **Banners** off `levelUp` — *🏰 NEW AREA UNLOCKED* — big, centred, with sound.
+- **The fox's confidence prompt** off `needConfidence` — three big buttons, *low /
+  medium / high*, keyboard `1 2 3` so pointer lock never has to release. Call
+  `resolve(choice)`.
+
+~45 minutes, and it's the layer judges read first. Keep it legible from the back
+of a room.
+
 ## You own the walking skeleton — minute 0 to 45
 
 Before anything is real, build the whole path with fakes: `server/` serves both
@@ -254,6 +297,8 @@ Nobody else will do these, and every one of them has sunk a hackathon team:
 | **2:30** | **Integration #1: A polls your server, B's real world is in the store** |
 | 3:00 | PDF upload → real spawn → "growing" progress on the teacher page |
 | 3:30 | Diagnosis flowing through `/api/answer` into the heatmap |
+| 3:45 | **Presence live** — seeded classmates walking; a second browser appears as a real player |
+| 4:15 | **HUD** — three bars, quest toasts, fox prompt on keys 1/2/3 |
 | 4:00 | **Deployed to a URL** |
 | 4:30 | Next Session working |
 | 5:00 | Heatmap readable and pretty; misconception labels legible |
@@ -264,5 +309,5 @@ Nobody else will do these, and every one of them has sunk a hackathon team:
 
 ## Do not touch
 
-`client/src/**` (A's) and `server/brain/**` (B's). You import `layout` from A
+`client/src/**` except `hud.ts` / `hud.css` (A's), and `server/brain/**` (B's). You import `layout` from A
 and the six functions from B. If you're writing a prompt, you're doing B's job.

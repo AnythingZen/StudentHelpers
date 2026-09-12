@@ -19,6 +19,7 @@
     {
       "id": "c1",
       "name": "Equivalent fractions",
+      "questName": "The Simplest Spring",
       "bloom": "remember",
       "syllabusRef": "P5 · Fractions · Expressing a fraction in its simplest form",
       "level": "Primary 5",
@@ -28,6 +29,7 @@
     {
       "id": "c2",
       "name": "Comparing and ordering unlike fractions",
+      "questName": "The Fraction Bridge",
       "bloom": "understand",
       "syllabusRef": "P5 · Fractions · Comparing and ordering fractions with unlike denominators",
       "level": "Primary 5",
@@ -37,6 +39,7 @@
     {
       "id": "c3",
       "name": "Adding and subtracting unlike fractions",
+      "questName": "The Common Ground Crossing",
       "bloom": "apply",
       "syllabusRef": "P5 · Fractions · Adding and subtracting mixed numbers and unlike fractions",
       "level": "Primary 5",
@@ -46,6 +49,7 @@
     {
       "id": "c4",
       "name": "Fraction of a quantity in word problems",
+      "questName": "The Word Problem Woods",
       "bloom": "apply",
       "syllabusRef": "P5 · Fractions · Solving word problems involving fractions of a set",
       "level": "Primary 5",
@@ -55,6 +59,7 @@
     {
       "id": "c5",
       "name": "Dividing a fraction by a whole number",
+      "questName": "The Primary 6 Summit",
       "bloom": "apply",
       "syllabusRef": "P6 · Fractions · Dividing a proper fraction by a whole number",
       "level": "Primary 6",

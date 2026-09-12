@@ -21,7 +21,12 @@ Import addons like this — **verified** against the 0.186.0 exports map:
 ```ts
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 ```
+
+`CSS2DRenderer` is **verified** in 0.186.0. It pins real HTML to world positions,
+so answer-stone labels, nameplates and speech bubbles are crisp text with CSS,
+not text textures. It is the reason stones and bubbles are cheap.
 
 Not `three/examples/jsm/...`. That path works but `three/addons/*` is the
 supported alias and needs no Vite config.
@@ -34,16 +39,24 @@ supported alias and needs no Vite config.
 client/
   index.html
   src/
-    main.ts          scene bootstrap, render loop
-    scene.ts         ground, sky, fog, lights
+    main.ts          scene bootstrap, render loop, both renderers
+    scene.ts         ground, sky, fog, lights, skins
     tree.ts          buildTree(state, seed) -> THREE.Group
+    stones.ts        answer stones: rise, label, stand-to-confirm ring
+    bridge.ts        broken bridges, plank placement from concept health
+    avatar.ts        blocky humanoid — used for you, NPCs, players, classmates
+    players.ts       poll /api/presence at 500ms, lerp other avatars
     layout.ts        THE LAYOUT FUNCTION — see below, it's yours
-    player.ts        PointerLockControls + WASD
-    proximity.ts     distance check -> which tree am I at
-    questionCard.ts  the answer overlay (choice + recall)
+    player.ts        PointerLockControls + WASD + third-person camera
+    proximity.ts     which tree / stone / classmate am I at
+    speech.ts        world-space speech bubbles with optional text input
     api.ts           poll GET /api/state, POST /api/answer
-    state.ts         local mirror of the World object
+    state.ts         local mirror of World + subscribe(fn) event bus
 ```
+
+**`hud.ts` and `hud.css` are C's, not yours.** You emit events from `state.ts`
+(see the client seam in `CONTRACT.md`); C renders bars, toasts, banners and the
+fox prompt. You never write HUD HTML, and C never touches the scene.
 
 ---
 
@@ -109,8 +122,9 @@ Rules:
 - **Interleave**: do not put all of one concept's trees consecutively along the
   path. Mixed order beats blocked order (Rohrer & Taylor 2007 — it's on our
   citations slide, so make the code actually do it).
-- **Locked groves** (`prerequisites` unsatisfied, see CONTRACT) render dark,
-  desaturated, with a low fog wall, and the proximity trigger ignores them.
+- **Locked groves sit across a gap with a broken bridge** — not a fog wall. See
+  `bridge.ts` below. The gate is a place you walk to, and it fills plank by plank
+  as the prerequisite concepts get healthier.
 - **The level-ladder grove** — exactly one concept has `level` above the world's
   own (Primary 6 in a Primary 5 world). Put it deepest, behind a visible gate,
   and make it look like a reward: taller trees, warmer light, visible from the
@@ -154,78 +168,77 @@ trunks is invisible in a 3-minute demo and collision costs you an hour.
 Add Shift-to-sprint. You will thank yourself during rehearsal when you have to
 cross the forest forty times.
 
-## The game layer — hour 5, in this order, each one droppable
+## Interactive first — this is the loop now, not polish
 
-Read the game-layer section of `CONTRACT.md` for the shared definitions. Yours:
+Judges are scoring **interactive**. The earlier plan answered every question
+through a 2D card that stopped the game. That is gone. Read the
+"Interactive first" section of `CONTRACT.md`; here is your half.
 
-**1. NPCs (~25 min).** One blocky NPC per grove with a nameplate — **Professor
-Byte**. Same primitives as the avatar, different palette. He idles, turns to
-face you when you are near, and **never follows you.** The scaffold hint comes
-out of a world-space speech bubble above him instead of a card. Same API text —
-it just comes from a character's mouth now. This is what makes the AI visible as
-an agent rather than a text box.
+### 1. Answer stones — you answer by walking (core, ~35 min)
 
-**2. The three bars (~20 min).** HUD overlay, stacked, from `/api/state`:
+Proximity: nearest unlocked `choice` tree within **3 units** → soft prompt
+"Press E to accept the quest."
 
-```
-XP         ███████████░░  grey    — grows fast, means least
-MASTERY    █████████░░░░  bright  — the real thing
-RETENTION  ███████░░░░░░  bright  — a proxy, see CONTRACT
-```
+On E: four stones **rise out of the ground** in a shallow arc in front of the
+tree over ~0.4s. Each gets a `CSS2DObject` label with its answer. Pointer lock
+**stays on**. You walk into one.
 
-XP must look *less* important than the other two. The pitch line is "the game
-rewards the second bar", so the UI has to earn it.
+- Standing on a stone fills a ring over **~0.6s**. Step off and it drains. This
+  is the thing that stops accidental answers when you're just walking past —
+  do not skip it.
+- Ring full → emit `needConfidence` (C's fox prompt resolves it) → POST the
+  answer with the confidence.
+- Correct: stones sink, tree pulses, a **plank flies to the nearest bridge**.
+- Wrong: stones sink, **the tree withers in view**, a plank knocks loose, and
+  Professor Byte walks over.
 
-**3. Quest copy (~10 min, zero code).** Never show "Question 4 of 27". Use the
-quest table in `CONTRACT.md`: *Quest accepted: the Fraction Bridge* · *⚠️ The
-Fraction Bridge is unstable* · *🔨 Bridge Repair +1* · *🏆 FRACTION MASTER* ·
-*⚔️ Memory Quest available* · *🏰 NEW AREA UNLOCKED*. Pure text, biggest
-feel-per-minute on the whole list.
+`recall` trees use the same stones idea with one stone and a speech bubble input.
+`teach` trees are the classmate interaction, below.
 
-**4. The fox (~15 min).** One companion that trots near the avatar. Before any
-answer it asks **"How sure are you?"** — low / medium / high. Send it with the
-answer. That is metacognitive calibration, a real Track 3 mechanic. One pet with
-a job beats four pets with cosmetics. **No owl, no turtle, no octopus.**
+**Fallback at 3:30:** if stones aren't solid, the overlay card is the answer UI.
+Same POST, same results — you only lose the physicality.
 
-**Never build:** avatar cosmetics, emotes, world decorations, badge shelves,
-multiplayer, a second biome.
+### 2. Bridges — the gate is a place (core, ~30 min)
 
-**The loop comes first.** If 3:30–5:00 has not closed wither → diagnosis →
-sapling → regrow, you do not start the game layer. A walking simulator with
-beautiful bars loses to an ugly working loop.
+Every locked grove is across a gap. The bridge has `N` plank slots; filled planks
+= `round(N × min(prereqHealth))`. Recompute on every state event:
+- plank gained → drop it in from above with a thunk
+- plank lost → it tilts and falls into the gap
 
----
+When every slot is full the grove unlocks and you **walk across**. The level
+ladder grove is just the final, longest bridge — when it completes, emit
+`levelUp`.
 
-## Proximity + question card
+**Fallback:** a bridge that is simply broken or whole. No per-plank animation.
 
-Every frame, find the nearest unlocked tree within **3 units**. Show a soft
-prompt ("Press E"). On E, open the card and release pointer lock.
+### 3. Other people in the forest (core, ~25 min)
 
-The card renders from the tree:
+`players.ts` polls `GET /api/presence/:worldId` every **500ms** and renders each
+entry with the same `avatar.ts` mesh plus a nameplate. **Lerp** toward the latest
+position each frame, or they'll teleport. POST your own position on the same
+cadence.
 
-- `kind: 'choice'` → the question + 4 clickable choices
-- `kind: 'recall'` → the question + a text input and a submit button.
-  ~25% of trees are recall. Recognition is not retrieval — this is what makes
-  the Roediger & Karpicke citation honest.
-- `kind: 'teach'` → the question + a **larger** textarea. Frame it as the sapling
-  asking to be taught: *"Explain it to me and I'll grow."* Same submit path as
-  recall. Show `tree.rubric[]` as soft checkmarks that tick as the grader comes
-  back. This is the one card that should feel different from a quiz — give it
-  room, and animate the sapling growing into a full tree on success.
-  **Build this at 4:30**, after the main loop closes. It is droppable.
-- If `tree.citation` exists, show a small `📄 p.{page}` chip. Hovering shows the
-  quote from the teacher's own worksheet. **Do not skip this** — it's the
-  answer to "did the AI make this up?"
+You don't care which players are real and which are seeded — it's one list.
+Open a second browser in the same room and a real player walks in.
 
-`POST /api/answer` and render the reply:
+### 4. Help a classmate — teach trees (core, ~20 min)
 
-- `correct: true` → card closes, tree animates to `healthy`/`regrown`
-- `correct: false` → the tree withers **in view**, and the card shows
-  `scaffoldHint` as the tree "speaking". It is a question, never an answer.
-  Then a "Try again" button. No score, no red X, no "Wrong!".
+A `teach` tree has a seeded classmate, **Mia**, standing at it with a
+"stuck" idle (slumped, occasional head shake). Proximity prompt: *"Mia is stuck
+on {questName}. Help her."* Her speech bubble opens with a text input — the
+typing pause is deliberate; it's the reflective moment. Submit →
+`gradeExplanation`. Pass → Mia straightens, jumps, her tree grows. Rubric points
+tick off in the bubble as the result lands.
 
-Then a toast when `saplingId` comes back: *"A sapling of {concept} has taken
-root further along the path."*
+### Hour 5 — polish, cut from the back
+
+1. **Professor Byte walks over** when a tree withers, turns to you, speaks the
+   scaffold in a bubble, then stays in his grove. (~20 min)
+2. **The fox mesh** trotting at your heel. The prompt itself is C's HUD. (~10 min)
+3. **Skins** — the maths/English lookup table. (~15 min)
+
+**Never:** avatar cosmetics, emotes, decorations, chat, collisions between
+players, a second biome.
 
 ---
 
@@ -237,14 +250,20 @@ root further along the path."*
 | 1:15 | Ground + sky + fog, WASD + mouse look, avatar visible from behind |
 | 2:00 | Forest built from `mockWorld.json`, groves visibly clustered |
 | **2:30** | **GO/NO-GO — can you walk around a forest built from the mock?** |
-| 3:00 | Proximity trigger + question card, wired to the mock |
+| 3:00 | **Answer stones** rising and submitting against the mock, with the stand-to-confirm ring |
 | 3:30 | Rendering a **real** generated world from `/api/state` |
 | 4:30 | Wither + sapling + regrow all animating off real `/api/answer` |
-| 5:00 | Locked groves render dark and refuse entry |
-| 5:00–6:00 | Game layer in order: NPCs → three bars → quest copy → fox |
+| 4:15 | **Bridges** filling and losing planks off real state |
+| 4:45 | **Other players** lerping from `/api/presence`; **Mia** teach interaction working |
+| 5:00 | Loop closed *interactively*: walk into a stone → wither → plank lost → sapling → repair → cross |
+| 5:00–6:00 | Polish, cut from the back: Byte walks over → fox mesh → skins |
 | 6:00 | Polish frozen |
 
-### Your fallback is not optional
+### Your fallbacks are not optional
+
+Two of them now. **At 3:30, if answer stones aren't reliable, the overlay card
+becomes the answer UI** — same POST, same results, you lose only the physicality.
+And the one below.
 
 **If at 2:30 the 3D scene cannot render the mock world, you stop and drop to
 2.5D** — a top-down orthographic camera, trees as sprites or flat cones,

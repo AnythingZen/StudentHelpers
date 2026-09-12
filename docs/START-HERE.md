@@ -28,14 +28,23 @@ that out at minute 2 than at the 2:30 integration.
 
 ### Everyone
 
+- **INTERACTIVE FIRST.** Judges are scoring interactivity, not just learning.
+  Answering is no longer a 2D card that stops the game — **you walk into answer
+  stones**. Locked groves sit behind **bridges you rebuild plank by plank** and
+  then walk across. **Other players** share the forest (real second browser +
+  seeded classmates, one list). Teach trees are **helping a stuck classmate,
+  Mia**. These are core now, not hour-5 polish. See "Interactive first" in
+  `CONTRACT.md`.
+- **Eight endpoints**, not six: `POST` and `GET /api/presence/:worldId` are new.
+- **HUD belongs to C** (`client/src/hud.ts`, `hud.css`), wired through A's
+  `state.ts` event bus. Every other file in `client/` is A's.
 - **Subject is maths, not chemistry.** MOE Singapore · Primary 5 · Fractions
   leads. Any mention of moles or molar mass is from a dead draft.
 - **Two worlds, one engine.** Maths carries the demo loop; a Primary 3 English
   reading world proves the breadth. Always a forest — never a second biome.
 - **It is a game, not a quiz.** Third-person avatar, NPC tutor, a fox, three
-  bars, quest copy, Class World, Deploy Quest. See the game-layer section of
-  `CONTRACT.md`.
-- **Six endpoints, not four.** `POST /api/deploy-quest/:worldId` is new.
+  bars, quest copy, Class World, Deploy Quest. See the "Interactive first" and
+  game-layer sections of `CONTRACT.md`.
 - **`World.status` exists** (`growing | ready | failed`). An earlier revision
   accidentally dropped it from the type.
 - **No Khan Academy links.** Bot challenge plus JavaScript-rendered — it cannot
@@ -47,18 +56,30 @@ that out at minute 2 than at the 2:30 integration.
 
 ### Roshan (A) — the one that matters most
 
+- **Answer stones replace the question card** for `choice` trees: E to accept →
+  four stones rise → walk into one → ~0.6s ring confirms. Card is the 3:30
+  fallback. Use `CSS2DRenderer` for labels (verified in 0.186.0).
+- **Bridges replace fog walls** for locked groves, planks from prerequisite
+  health.
+- **`players.ts`** renders the presence list at 500ms with lerping.
+- **Mia at teach trees**, input in her speech bubble.
+- **You no longer build the HUD** — emit events from `state.ts`; C renders.
 - **THIRD PERSON. Decide at minute 30.** Visible blocky avatar, camera trailing
   behind. If you read an early draft, it said first-person — that is wrong now,
   and it is the only decision on your list that is painful to change later.
-- **Four tree kinds render:** `choice`, `recall`, `teach` (larger textarea,
-  rubric checkmarks, sapling grows on success).
+- **Three tree kinds:** `choice` (answer stones), `recall` (one stone + a
+  speech-bubble input), `teach` (Mia, stuck at the tree — you help her).
 - **Two skins** from one lookup table: maths = cool birch, English = warm oak.
 - **Level-ladder grove:** deepest, gated, fires **NEW AREA UNLOCKED**.
-- **Hour 5 game layer, in order:** NPCs → three bars → quest copy → fox.
+- **Hour 5 polish, cut from the back:** Professor Byte walks over → fox mesh →
+  skins. Bars and quest copy are C's HUD now, not yours.
 - **Two fixtures:** `mockWorld.json` (maths) and `mockWorldReading.json`.
 
 ### Zen (B)
 
+- **Spawn prompt now also returns `questName` per concept** — the most-seen
+  string in the game.
+- **`gradeExplanation`'s encouragement is Mia's dialogue**, not a sapling's.
 - **Six exports, not four:** `spawnWorld`, `diagnose`, `gradeRecall`,
   `gradeExplanation`, `focusQuest`, `schedule`.
 - **`spawnWorld` takes a `Syllabus`, not a subject string**, and branches on
@@ -73,6 +94,10 @@ that out at minute 2 than at the 2:30 integration.
 
 ### C
 
+- **Presence endpoints** with three seeded classmates, one of them Mia standing
+  at a teach tree.
+- **You own the HUD** — bars, quest toasts, banners, the fox's confidence prompt
+  on keys 1/2/3.
 - Four input tabs, two subjects, maths spawned live, reading pre-spawned.
 - `POST /api/answer` branches three ways: `recall`, `teach`, `choice`.
 - Class World bar, Deploy Quest route, and the three bars on `/api/state`.

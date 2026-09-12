@@ -99,6 +99,7 @@ interface World {
 interface Concept {
   id: string;                 // "c1"
   name: string;               // "Comparing and ordering unlike fractions"
+  questName: string;          // "The Fraction Bridge" — B generates it at spawn
   bloom: Bloom;
   syllabusRef: string;        // "P5 · Fractions · Comparing fractions with unlike denominators"
   level: string;              // "Primary 5" — may be ABOVE the world's level (see ladder)
@@ -140,7 +141,7 @@ depends on having the answer client-side.
 
 ---
 
-## The six endpoints. That is the entire backend.
+## The eight endpoints. That is the entire backend.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
@@ -150,6 +151,13 @@ depends on having the answer client-side.
 | `POST` | `/api/next-session/:worldId` | — | `{ world }` |
 | `GET` | `/api/teacher/:worldId` | — | aggregate + Class World bar, see C's brief |
 | `POST` | `/api/deploy-quest/:worldId` | `{ misconceptionId }` | `{ addedTreeIds }` — hour 5 |
+| `POST` | `/api/presence/:worldId` | `{ playerId, name, pos, yaw }` | `{ ok }` — every 500ms |
+| `GET` | `/api/presence/:worldId` | — | `{ players: [{ playerId, name, pos, yaw, seeded }] }` |
+
+Presence is polled at **500ms**, separately from state at 2s, because positions
+need to move smoothly and the payload is tiny. Clients **lerp** other players
+toward their latest position. Seeded classmates are server-side entries in the
+same list, marked `seeded: true`.
 
 `sourceKind` is `'pdf' | 'url' | 'text' | 'prompt'`. For `prompt`, send none of
 the three payload fields; the syllabus dropdowns are the whole input.
@@ -206,14 +214,78 @@ the moment the product sells itself.
 time on syllabus breadth.
 
 **Teach trees** (`kind: 'teach'`) — the highest-value mechanic and the only one
-that is visibly not a quiz. A teach tree only appears on a **sapling** the
-student has already recovered: it asks them to explain the concept in their own
-words *so the sapling can grow*. B grades the explanation against
-`tree.rubric[]` — does it actually address the misconception they had?
+that is visibly not a quiz. A teach tree appears on a **sapling** of a concept
+the student has already recovered, and **Mia, a seeded classmate, is standing at
+it, stuck**. The student explains the concept to her. B grades the explanation
+against `tree.rubric[]` — does it actually address the misconception? On a pass,
+Mia's tree grows. See "Help a classmate" under *Interactive first*.
 
 This is learning by teaching (the protégé effect), and it is the deepest thing
 in the build. Schema goes in at minute 10; **grading is implemented at 4:30,
 after the main loop closes.** Droppable without damage if you are behind.
+
+## Interactive first — this is what the judges are scoring
+
+The brief emphasises **interactive**, not just the learning. That changes the
+priority order, not just the feature list.
+
+**The problem with the earlier plan:** answering worked as walk to a tree →
+press E → a 2D card covers the screen, pointer lock releases, **the game stops**
+→ click → card closes. That is a quiz interrupting a game, on every question.
+No amount of hour-5 polish fixes it, because it happens forty times per demo.
+
+**The principle: the interaction IS the loop.** Answering is something the
+avatar physically does. Gates are things you walk across. Other people are in
+the forest with you. None of this is a separate "game layer" bolted on after —
+it is how the core loop is built from the first pass.
+
+### Core — not droppable, built in the loop window
+
+**1. Answer stones — you answer by walking.** At a `choice` tree, press E: four
+glowing stones rise out of the ground in an arc in front of the tree, each with
+its answer floating above it (`CSS2DObject`). **Walk into one to answer.** A ring
+fills over ~0.6s while you stand on it, so walking past a stone by accident
+never submits. The game never stops, pointer lock never releases, the camera
+never leaves the world.
+
+**2. Bridges — the gate is a place.** Every locked grove sits across a gap with a
+broken bridge. **One plank per unit of prerequisite health.** Correct answers
+drop planks into place with a thunk; a withered tree knocks one loose. When the
+bridge is whole, you walk across. This is the prerequisite DAG made physical,
+and it is your original "the Fraction Bridge is unstable" idea, literally.
+The level-ladder grove is simply the last bridge.
+
+**3. Other people in the forest.** Other avatars walk the forest with you,
+nameplates overhead. One list, two sources:
+- **real players** — a second browser in the same room code posts its position
+- **seeded classmates** — the server adds a few scripted ones on wander loops
+
+The client renders one list and never knows which is which. On stage, open a
+second browser window and a *real* second player appears. If that fails,
+the seeded classmates are still there. Same code path either way.
+
+**4. Help a classmate — teaching becomes social.** A `teach` tree is no longer a
+text prompt. A seeded classmate — **Mia** — is standing at it, stuck: *"Mia is
+stuck on the Fraction Bridge. Help her."* You explain; if it passes the rubric,
+Mia's tree grows and she cheers. Same `gradeExplanation` call, same citation —
+the protégé effect, now with an actual protégé in the world.
+
+### What stays a pause, deliberately
+
+`recall` and `teach` still need typing, and typing is a pause. That's fine: it is
+the reflective moment, and it's pedagogically the right place to slow down. Make
+it diegetic — the input sits in the NPC's or classmate's speech bubble, not a
+modal over the screen.
+
+### Fallbacks, same pattern as 3D → 2.5D
+
+| If this isn't working by 3:30 | Fall back to |
+|---|---|
+| Answer stones | the overlay card (it's simpler, and it's already the recall/teach UI) |
+| Real players | seeded classmates only |
+| Plank-by-plank bridges | a bridge that is simply broken or whole |
+
+---
 
 ## The game layer — this is a game, not a quiz with trees
 
@@ -238,8 +310,10 @@ Byte** is a blocky NPC with a nameplate who stands in the grove and speaks in a
 world-space bubble. Same text, same API response — it just comes out of a
 character's mouth. That is what makes the AI visible as an agent.
 
-Each grove gets one NPC. They idle, they turn to face you, they never follow you
-around. No dialogue trees, no branching conversation, no voice.
+Each grove gets one NPC. They idle and turn to face you. **When a tree withers,
+Professor Byte walks over to you** and speaks — then stays in that grove, never
+trailing you around the map. No dialogue trees, no branching conversation, no
+voice.
 
 ### The companion — one pet, and it has a real job
 
@@ -301,17 +375,20 @@ That is the full circuit, and it is the last beat of the demo.
 
 **Minute 30 (structural, painful later):** third-person camera + avatar mesh.
 
-**Hour 5, the juice hour (cheap, high impact, droppable in this order):**
-NPC characters → the three bars → quest copy → Class World bar → Deploy Quest →
-fox confidence prompt.
+**Core loop window, 3:30–5:00 — interactive, not droppable:** answer stones,
+bridges with planks, other players in the forest, help-a-classmate. These *are*
+the loop now. Each has a fallback in the table above.
 
-**Never:** avatar cosmetics, emotes, world decorations, badge shelves, four pets,
-real multiplayer, five subject worlds, a second biome. These are cost without
-learning value.
+**Hour 5, polish (droppable in this order, cut from the back):**
+Professor Byte walking over → the three bars → quest copy → Class World bar →
+Deploy Quest → the fox's confidence prompt → skins.
 
-**The loop still comes first.** If the 3:30–5:00 window has not closed the loop —
-wrong answer, diagnosis, wither, sapling, heatmap — the game layer does not get
-started. A walking simulator with beautiful bars loses to an ugly working loop.
+**Never:** avatar cosmetics, emotes, world decorations, badge shelves, four
+pets, chat, player-to-player physics, five subject worlds, a second biome.
+
+**The loop still comes first — but the loop is now interactive by construction.**
+Neither a walking simulator nor a quiz with a 3D background wins. The fix is not
+more layers on top; it's that answering is something your body does in the world.
 
 ---
 
@@ -352,7 +429,8 @@ and clears saplings. That is distributed practice, made spatial.
 
 | Area | Owner |
 |---|---|
-| `client/` — scene, movement, rendering, question UI, layout fn | **A** |
+| `client/` — scene, avatar, trees, stones, bridges, NPCs, other players, layout fn | **A** |
+| `client/src/hud.ts`, `client/src/hud.css` — bars, quest toasts, banners, fox prompt | **C** |
 | `server/brain/` — all AI calls, prompts, schemas, scheduler | **B** |
 | `server/` — express app, state store, routes, teacher console | **C** |
 | `docs/`, `mockWorld.json` | shared, announce changes |
@@ -381,6 +459,20 @@ rely on discipline for this — rely on the layout:
 If you find yourself resolving a conflict in someone else's file, stop and ask
 them — it means an ownership line got crossed, and a conflict is the symptom
 rather than the problem.
+
+**The one client-side seam between A and C.** A's `client/src/state.ts` exports
+`subscribe(fn)` and emits typed events; C's HUD subscribes and never touches the
+scene. A never renders HUD HTML. Two separate files, one interface:
+
+```ts
+type GameEvent =
+  | { type: 'state';     world: World; xp: number; mastery: number; retention: number }
+  | { type: 'answered';  result: AnswerResult }
+  | { type: 'questStart'; conceptId: string; questName: string }
+  | { type: 'plankPlaced' | 'plankLost'; conceptId: string }
+  | { type: 'levelUp';   conceptId: string }
+  | { type: 'needConfidence'; treeId: string; resolve: (c: Confidence) => void };
+```
 
 `server/brain/index.ts` exports exactly these, and C only ever calls these:
 
