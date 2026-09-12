@@ -16,4 +16,6 @@ export class Player {
     this.controls.moveRight(this.velocity.x * delta); this.controls.moveForward(-this.velocity.z * delta);
     const p = this.controls.object.position; p.x = THREE.MathUtils.clamp(p.x, -45, 45); p.z = THREE.MathUtils.clamp(p.z, -140, 18); p.y = 1.7;
   }
+  get isMoving() { return this.velocity.lengthSq() > .35; }
+  get position() { return this.controls.object.position; }
 }
