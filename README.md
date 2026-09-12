@@ -47,17 +47,20 @@ all three builders can work against real-shaped data from minute 15.
    who, the commit-hash handshake, what changed since earlier drafts, and the
    skeleton-first failsafe. The docs were revised many times during planning, so
    assume any copy you read before the clock started is stale.
-1. **[docs/CONTRACT.md](docs/CONTRACT.md)** — everyone, first, before any code.
+1. **[docs/TOOLING.md](docs/TOOLING.md)** — Node 22.12+ (required by `ai@7`),
+   the committed MCP servers, CLIs per person, and why the server must not go on
+   serverless.
+2. **[docs/CONTRACT.md](docs/CONTRACT.md)** — everyone, first, before any code.
    The shared data shape, the five endpoints, the rules all three of you must
    implement identically, and the cut list.
-2. **Your own brief:**
+3. **Your own brief:**
    - **[docs/BUILDER-A-FOREST.md](docs/BUILDER-A-FOREST.md)** — three.js scene,
      movement, tree rendering, question card, the layout function.
    - **[docs/BUILDER-B-BRAIN.md](docs/BUILDER-B-BRAIN.md)** — PDF → world,
      misconception diagnosis, recall and explanation grading, Leitner scheduler.
    - **[docs/BUILDER-C-SPINE.md](docs/BUILDER-C-SPINE.md)** — express server,
      in-memory state, teacher console + heatmap, deployment, shipping.
-3. **[docs/DEMO.md](docs/DEMO.md)** — the 7-hour phase plan, the 150-second demo
+4. **[docs/DEMO.md](docs/DEMO.md)** — the 7-hour phase plan, the 150-second demo
    script, the citations slide, and what to say when judges push back.
 
 `mockWorld.json` and `mockWorldReading.json` are valid worlds. **Code against

@@ -76,6 +76,17 @@ interface Syllabus {
   topic: string;              // "Fractions"
 }
 
+// What C hands to spawnWorld(). Accepted from Zen's review — the old signature
+// spawnWorld(pdf: Buffer, ...) could not carry a URL or pasted text.
+// Uint8Array, NOT Buffer: this file is imported by the browser client, and the
+// vanilla-ts template's `tsc && vite build` has no Node types. Buffer is a
+// Uint8Array subclass, so the server still passes a Buffer unchanged.
+type SpawnInput =
+  | { kind: 'pdf';    filename: string; data: Uint8Array }
+  | { kind: 'url';    url: string }
+  | { kind: 'text';   label: string; text: string }
+  | { kind: 'prompt' };
+
 // Where the world's content came from. Ingestion is DECOUPLED from world
 // generation: everything downstream of the spawn call is identical for all four.
 type Source =
@@ -193,7 +204,11 @@ the fox prompt — optional, omitted until the game layer lands at hour 5.
 
 ## Rules everyone implements the same way
 
-**Concept health** = `(healthy + regrown) / total` over that concept's trees.
+**Concept health** = `(healthy + regrown) / total` over that concept's **base
+trees only** — trees with `spawnedFrom === null`. Saplings never count, in either
+the numerator or the denominator. (Counting them made one wrong answer on a
+4-tree concept drop health 1.0 → 0.60, right at the lock threshold, and knock
+out 40% of a bridge. See `docs/reviews/b-brain-c348b5b.md`.)
 
 **Grove locking** — a concept is locked if any prerequisite's health < `0.6`.
 Locked groves render dark and refuse the proximity trigger. This is the mastery
@@ -416,12 +431,20 @@ Box 3 = retired. Correct → box + 1 (max 3). Wrong → back to box 1.
 2. Server spawns a sapling: same `conceptId`, new id, `spawnedFrom` = parent id,
    `state = 'sapling'`, positioned **further along the path** (A's layout picks
    the spot — roughly 90 seconds of walking ahead)
-3. Correct on the sapling → parent becomes `'regrown'`, sapling → `'healthy'`
-4. Wrong on the sapling → spawn one more, max 2 saplings per parent per session
+3. Correct on the sapling → parent becomes `'regrown'`, sapling → `'healthy'`.
+   **Correct on a withered tree directly → `'regrown'`**, not `'healthy'` — the
+   demo's repair beat retries the same tree, and A only animates on `'regrown'`.
+   Correct on an already-healthy tree stays `'healthy'`.
+4. Wrong on the sapling → spawn one more, max 2 saplings per parent **per session**.
+5. **Sapling IDs include the session** — `` `${rootId}-s${sessionIndex}-${n}` `` — so
+   they can never collide across sessions.
 
 **Next session** — `/api/next-session` increments `sessionIndex`, moves every
 box-1 and box-2 tree to `'healthy'` but re-lays them out **near the entrance**,
-and clears saplings. That is distributed practice, made spatial.
+and clears **every** sapling — any tree with `spawnedFrom !== null`, whatever
+state it's in. A repaired sapling is `'healthy'`, so filtering on
+`state === 'sapling'` misses it and it survives forever. That is distributed
+practice, made spatial.
 
 ---
 
@@ -477,7 +500,7 @@ type GameEvent =
 `server/brain/index.ts` exports exactly these, and C only ever calls these:
 
 ```ts
-spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
+spawnWorld(input: SpawnInput, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
 gradeExplanation(tree: Tree, text: string): Promise<Explanation>  // teach trees, 4:30

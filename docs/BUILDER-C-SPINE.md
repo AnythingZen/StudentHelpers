@@ -62,7 +62,8 @@ plus the fixed system). Do this in order:
    readable message — a teacher will upload a password-protected PDF eventually.
 2. Mint a room code, store `{ worldId, status: 'growing', trees: [] }`
 3. **Return `{ worldId }` immediately.** Do not await generation.
-4. In the background: `brain.spawnWorld(pdf, syllabus, onPartial)`, and on each
+4. In the background: `brain.spawnWorld(input, syllabus, onPartial)` — `input` is a
+   `SpawnInput` built from the request — and on each
    partial, run `layout()` over what exists and merge into the store so polling
    clients see the forest planting itself.
 5. On completion: `status = 'ready'`. On failure or **90-second timeout**: load

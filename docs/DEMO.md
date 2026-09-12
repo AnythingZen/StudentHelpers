@@ -229,6 +229,20 @@ work reads as competence. Claiming it works and getting caught does not.
 
 ---
 
+## Future work — not built today
+
+- **An activity backlog for educators.** A running record of what each student
+  did in the game — which groves they entered, where they got stuck, which
+  misconceptions recurred, what they explained to classmates — so the educator
+  can step in and help using that data. The per-event `events[]` log C already
+  keeps is exactly the data this would read, so nothing today blocks it.
+
+The stance behind it: **the AI supports educators; it doesn't replace them.** The
+game diagnoses and surfaces what's happening; the educator decides what to do
+about it.
+
+---
+
 ## Known limits — say these before a judge finds them
 
 Honesty scores better than polish here, and every one of these was a deliberate

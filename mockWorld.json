@@ -365,9 +365,9 @@
         "page": 2,
         "quote": "To compare unlike fractions, first express them with a common denominator."
       },
-      "state": "sapling",
+      "state": "healthy",
       "leitnerBox": 1,
-      "spawnedFrom": "t4"
+      "spawnedFrom": null
     },
     {
       "id": "t16",

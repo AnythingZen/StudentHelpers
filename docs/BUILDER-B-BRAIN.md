@@ -41,7 +41,7 @@ server/brain/
 Your public surface, exactly as in the CONTRACT:
 
 ```ts
-spawnWorld(pdf: Buffer, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
+spawnWorld(input: SpawnInput, syllabus: Syllabus, onPartial: (w: Partial<World>) => void): Promise<World>
 diagnose(tree: Tree, response: string|number, world: World): Promise<Diagnosis>
 gradeRecall(tree: Tree, text: string): Promise<{ correct: boolean; why: string }>
 gradeExplanation(tree: Tree, text: string): Promise<Explanation>   // teach trees, 4:30
@@ -153,7 +153,7 @@ const result = streamText({
     role: 'user',
     content: [
       { type: 'text', text: SPAWN_PROMPT(syllabus) },
-      { type: 'file', data: pdf, mediaType: 'application/pdf' },
+      { type: 'file', data: input.data, mediaType: 'application/pdf' },
     ],
   }],
   providerOptions: { anthropic: { structuredOutputMode: 'auto' } },

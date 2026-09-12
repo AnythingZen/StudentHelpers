@@ -16,9 +16,12 @@ before the clock started, assume your copy is stale.
 ```bash
 git checkout development && git pull
 git log -1 --format='%h %s'
+node -v                          # must be v22.12 or higher
 ```
 
-All three of you say the hash out loud. **If the hashes don't match, stop.**
+All three of you say the hash **and** your Node version out loud. **If the hashes
+don't match, stop.** If anyone is on Node 20, stop too — `ai@7` requires Node 22
+and fails with an unhelpful error. See [TOOLING.md](TOOLING.md).
 Somebody is building against an old contract, and it is much cheaper to find
 that out at minute 2 than at the 2:30 integration.
 
@@ -28,6 +31,14 @@ that out at minute 2 than at the 2:30 integration.
 
 ### Everyone
 
+- **Set up [TOOLING.md](TOOLING.md) first** — Node 22.12+, and approve the two
+  MCP servers (Context7, Playwright) Claude Code offers from `.mcp.json`.
+- **Zen's first push was reviewed** — see
+  [reviews/b-brain-c348b5b.md](reviews/b-brain-c348b5b.md). Five verified issues,
+  a four-line fix proven red → green, and contract rulings everyone must follow:
+  saplings don't count toward concept health; correct on a withered tree →
+  `'regrown'`; next session clears every sapling; sapling IDs include the session;
+  shared types use `Uint8Array`, never `Buffer`.
 - **INTERACTIVE FIRST.** Judges are scoring interactivity, not just learning.
   Answering is no longer a 2D card that stops the game — **you walk into answer
   stones**. Locked groves sit behind **bridges you rebuild plank by plank** and

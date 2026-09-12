@@ -172,9 +172,9 @@
         "page": 2,
         "quote": "he was out of breath and trembling with fright"
       },
-      "state": "healthy",
+      "state": "sapling",
       "leitnerBox": 1,
-      "spawnedFrom": null
+      "spawnedFrom": "s3"
     },
     {
       "id": "s5",
@@ -193,9 +193,9 @@
         "page": 2,
         "quote": "he implored her to exert herself"
       },
-      "state": "sapling",
+      "state": "healthy",
       "leitnerBox": 1,
-      "spawnedFrom": "s3"
+      "spawnedFrom": null
     },
     {
       "id": "s6",
