@@ -454,6 +454,9 @@ function start(room: string, name: string, first: StateResponse): void {
       if (jumpT >= 0.55) jumpT = 0;
     }
     avatar.group.rotation.y = yaw + Math.PI;   // the model faces +Z
+    // In a challenge the camera looks down past the student; hide them so they don't block the pieces.
+    avatar.group.visible = challenge === null;
+    fox.visible = challenge === null;
     avatar.animate(dt, speed);
     fox.position.set(pos.x + right.x * 1.2 - forward.x * 0.4, Math.abs(Math.sin(t * 9)) * (speed ? 0.1 : 0), pos.z + right.z * 1.2 - forward.z * 0.4);
     fox.rotation.y = yaw + Math.PI;

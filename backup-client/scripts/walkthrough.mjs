@@ -231,16 +231,67 @@ async function showcaseQuestion(page, tree, grove, first) {
         5500);
       if (r.saplingId) {
         await beat(page, 'A sapling of the same question sprouts up the path', 'the fox reflects your confidence back to you',
-          'A sapling of that question sprouts up the path.', 2400);
+          'A sapling of that question sprouts up the path.', 2000);
       }
     }
   }
   throw new Error(`no stone was correct for tree ${tree.id}`);
 }
 
+// ---------------- hands-on challenges: the cake and the bridge ----------------
+async function serveChallenge(page, key) {
+  await page.click('#challenge-serve');
+  await page.waitForSelector('#fox:not([hidden])', { timeout: 8_000 });
+  return fastForward('student', 2, async () => {
+    const response = nextAnswer(page, 30_000);
+    await page.keyboard.press(key);
+    return response;
+  });
+}
+
+/** Build a fraction with real pieces, clicked in the 3D world. On the cake, show the classic mistake first. */
+async function playChallenge(page, tree, showMistake) {
+  const m = tree.model;
+  const answer = (m.parts * m.num) / m.den;
+  const thing = m.shape === 'cake' ? 'slices' : 'planks';
+  await fastForward('student', 2, async () => { await approach(page, tree); await face(page, tree); });
+  await page.keyboard.press('KeyE');
+  await page.waitForFunction(() => window.__game.challengeOpen(), null, { timeout: 8_000 });
+  await sleep(1100);                                           // the camera swings down to the table
+  await beat(page, m.shape === 'cake' ? `Hands-on: serve ${m.num}/${m.den} of the cake` : `Checkpoint: build ${m.num}/${m.den} of the bridge`,
+    `${m.parts} equal ${thing} — click them to choose`,
+    m.shape === 'cake' ? 'Some questions you build with real things. Serve two thirds of a cake cut into six slices.'
+      : 'A checkpoint: build three quarters of the bridge.', 2600);
+  const click = async i => {
+    const [x, y] = await page.evaluate(n => window.__game.pieceScreen(n), i);
+    await page.mouse.click(x, y);
+    await sleep(420);
+  };
+  if (showMistake) {
+    for (let i = 0; i < m.num; i++) await click(i);            // the classic mistake: the top number as pieces
+    const r = await serveChallenge(page, 'Digit3');
+    await sleep(700);
+    await beat(page, `${m.num} ${thing}, very sure — wrong`, clip(`the mistake, named: “${r.misconceptionLabel}”`, 110),
+      'Two slices, very sure — wrong. The game names the mistake, and Byte asks: how many slices make one third?', 4500);
+    for (let i = m.num; i < answer; i++) await click(i);
+  } else {
+    for (let i = 0; i < answer; i++) await click(i);
+  }
+  const r = await serveChallenge(page, 'Digit2');
+  if (!r.correct) throw new Error(`challenge ${tree.id} not solved`);
+  await sleep(500);
+  await beat(page, `Exactly ${m.num}/${m.den} — ${answer} of ${m.parts} ${thing}`, m.shape === 'cake' ? `${m.num}/${m.den} is the same as ${answer}/${m.parts}` : 'checkpoint cleared',
+    m.shape === 'cake' ? 'Four slices: exactly two thirds — the same as four sixths.' : 'Six planks. Checkpoint cleared.', 2400);
+  await page.waitForFunction(() => !window.__game.challengeOpen(), null, { timeout: 8_000 });
+}
+
 // ---------------- off-camera answering ("A few answers later…") ----------------
 async function answerRight(room, tree, playerId, name) {
   const root = rootOf(tree);
+  if (tree.kind === 'model') {                                 // the count is the arithmetic in the question
+    const r = await api('/api/answer', { worldId: room, treeId: tree.id, response: (tree.model.parts * tree.model.num) / tree.model.den, confidence: 'medium', playerId, name });
+    return Boolean(r.correct);
+  }
   if (tree.kind === 'choice') {
     const n = tree.choices?.length ?? 0;
     const order = known.has(root) ? [known.get(root), ...[...Array(n).keys()].filter(i => i !== known.get(root))] : [...Array(n).keys()];
@@ -267,7 +318,7 @@ async function finishMissionOffCamera(room, conceptId, playerId, name) {
         for (const t of trees.filter(t => t.state === 'sapling' || (t.spawnedFrom === null && t.state !== 'healthy'))) await answerRight(room, t, playerId, name);
         continue;
       }
-      const kind = { answer: 'choice', recall: 'recall', teach: 'teach' }[o.kind];
+      const kind = { answer: 'choice', recall: 'recall', teach: 'teach', model: 'model' }[o.kind];
       const pool = trees.filter(t => (o.kind === 'focus' ? t.spawnedFrom?.startsWith('quest:') : t.spawnedFrom === null && t.kind === kind) && t.leitnerBox < 2);
       for (const t of pool.slice(0, o.target - o.progress)) await answerRight(room, t, playerId, name);
     }
@@ -294,8 +345,7 @@ async function typeInBubble(page, text) {
 
 async function helpMia(student, miaTree) {
   startSeg('student');
-  await approach(student, miaTree);
-  await face(student, miaTree);
+  await fastForward('student', 2, async () => { await approach(student, miaTree); await face(student, miaTree); });
   await label(student, 'Mia is stuck — help her', 'teaching someone else is one of the strongest ways to learn',
     'Mia is stuck. Teaching her is one of the best ways to learn.');
   const r = await typeInBubble(student, studentVoice(miaTree.rubric ?? []));
@@ -379,7 +429,7 @@ try {
 
   if (await student.$('#tutorial:not([hidden])')) {
     await beat(student, 'A student opens the link', 'first time in: how to play, in four lines',
-      'A student opens it. Four lines explain how to play.', 2500);
+      'A student opens it. Four lines explain how to play.', 2200);
     await student.keyboard.press('Enter');
   }
   await sleep(900);
@@ -393,10 +443,17 @@ try {
       ?? world.trees.find(t => t.conceptId === root.id && t.spawnedFrom === null && t.kind === 'choice' && !tried.has(t.id));
     if (!tree) break;
     tried.add(tree.id);
-    await approach(student, tree);
+    await fastForward('student', 2, () => approach(student, tree));
     if ((await showcaseQuestion(student, tree, root, n === 0)).wrongShown) break;
   }
   endSeg('student');
+
+  const cake = world.trees.find(t => t.kind === 'model' && t.conceptId === root.id && t.spawnedFrom === null);
+  if (cake) {
+    startSeg('student');
+    await playChallenge(student, cake, true);
+    endSeg('student');
+  }
 
   if (miaTree?.conceptId === root.id) await helpMia(student, miaTree);
 
@@ -421,8 +478,14 @@ try {
   if (next) {
     startSeg('student');
     await label(student, `Across the bridge: ${next.questName}`, ladder ? `groves climb the syllabus, up to ${ladder.level}` : 'each grove is the next topic in the syllabus', '');
-    await travelTo(student, next);
+    await fastForward('student', 2, () => travelTo(student, next));
     endSeg('student');
+    const bridge = world.trees.find(t => t.kind === 'model' && t.conceptId === next.id && t.spawnedFrom === null);
+    if (bridge) {
+      startSeg('student');
+      await playChallenge(student, bridge, false);
+      endSeg('student');
+    }
     if (miaTree?.conceptId === next.id) await helpMia(student, miaTree);
   }
 
@@ -451,7 +514,7 @@ try {
   // ===== Scene 3 — the teacher sees every student, and acts =====
   await teacher.bringToFront();
   await sleep(2500);                                           // let the console poll
-  await teacher.evaluate(() => window.scrollTo(0, 0));
+  await teacher.evaluate(() => window.scrollTo({ top: 0 }));
   const view = await api(`/api/teacher/${room}`);
   const bea = view.students.find(x => x.playerId === beaId);
   const top = view.misconceptions[0];
@@ -460,8 +523,7 @@ try {
     'The teacher sees every student live: mission, accuracy, confidence. Bea is flagged — confident, wrong, and stuck.',
     4000);
   if (top) {
-    await teacher.evaluate(() => document.getElementById('weakest').scrollIntoView({ block: 'start', behavior: 'smooth' }));
-    await sleep(400);
+
     await beat(teacher, 'What the class misunderstands — not just who got it wrong', clip(`“${top.label}” · ${plural(top.studentCount ?? top.count, 'student')}`, 110),
       'Not just who got it wrong — what the class misunderstood.', 3500);
     await fastForward('teacher', 4, async () => {                // the AI drafting the focus trees
@@ -471,6 +533,8 @@ try {
     await beat(teacher, 'Deploy Quest: the teacher chooses the intervention', 'focus trees join that grove\'s mission for every student',
       'One click deploys a focus quest on it. The AI drafts; the teacher decides.');
   }
+  await teacher.evaluate(() => document.getElementById('next-session').scrollIntoView({ block: 'center', behavior: 'smooth' }));
+  await sleep(900);
   await teacher.click('#next-session');
   await teacher.waitForSelector('.toast', { timeout: 20_000 });
   await beat(teacher, 'Next session: the Memory Quest', 'last session\'s questions come back — distributed practice',

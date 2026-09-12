@@ -12,7 +12,9 @@ describe('hands-on challenges', () => {
     for (const m of models) {
       const { parts, num, den } = m.model!;
       expect(m.answerIndex).toBe((parts * num) / den);
-      for (const t of w.trees.filter(x => x.id !== m.id)) expect(Math.hypot(t.pos[0] - m.pos[0], t.pos[2] - m.pos[2])).toBeGreaterThanOrEqual(3);
+      // Far enough that answer stones rising in front of any tree never land on the prop.
+      for (const t of w.trees.filter(x => x.id !== m.id)) expect(Math.hypot(t.pos[0] - m.pos[0], t.pos[2] - m.pos[2])).toBeGreaterThanOrEqual(7);
+      expect(Math.abs(m.pos[0])).toBeGreaterThanOrEqual(5);
     }
     expect(w.misconceptions.some(m => m.conceptId === 'c1' && /numerator/i.test(m.label))).toBe(true);
     expect(addChallenges(w).trees.length).toBe(w.trees.length);          // idempotent

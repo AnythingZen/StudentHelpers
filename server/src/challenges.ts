@@ -16,12 +16,25 @@ const SPECS = [
 const isAboutFractions = (w: ServerWorld) =>
   FRACTIONS.test(`${w.syllabus.topic} ${w.subject}`) || w.concepts.some(c => FRACTIONS.test(`${c.name} ${c.questName}`));
 
-// A clear spot in the grove, on the path side so the student walks past it.
-function spotNear(world: ServerWorld, trees: TreeWithAnswer[], centre: Vec3): Vec3 {
-  const toPath = centre[0] > 0 ? -1 : 1;
-  const offsets: Array<[number, number]> = [[5, 3], [5, -1], [6, 6], [3, 7], [7, 1], [2, -6], [8, -4], [-5, 3], [-6, -3]];
-  const candidates = offsets.map(([dx, dz]) => [centre[0] + dx * toPath, 0, centre[2] + dz] as Vec3);
-  return candidates.find(c => trees.every(t => distance(c, t.pos) >= 3.2)) ?? candidates[0]!;
+// A clear spot beside the grove: far enough from every tree that the answer stones
+// rising in front of a tree (up to ~5 units out) never overlap the prop, off the path,
+// clear of the bridges, and as close to the grove as that allows.
+function spotNear(world: ServerWorld, trees: TreeWithAnswer[], centre: Vec3, shape: 'cake' | 'bridge'): Vec3 {
+  const gap = shape === 'cake' ? 7 : 8.5;
+  const bridges = world.concepts.filter(c => c.prerequisites.length > 0).map(c => [c.centre[0], c.centre[2] + 11] as const);
+  let best: Vec3 | null = null, bestScore = Infinity;
+  for (const r of [7, 8.5, 10, 11.5, 13]) {
+    for (let k = 0; k < 16; k++) {
+      const a = (k / 16) * Math.PI * 2;
+      const c: Vec3 = [centre[0] + Math.cos(a) * r, 0, centre[2] + Math.sin(a) * r];
+      if (Math.abs(c[0]) < (shape === 'cake' ? 5 : 7) || Math.abs(c[0]) > 28) continue;       // off the path, inside the clearing
+      if (bridges.some(([bx, bz]) => Math.abs(c[0] - bx) < 8 && Math.abs(c[2] - bz) < 6)) continue;
+      if (!trees.every(t => distance(c, t.pos) >= gap)) continue;
+      const score = r + Math.abs(c[0]) * 0.15;
+      if (score < bestScore) { best = c; bestScore = score; }
+    }
+  }
+  return best ?? [centre[0] + (centre[0] >= 0 ? 14 : -14), 0, centre[2]];
 }
 
 export function addChallenges(world: ServerWorld): ServerWorld {
@@ -35,7 +48,7 @@ export function addChallenges(world: ServerWorld): ServerWorld {
     const answer = (parts * num) / den;
     const thing = shape === 'cake' ? 'slices' : 'planks';
     trees.push({
-      id, conceptId: grove.id, kind: 'model', pos: spotNear(world, trees, grove.centre),
+      id, conceptId: grove.id, kind: 'model', pos: spotNear(world, trees, grove.centre, shape),
       question: shape === 'cake'
         ? `Serve ${num}/${den} of the cake. It is cut into ${parts} equal slices.`
         : `Lay ${num}/${den} of the bridge. It needs ${parts} equal planks.`,
