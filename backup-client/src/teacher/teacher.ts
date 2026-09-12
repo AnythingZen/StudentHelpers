@@ -2,16 +2,10 @@
 // live — a top-down heatmap of the forest, what students are stuck on, and the
 // two levers the educator controls: Deploy Quest and Next Session.
 import type { Player, Tree, World } from '../../../server/src/contract';
-import { api, type TeacherView } from '../net';
+import { api, type StudentRow, type TeacherView } from '../net';
 import { computeBounds, groveAt, healthColour, projector, type Grove } from './heatmap';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-
-// Only syllabus entries this build has content for. "Imagine any syllabus" is said, not built.
-const SYLLABUS: Record<string, Record<string, string[]>> = {
-  Mathematics: { 'Primary 5': ['Fractions'] },
-  English: { 'Primary 3': ['Reading Comprehension'] },
-};
 
 let room = '';
 let view: TeacherView | null = null;
@@ -28,17 +22,7 @@ function toast(text: string, bad = false): void {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ---------------- syllabus dropdowns ----------------
-function fill(select: HTMLSelectElement, options: string[]): void {
-  select.replaceChildren(...options.map(o => Object.assign(document.createElement('option'), { value: o, textContent: o })));
-}
-const subjectSel = $<HTMLSelectElement>('subject'), levelSel = $<HTMLSelectElement>('level'), topicSel = $<HTMLSelectElement>('topic');
-fill(subjectSel, Object.keys(SYLLABUS));
-const syncLevels = () => { fill(levelSel, Object.keys(SYLLABUS[subjectSel.value]!)); syncTopics(); };
-const syncTopics = () => fill(topicSel, SYLLABUS[subjectSel.value]![levelSel.value]!);
-subjectSel.onchange = syncLevels;
-levelSel.onchange = syncTopics;
-syncLevels();
+const subjectSel = $<HTMLInputElement>('subject'), levelSel = $<HTMLInputElement>('level'), topicSel = $<HTMLInputElement>('topic');
 
 // ---------------- source tabs ----------------
 document.querySelectorAll<HTMLButtonElement>('.tabs button').forEach(tab => {
@@ -54,9 +38,12 @@ $<HTMLButtonElement>('spawn').onclick = async () => {
   const status = $('spawn-status');
   status.className = 'status';
   const form = new FormData();
-  form.set('subject', subjectSel.value);
-  form.set('level', levelSel.value);
-  form.set('topic', topicSel.value);
+  if (!subjectSel.value.trim() || !levelSel.value.trim() || !topicSel.value.trim()) {
+    status.className = 'status error'; status.textContent = 'Fill in the subject, level and topic.'; return;
+  }
+  form.set('subject', subjectSel.value.trim());
+  form.set('level', levelSel.value.trim());
+  form.set('topic', topicSel.value.trim());
   form.set('sourceKind', sourceKind);
   if (sourceKind === 'pdf') {
     const file = $<HTMLInputElement>('pdf').files?.[0];
@@ -102,7 +89,11 @@ function selectRoom(code: string): void {
   $('insight-card').hidden = false;
   $('room-code').textContent = code;
   const link = `${location.origin}/?room=${code}`;
-  Object.assign($<HTMLAnchorElement>('join-link'), { href: link, textContent: link });
+  Object.assign($<HTMLAnchorElement>('join-link'), { href: link, textContent: link.replace(/^https?:\/\//, '') });
+  $<HTMLButtonElement>('copy-link').onclick = async () => {
+    try { await navigator.clipboard.writeText(link); toast('📋 Student link copied — paste it in your class chat'); }
+    catch { toast(`Share this link: ${link}`); }
+  };
   void poll();
 }
 
@@ -136,7 +127,9 @@ function render(): void {
   }
 
   $('room-subject').textContent = view.subject;
-  $('sample-warning').hidden = world.generatedBy !== 'sample';
+  $('sample-warning').hidden = world.generatedBy !== 'sample' || Boolean(view.notice);
+  $('world-notice').hidden = !view.notice;
+  $('world-notice').textContent = view.notice ? `ℹ️ ${view.notice}` : '';
   $('class-goal').textContent = `🏰 The class is unlocking ${view.classWorld.goal}`;
   $('class-bar').style.width = `${view.classWorld.percent}%`;
   $('class-count').textContent = `${view.classWorld.mastered} / ${view.classWorld.total} · ${view.classWorld.percent}%`;
@@ -144,10 +137,62 @@ function render(): void {
     ? 'Class numbers include a seeded demo cohort; every live answer is added on top.'
     : '';
 
+  renderStudents();
   renderWeakest();
   renderMisconceptions();
   renderGroves();
   drawMap();
+}
+
+const STATUS: Record<StudentRow['status'], [string, string]> = {
+  'not-started': ['Not started', 'grey'],
+  'on-track': ['On track', 'green'],
+  stuck: ['Stuck', 'red'],
+  overconfident: ['Overconfident', 'amber'],
+  finished: ['Finished', 'blue'],
+};
+
+function renderStudents(): void {
+  const rows = view!.students;
+  $('student-count').textContent = rows.length ? `${rows.filter(r => r.online).length} online · ${rows.length} joined` : '';
+  const list = $('students');
+  if (!rows.length) { list.innerHTML = '<li class="empty">Share the code — students appear here as they join.</li>'; return; }
+  // Students who need you first.
+  const rank = { stuck: 0, overconfident: 1, 'on-track': 2, 'not-started': 3, finished: 4 } as const;
+  list.replaceChildren(...[...rows].sort((a, b) => rank[a.status] - rank[b.status] || Number(b.online) - Number(a.online)).map(r => {
+    const li = document.createElement('li');
+    li.className = `student ${r.status}`;
+    li.innerHTML = `
+      <div class="top"><span class="dot"></span><b class="name"></b><span class="pill"></span></div>
+      <div class="mission-line"></div>
+      <div class="meter"><i></i></div>
+      <div class="facts"></div>
+      <div class="why"></div>`;
+    li.querySelector('.dot')!.classList.toggle('on', r.online);
+    li.querySelector('.name')!.textContent = r.name;
+    const [label, tone] = STATUS[r.status];
+    const pill = li.querySelector('.pill')!;
+    pill.textContent = label;
+    pill.className = `pill ${tone}`;
+    li.querySelector('.mission-line')!.textContent = r.currentMission
+      ? `Mission ${r.missionsComplete + 1}/${r.missionsTotal} · ${r.currentMission.questName} · ${r.currentMission.done}/${r.currentMission.total} steps`
+      : r.missionsComplete === r.missionsTotal ? `All ${r.missionsTotal} missions complete` : '—';
+    li.querySelector<HTMLElement>('.meter i')!.style.width = `${Math.round((100 * r.missionsComplete) / Math.max(1, r.missionsTotal))}%`;
+    const c = r.calibration;
+    const judged = c.calibrated + c.overconfident + c.underconfident;
+    li.querySelector('.facts')!.textContent = [
+      r.answers ? `${Math.round(r.accuracy * 100)}% right of ${r.answers}` : 'No answers yet',
+      judged ? `confidence matched ${Math.round((100 * c.calibrated) / judged)}%` : '',
+      c.overconfident ? `${c.overconfident}× sure but wrong` : '',
+    ].filter(Boolean).join(' · ');
+    const why = li.querySelector<HTMLElement>('.why')!;
+    const refl = r.lastReflection;
+    why.textContent = r.lastMisconception ? `Last misconception: ${r.lastMisconception}`
+      : refl ? `Reflected on ${refl.questName}: ${['', 'still confused', 'getting there', 'gets it', 'could teach it'][refl.rating]}${refl.note ? ` — “${refl.note}”` : ''}`
+      : '';
+    why.hidden = !why.textContent;
+    return li;
+  }));
 }
 
 function renderWeakest(): void {

@@ -10,14 +10,23 @@
     <div id="stage"></div>
 
     <form id="join" class="panel" autocomplete="off">
-      <h1>Mastery Grove</h1>
-      <p class="sub">Walk the forest. Answer by walking onto a stone.</p>
-      <label>Your name <input id="join-name" maxlength="24" required placeholder="Alex" /></label>
-      <label>Room code <input id="join-room" maxlength="4" required placeholder="OAK7" /></label>
-      <div id="rooms" class="rooms"></div>
-      <button type="submit">Enter the forest</button>
-      <p id="join-error" class="error" role="alert"></p>
-      <p class="keys">WASD move · Shift sprint · Mouse look · E interact · Esc release mouse</p>
+      <h1>🌳 Mastery Grove</h1>
+      <p class="sub">A forest grown from what your class is learning. Walk it, answer by walking onto stones, unlock the next grove.</p>
+      <div class="role" role="tablist">
+        <button type="button" data-for="student" class="active">🎒 I'm a student</button>
+        <button type="button" data-for="teacher">🍎 I'm a teacher</button>
+      </div>
+      <div data-role="student" class="role-body">
+        <label>Your name <input id="join-name" maxlength="24" required placeholder="Alex" /></label>
+        <label>Room code <small>from your teacher</small><input id="join-room" maxlength="4" required placeholder="OAK7" /></label>
+        <div id="rooms" class="rooms"></div>
+        <button type="submit">Enter the forest</button>
+        <p id="join-error" class="error" role="alert"></p>
+      </div>
+      <div data-role="teacher" class="role-body" hidden>
+        <p class="teacher-pitch">Upload a worksheet, paste a link or pick a topic — the AI grows a world with missions. Share the room code, then watch every student's progress and misconceptions live.</p>
+        <a class="button" href="/teacher">Open the teacher console →</a>
+      </div>
     </form>
 
     <div id="hud" hidden>
@@ -26,6 +35,27 @@
         <div class="bar xp"><span>XP</span><i><em id="bar-xp"></em></i><b id="val-xp">0</b></div>
         <div class="bar mastery"><span>MASTERY</span><i><em id="bar-mastery"></em></i><b id="val-mastery">0%</b></div>
         <div class="bar retention"><span>RETENTION</span><i><em id="bar-retention"></em></i><b id="val-retention">0%</b></div>
+      </div>
+    </div>
+    <div id="corner" hidden>
+      <div class="corner-buttons">
+        <span id="hud-online" class="chip">👥 1 online</span>
+        <button id="world-btn" title="Teleport to another world">🌍 Worlds</button>
+        <button id="new-btn" title="Grow a new world" aria-label="New world">＋</button>
+      </div>
+      <div id="mission" class="mission"></div>
+    </div>
+    <div id="tutorial" class="modal-wrap" hidden>
+      <div class="modal tutorial">
+        <span class="eyebrow">How to play</span>
+        <h2>Welcome to the grove</h2>
+        <ol>
+          <li><b>🚶 Move</b> with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, click to look around, <kbd>Space</kbd> to jump.</li>
+          <li><b>✨ Follow the beacon</b> to a tree and press <kbd>E</kbd>.</li>
+          <li><b>🪨 Walk onto a stone</b> to answer. The fox asks how sure you are first.</li>
+          <li><b>🎯 Finish your mission</b> (top right) and reflect to unlock the next grove.</li>
+        </ol>
+        <button id="tutorial-go" class="primary">Let's go (Enter)</button>
       </div>
     </div>
     <div id="prompt" hidden></div>

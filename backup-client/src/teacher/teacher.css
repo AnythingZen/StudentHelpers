@@ -59,3 +59,23 @@ button:disabled { opacity: .5; cursor: progress; }
 #toasts { position: fixed; bottom: 16px; right: 16px; display: grid; gap: 8px; z-index: 5; }
 .toast { background: #1f3a2b; color: white; padding: 10px 14px; border-radius: 10px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.2); max-width: 360px; }
 .toast.bad { background: var(--warn); }
+
+.share { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.copy { font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 99px; border: 1.5px solid var(--accent); background: white; color: var(--accent); cursor: pointer; }
+.notice { margin: 10px 0 0; padding: 8px 12px; border-radius: 9px; background: #e7f0fb; border-left: 4px solid #2c6fa8; color: #1d4f7a; font-weight: 600; font-size: 13px; }
+h2 .count { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+.students { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; max-height: 420px; overflow: auto; }
+.students .empty { color: var(--muted); font-size: 13px; padding: 10px; border: 1.5px dashed var(--line); border-radius: 10px; }
+.student { border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; display: grid; gap: 4px; background: white; }
+.student.stuck { border-color: #e7b3a5; background: #fff6f3; } .student.overconfident { border-color: #f0d49a; background: #fffaf0; }
+.student .top { display: flex; align-items: center; gap: 7px; }
+.student .dot { width: 8px; height: 8px; border-radius: 50%; background: #c9cfc7; } .student .dot.on { background: #3fbf6a; box-shadow: 0 0 0 3px rgba(63,191,106,.2); }
+.student .name { font-size: 15px; flex: 1; }
+.pill { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 99px; }
+.pill.green { background: #e1f3e6; color: #22683c; } .pill.red { background: #fbe1da; color: #9a3218; } .pill.amber { background: #fdefd0; color: #8a5a00; }
+.pill.blue { background: #e1ecf8; color: #1d4f7a; } .pill.grey { background: #eceee9; color: #5d6b62; }
+.mission-line { font-size: 13px; font-weight: 600; }
+.meter { height: 5px; background: var(--line); border-radius: 99px; overflow: hidden; } .meter i { display: block; height: 100%; background: linear-gradient(90deg, #2f7d4f, #5fc27f); }
+.facts { font-size: 12px; color: var(--muted); }
+.why { font-size: 12px; color: #7a2e17; font-weight: 600; }
+.student.on-track .why, .student.finished .why { color: var(--muted); font-weight: 500; }

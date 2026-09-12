@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import type { Player, Tree, World } from '../../server/src/contract';
 import { Avatar } from './avatar';
+import type { PlayerProgress } from './net';
 import { removeWithLabels } from './labels';
 import { conceptHealth, isLocked } from './rules';
 import { skinFor, type Skin } from './skins';
@@ -70,6 +71,7 @@ export class ForestScene {
   private others = new Map<string, Other>();
   private subject = '';
   private readonly scenery = new THREE.Group();
+  private readonly beacon = new THREE.Group();
 
   constructor(container: HTMLElement) {
     this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
@@ -96,6 +98,17 @@ export class ForestScene {
     this.scene.add(this.ground, this.path, this.hemi, sun);
     this.applySkin('');
     this.scene.add(this.scenery);
+    // The beacon: a soft column of light on the tree that advances your mission.
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 26, 20, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xffe27a, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide }));
+    beam.position.y = 13;
+    const ring = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.9, 32),
+      new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.05;
+    this.beacon.add(beam, ring);
+    this.beacon.visible = false;
+    this.scene.add(this.beacon);
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
@@ -156,7 +169,17 @@ export class ForestScene {
   }
 
   /** Sync to server state. Returns plank changes per concept for toasts. */
-  sync(world: World<Tree>): Array<{ conceptId: string; change: number }> {
+  sync(world: World<Tree>, me?: PlayerProgress): Array<{ conceptId: string; change: number }> {
+    // A student's groves open through their own missions; without progress (older
+    // callers) fall back to the class-wide rule.
+    const mission = (id: string) => me?.missions.find(m => m.conceptId === id);
+    const lockedOf = (id: string) => (me ? !(mission(id)?.unlocked ?? true) : isLocked(world, id));
+    const progressOf = (id: string) => {
+      const m = mission(id);
+      if (!me) return conceptHealth(world, id);
+      if (!m) return 1;
+      return m.complete ? 1 : m.objectives.filter(o => o.done).length / m.objectives.length;
+    };
     if (world.subject !== this.subject) {
       this.subject = world.subject;
       this.applySkin(world.subject);
@@ -169,13 +192,13 @@ export class ForestScene {
       let view = this.trees.get(t.id);
       if (!view) { view = new TreeView(t.id, this.skin); this.trees.set(t.id, view); this.scene.add(view.group); }
       view.group.position.set(t.pos[0], 0, t.pos[2]);
-      view.setState(t.state, t.leitnerBox >= 2, isLocked(world, t.conceptId));
+      view.setState(t.state, t.leitnerBox >= 2, lockedOf(t.conceptId));
     }
     for (const [id, view] of this.trees) if (!seen.has(id)) { this.scene.remove(view.group); this.trees.delete(id); }
 
     const changes: Array<{ conceptId: string; change: number }> = [];
     for (const c of world.concepts) {
-      const locked = isLocked(world, c.id);
+      const locked = lockedOf(c.id);
       let g = this.groves.get(c.id);
       if (!g) {
         const el = document.createElement('div');
@@ -191,7 +214,7 @@ export class ForestScene {
       if (c.prerequisites.length > 0) {
         let b = this.bridges.get(c.id);
         if (!b) { b = new Bridge(c.centre); this.bridges.set(c.id, b); this.scene.add(b.group); }
-        const minHealth = Math.min(...c.prerequisites.map(p => conceptHealth(world, p)));
+        const minHealth = Math.min(...c.prerequisites.map(progressOf));
         const change = b.set(locked ? Math.min(PLANKS - 1, Math.round(PLANKS * minHealth)) : PLANKS, locked);
         if (change !== 0) changes.push({ conceptId: c.id, change });
       }
@@ -224,6 +247,11 @@ export class ForestScene {
     for (const [id, o] of this.others) if (!seen.has(id)) { removeWithLabels(this.scene, o.avatar.group); this.others.delete(id); }
   }
 
+  setBeacon(at: [number, number] | null): void {
+    this.beacon.visible = at !== null;
+    if (at) this.beacon.position.set(at[0], 0, at[1]);
+  }
+
   playerPos(id: string): THREE.Vector3 | null { return this.others.get(id)?.avatar.group.position.clone() ?? null; }
   cheer(id: string, now: number): void { const o = this.others.get(id); if (o) o.jumpUntil = now + 1600; }
 
@@ -236,6 +264,11 @@ export class ForestScene {
       g.el.style.visibility = alpha < 0.02 ? 'hidden' : 'visible';
     }
     this.bridges.forEach(b => b.update(dt));
+    if (this.beacon.visible) {
+      const pulse = 1 + Math.sin(t * 3) * 0.12;
+      this.beacon.children[1]!.scale.setScalar(pulse);
+      this.beacon.children[0]!.rotation.y = t * 0.5;
+    }
     for (const o of this.others.values()) {
       const g = o.avatar.group;
       const before = g.position.clone();

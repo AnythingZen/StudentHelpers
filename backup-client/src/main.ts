@@ -1,11 +1,13 @@
-// Builder C's backup student client. Join a room, walk the forest, answer by
-// walking onto stones, help Mia, watch bridges rebuild.
+// Builder C's student client. Join a room, follow your missions through the
+// forest, answer by walking onto stones, help Mia, reflect, unlock the next grove.
 import * as THREE from 'three';
 import type { AnswerResponse, Concept, Tree, World } from '../../server/src/contract';
 import { Avatar, makeFox, makeProfessorByte } from './avatar';
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-import { askConfidence, banner, Bubble, setBars, setPrompt, toast } from './hud';
-import { api } from './net';
+import { askConfidence, banner, Bubble, calibrationLine, setBars, setPrompt, toast } from './hud';
+import { askReflection, beaconTree, judgmentFeedback, renderMissionPanel } from './missions';
+import { api, type PlayerProgress, type StateResponse } from './net';
+import { openCreateWorld, openWorldList } from './worldMenu';
 import { isLocked } from './rules';
 import { AnswerStones } from './stones';
 import { ForestScene } from './world3d';
@@ -27,21 +29,28 @@ const params = new URLSearchParams(location.search);
 $<HTMLInputElement>('join-room').value = (params.get('room') ?? 'OAK7').toUpperCase();
 $<HTMLInputElement>('join-name').value = store.get('mg-name') ?? '';
 api.worlds().then(({ worlds }) => {
-  for (const w of worlds.filter(x => x.status === 'ready')) {
+  for (const w of worlds.filter(x => x.status === 'ready').slice(-6)) {
     const b = document.createElement('button');
     b.type = 'button';
-    b.textContent = `${w.worldId} · ${w.subject}`;
+    b.textContent = `${w.worldId} · ${w.level} ${w.topic}`;
     b.onclick = () => ($<HTMLInputElement>('join-room').value = w.worldId);
     $('rooms').append(b);
   }
 }).catch(() => ($('join-error').textContent = "Can't reach the server — is it running on :3001?"));
 
+document.querySelectorAll<HTMLButtonElement>('.role button').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.role button').forEach(b => b.classList.toggle('active', b === tab));
+    document.querySelectorAll<HTMLElement>('[data-role]').forEach(el => (el.hidden = el.dataset.role !== tab.dataset.for));
+  };
+});
+
 async function join(room: string, name: string): Promise<void> {
   try {
-    const first = await api.state(room);
+    const first = await api.state(room, playerId);
     store.set('mg-name', name);
     $('join').hidden = true;
-    start(room, name, first.world, first);
+    start(room, name, first);
   } catch (err) {
     $('join').hidden = false;
     $('join-error').textContent = (err as Error).message;
@@ -61,14 +70,16 @@ if (params.get('name')) {
 }
 
 // ---------------- the game ----------------
-function start(room: string, name: string, initial: World<Tree>, bars: { xp: number; mastery: number; retention: number }): void {
+function start(room: string, name: string, first: StateResponse): void {
+  const initial: World<Tree> = first.world;
+  let me: PlayerProgress | undefined = first.me;
   const forest = new ForestScene($('stage'));
   const { scene, camera, renderer } = forest;
   const canvas = renderer.domElement;
   const stones = new AnswerStones(scene);
   const bubble = new Bubble(scene);
-  const me = new Avatar(0x2c6fa8);
-  scene.add(me.group);
+  const avatar = new Avatar(0x2c6fa8);
+  scene.add(avatar.group);
   // A tiny fox at your heel — its job is the confidence prompt.
   const fox = makeFox();
   scene.add(fox);
@@ -114,16 +125,59 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
         // Turn to face a point, so a recording's camera shows what matters (the tree, Mia).
         face: (x: number, z: number) => { yaw = Math.atan2(-(x - pos.x), -(z - pos.z)); },
         busy: () => busy,
+        me: () => me,
+        beacon: () => beaconTree(world, me!, { x: pos.x, z: pos.z })?.id ?? null,
       },
     });
   }
 
   $('hud').hidden = false;
+  $('corner').hidden = false;
   $('hud-room').textContent = room;
   $('hud-subject').textContent = world.subject;
-  setBars(bars);
-  forest.sync(world);
-  toast(`Welcome, ${name}. Walk to a tree and press E.`, 'good', 5000);
+  setBars(first);
+  forest.sync(world, me);
+  $<HTMLButtonElement>('new-btn').onclick = () => openCreateWorld(name);
+  $<HTMLButtonElement>('world-btn').onclick = () => openWorldList(room, name);
+
+  const lockedFor = (conceptId: string) =>
+    me ? !(me.missions.find(m => m.conceptId === conceptId)?.unlocked ?? true) : isLocked(world, conceptId);
+
+  // ---- missions and reflection
+  const prompted = new Set<string>();     // auto-open each mission's reflection once
+  const drawMissions = () => { if (me) renderMissionPanel($('mission'), me, m => void reflectOn(m.conceptId)); };
+  async function reflectOn(conceptId: string): Promise<void> {
+    const mission = me?.missions.find(m => m.conceptId === conceptId);
+    if (!mission || !mission.ready || mission.complete || busy) return;
+    busy = true;
+    prompted.add(conceptId);
+    stones.clear(); bubble.close();
+    document.exitPointerLock();
+    try {
+      const answer = await askReflection(mission);
+      if (!answer) { toast('Keep practising — finish the mission from the panel when you\'re ready (R).', '', 4500); return; }
+      const before = me;
+      const res = await api.reflect({ worldId: room, playerId, name, conceptId, ...answer });
+      toast(`🪞 ${judgmentFeedback(answer.rating, res.accuracy)}`, 'good', 7000);
+      applyState(res, before);
+    } catch (err) {
+      toast((err as Error).message, 'bad');
+    } finally {
+      busy = false;
+    }
+  }
+  drawMissions();
+
+  // First time in: three lines on how to play, then out of the way.
+  if (params.get('tutorial') !== '0' && !store.get('mg-tutorial')) {
+    $('tutorial').hidden = false;
+    const close = () => { $('tutorial').hidden = true; store.set('mg-tutorial', '1'); window.removeEventListener('keydown', onKey, true); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { e.preventDefault(); close(); } };
+    window.addEventListener('keydown', onKey, true);
+    $<HTMLButtonElement>('tutorial-go').onclick = close;
+  } else {
+    toast(`Welcome, ${name}. Follow the glowing beacon to your first tree.`, 'good', 5000);
+  }
 
   const conceptOf = (t: Tree): Concept | undefined => world.concepts.find(c => c.id === t.conceptId);
   const typing = () => document.activeElement instanceof HTMLTextAreaElement || document.activeElement instanceof HTMLInputElement;
@@ -134,6 +188,8 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     if (typing()) return;
     keys.add(e.code);
     if (e.code === 'KeyE') interact();
+    if (e.code === 'KeyR' && me?.current) void reflectOn(me.current);
+    if (e.code === 'Space') { e.preventDefault(); if (jumpT === 0) jumpT = 0.0001; }
     if (e.code === 'Escape') { stones.clear(); bubble.close(); busy = false; }
   });
   window.addEventListener('keyup', e => keys.delete(e.code));
@@ -150,7 +206,7 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     let best: { tree: Tree; locked: boolean; d: number } | null = null;
     for (const t of world.trees) {
       const d = Math.hypot(t.pos[0] - pos.x, t.pos[2] - pos.z);
-      if (d <= INTERACT_RANGE && (!best || d < best.d)) best = { tree: t, locked: isLocked(world, t.conceptId), d };
+      if (d <= INTERACT_RANGE && (!best || d < best.d)) best = { tree: t, locked: lockedFor(t.conceptId), d };
     }
     return best;
   }
@@ -171,7 +227,8 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     if (tree.kind === 'recall') {
       const cite = tree.citation ? `  📄 p.${tree.citation.page}` : '';
       const text = await bubble.ask(new THREE.Vector3(tree.pos[0], 4.5, tree.pos[2]), 'From memory', `${tree.question}${cite}`, 'Type your answer…');
-      if (text) await submit(tree, text); else busy = false;
+      // Retrieval first, then the fox asks how sure you are — a prediction made before any feedback.
+      if (text) { bubble.close(); await submit(tree, text, await askConfidence()); } else busy = false;
       return;
     }
     // teach — Mia is stuck here, and you explain it to her
@@ -183,8 +240,10 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
   async function submit(tree: Tree, response: number | string, confidence?: 'low' | 'medium' | 'high'): Promise<void> {
     busy = true;
     try {
-      const res = await api.answer({ worldId: room, treeId: tree.id, response, confidence, playerId });
+      const res = await api.answer({ worldId: room, treeId: tree.id, response, confidence, playerId, name });
       react(tree, res);
+      const line = tree.kind === 'teach' ? null : calibrationLine(confidence, res.correct);
+      if (line) toast(line, res.correct ? 'good' : '', 5500);
       await refresh();
     } catch (err) {
       toast((err as Error).message, 'bad');
@@ -221,21 +280,32 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     if (res.saplingId) toast(`🌱 A sapling of ${concept?.name ?? 'this idea'} took root further up the path`, '', 4500);
   }
 
-  async function refresh(): Promise<void> {
-    const before = world;
-    const s = await api.state(room);
+  function applyState(s: StateResponse, before: PlayerProgress | undefined): void {
     world = s.world;
+    me = s.me;
     setBars(s);
-    for (const { conceptId, change } of forest.sync(world)) {
+    for (const { conceptId, change } of forest.sync(world, me)) {
       const c = world.concepts.find(x => x.id === conceptId);
       if (change < 0 && c) toast(`🪵 A plank fell from the bridge to ${c.questName}`, 'bad');
     }
-    for (const c of world.concepts) {
-      if (isLocked(before, c.id) && !isLocked(world, c.id)) {
-        if (c.level !== world.syllabus.level) banner(`🏰 NEW AREA UNLOCKED · ${c.level} ${c.name}`, 4500);
-        else toast(`🌉 The bridge to ${c.questName} is complete — walk across`, 'good', 4500);
+    for (const m of me?.missions ?? []) {
+      const was = before?.missions.find(x => x.conceptId === m.conceptId);
+      if (was && !was.complete && m.complete) banner(`✅ MISSION COMPLETE · ${m.questName}`, 3000);
+      if (was && !was.unlocked && m.unlocked) {
+        setTimeout(() => {
+          if (m.level !== world.syllabus.level) banner(`🏰 NEW AREA UNLOCKED · ${m.level} ${m.name}`, 4500);
+          else toast(`🌉 The bridge to ${m.questName} is complete — walk across`, 'good', 5000);
+        }, 3100);
       }
     }
+    drawMissions();
+    // The moment a mission's work is done, ask for the reflection that finishes it.
+    const ready = me?.missions.find(m => m.ready && !m.complete && m.unlocked);
+    if (ready && !prompted.has(ready.conceptId) && !busy && !stones.open) setTimeout(() => void reflectOn(ready.conceptId), 1800);
+  }
+
+  async function refresh(): Promise<void> {
+    applyState(await api.state(room, playerId), me);
   }
 
   // ---- polling: state every 2s, presence every 500ms
@@ -245,13 +315,20 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
   setInterval(() => { refresh().catch(offline); }, 2000);
   setInterval(() => {
     api.post(room, { playerId, name, pos: [pos.x, 0, pos.z], yaw: yaw + Math.PI }).catch(() => {});
-    api.presence(room, playerId).then(({ players }) => forest.syncPlayers(players)).catch(() => {});
+    api.presence(room, playerId).then(({ players }) => {
+      forest.syncPlayers(players);
+      const real = players.filter(p => !p.seeded).length + 1;
+      $('hud-online').textContent = `👥 ${real} online`;
+    }).catch(() => {});
+    const target = me && !stones.open ? beaconTree(world, me, { x: pos.x, z: pos.z }) : null;
+    forest.setBeacon(target ? [target.pos[0], target.pos[2]] : null);
   }, 500);
 
   // ---- frame loop
   const timer = new THREE.Timer();
   timer.connect(document);
   const forward = new THREE.Vector3(), right = new THREE.Vector3(), camTarget = new THREE.Vector3();
+  let jumpT = 0;                           // seconds into a jump; 0 = on the ground
 
   renderer.setAnimationLoop(ts => {
     timer.update(ts);
@@ -288,9 +365,14 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     pos.x = Math.max(-48, Math.min(48, pos.x));
     pos.z = Math.max(-140, Math.min(16, pos.z));
 
-    me.group.position.copy(pos);
-    me.group.rotation.y = yaw + Math.PI;   // the model faces +Z
-    me.animate(dt, speed);
+    avatar.group.position.copy(pos);
+    if (jumpT > 0) {
+      jumpT += dt;
+      avatar.group.position.y = Math.max(0, Math.sin((jumpT / 0.55) * Math.PI) * 1.3);
+      if (jumpT >= 0.55) jumpT = 0;
+    }
+    avatar.group.rotation.y = yaw + Math.PI;   // the model faces +Z
+    avatar.animate(dt, speed);
     fox.position.set(pos.x + right.x * 1.2 - forward.x * 0.4, Math.abs(Math.sin(t * 9)) * (speed ? 0.1 : 0), pos.z + right.z * 1.2 - forward.z * 0.4);
     fox.rotation.y = yaw + Math.PI;
 
@@ -312,7 +394,7 @@ function start(room: string, name: string, initial: World<Tree>, bars: { xp: num
     if (stones.open || bubble.open || busy || !near) setPrompt(null);
     else {
       const quest = conceptOf(near.tree)?.questName ?? 'the grove';
-      setPrompt(near.locked ? `🔒 ${quest} is locked — rebuild the bridge first`
+      setPrompt(near.locked ? `🔒 ${quest} is locked — finish your current mission first`
         : near.tree.kind === 'teach' ? `E · Mia is stuck on ${quest}. Help her.`
         : near.tree.kind === 'recall' ? `E · Answer from memory — ${quest}`
         : `E · Quest: ${quest}`);

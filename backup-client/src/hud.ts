@@ -1,7 +1,6 @@
 // Everything drawn over the canvas: bars, toasts, banners, the fox's prompt,
 // and speech bubbles pinned in the world for recall and teach trees.
 import * as THREE from 'three';
-import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import type { Bars, Confidence } from '../../server/src/contract';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -57,24 +56,30 @@ export function askConfidence(): Promise<Confidence> {
   });
 }
 
-/** A speech bubble pinned above a point in the world. */
+const PORTRAIT: Record<string, string> = { 'Professor Byte': '🧙', Mia: '👧', 'From memory': '🧠' };
+
+/**
+ * NPC dialogue. A fixed dialogue box in the lower right, like most games, rather than
+ * a bubble pinned in 3D: pinned bubbles drifted over the HUD and each other.
+ * `at` is kept in the signature so callers still say who is speaking where.
+ */
 export class Bubble {
-  private obj: CSS2DObject | null = null;
-  constructor(private readonly scene: THREE.Scene) {}
+  private el: HTMLDivElement | null = null;
+  constructor(_scene?: THREE.Scene) {}
 
-  get open(): boolean { return this.obj !== null; }
+  get open(): boolean { return this.el !== null; }
 
-  say(at: THREE.Vector3, speaker: string, text: string, ms = 7000): void {
-    const el = this.mount(at);
+  say(_at: THREE.Vector3, speaker: string, text: string, ms = 7000): void {
+    const el = this.mount(speaker);
     el.innerHTML = '<div><b></b> <span></span></div>';
     el.querySelector('b')!.textContent = `${speaker}:`;
     el.querySelector('span')!.textContent = text;
-    if (ms > 0) setTimeout(() => { if (this.obj?.element === el) this.close(); }, ms);
+    if (ms > 0) setTimeout(() => { if (this.el === el) this.close(); }, ms);
   }
 
   /** A bubble with a text box. Resolves with the text, or null if dismissed. */
-  ask(at: THREE.Vector3, speaker: string, text: string, placeholder: string): Promise<string | null> {
-    const el = this.mount(at);
+  ask(_at: THREE.Vector3, speaker: string, text: string, placeholder: string): Promise<string | null> {
+    const el = this.mount(speaker);
     el.innerHTML = '<div><b></b> <span></span></div><textarea></textarea><button type="button">Send (Ctrl+Enter)</button><small>Esc to cancel</small>';
     el.querySelector('b')!.textContent = `${speaker}:`;
     el.querySelector('span')!.textContent = text;
@@ -93,8 +98,8 @@ export class Bubble {
   }
 
   showRubric(hit: string[], missing: string[], reaction: string, speaker: string): void {
-    if (!this.obj) return;
-    const el = this.obj.element as HTMLDivElement;
+    if (!this.el) return;
+    const el = this.el;
     el.innerHTML = '<div><b></b> <span></span></div><ul></ul>';
     el.querySelector('b')!.textContent = `${speaker}:`;
     el.querySelector('span')!.textContent = reaction;
@@ -107,21 +112,36 @@ export class Bubble {
         ul.append(li);
       }
     }
-    setTimeout(() => { if (this.obj?.element === el) this.close(); }, 9000);
+    setTimeout(() => { if (this.el === el) this.close(); }, 9000);
   }
 
   close(): void {
-    if (this.obj) this.scene.remove(this.obj);
-    this.obj = null;
+    this.el?.parentElement?.remove();
+    this.el = null;
   }
 
-  private mount(at: THREE.Vector3): HTMLDivElement {
+  private mount(speaker: string): HTMLDivElement {
     this.close();
+    const box = document.createElement('div');
+    box.className = 'dialog';
+    const face = document.createElement('div');
+    face.className = 'portrait';
+    face.textContent = PORTRAIT[speaker] ?? '💬';
     const el = document.createElement('div');
-    el.className = 'label bubble';
-    this.obj = new CSS2DObject(el);
-    this.obj.position.copy(at);
-    this.scene.add(this.obj);
+    el.className = 'bubble';
+    box.append(face, el);
+    document.body.append(box);
+    this.el = el;
     return el;
   }
+}
+
+/** The fox's line after an answer: confidence against correctness, in a sentence. */
+export function calibrationLine(confidence: Confidence | undefined, correct: boolean): string | null {
+  if (!confidence) return null;
+  if (confidence === 'high' && !correct) return '🦊 Very sure — but wrong. That\'s the moment to slow down and check.';
+  if (confidence === 'low' && correct) return '🦊 You weren\'t sure, but you got it. You know more than you think.';
+  if (confidence === 'high' && correct) return '🦊 Sure and right — well judged.';
+  if (confidence === 'low' && !correct) return '🦊 Good call knowing you weren\'t sure. Let\'s look at why.';
+  return null;
 }

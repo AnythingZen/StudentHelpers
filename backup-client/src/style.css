@@ -57,8 +57,98 @@ html, body { margin: 0; height: 100%; overflow: hidden; font: 15px/1.4 system-ui
 .question-card .options span { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: #1f3a2b; color: #fff; font-weight: 800; font-size: 12px; margin-right: 6px; }
 .question-card small { display: block; opacity: .6; font-size: 11px; margin-top: 4px; }
 .question-card .cite { display: block; font-style: normal; font-size: 12px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e3e6df; color: #2c6fa8; }
-.bubble { pointer-events: auto; background: white; color: var(--ink); text-shadow: none; padding: 12px 14px; border-radius: 12px; width: 320px; white-space: normal; font-weight: 500; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.3); display: grid; gap: 8px; }
+.bubble { pointer-events: auto; color: var(--ink); white-space: normal; font-weight: 500; font-size: 14px; display: grid; gap: 8px; min-width: 0; }
 .bubble b { font-weight: 800; }
 .bubble textarea { font: inherit; width: 100%; min-height: 70px; padding: 8px; border-radius: 8px; border: 2px solid #cfd8cf; resize: vertical; }
 .bubble ul { margin: 0; padding-left: 18px; font-size: 12px; }
 .bubble li.hit { color: var(--accent); } .bubble li.miss { opacity: .6; }
+
+/* ---- join: student / teacher ---- */
+.role { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #e9ece4; padding: 4px; border-radius: 11px; }
+#join .role button { background: transparent; color: var(--ink); padding: 8px; font-size: 14px; }
+#join .role button.active { background: white; box-shadow: 0 1px 4px rgba(0,0,0,.12); color: var(--accent); }
+.role-body { display: grid; gap: 12px; }
+#join label small { font-weight: 500; opacity: .6; margin-left: 4px; }
+.teacher-pitch { margin: 0; font-size: 14px; line-height: 1.5; }
+a.button { display: block; text-align: center; text-decoration: none; font-weight: 700; padding: 11px; border-radius: 9px; background: #1f3a2b; color: white; }
+
+/* ---- top right: online, worlds, new world, mission ---- */
+#corner { position: fixed; top: 14px; right: 14px; z-index: 10; display: grid; gap: 8px; justify-items: end; width: 290px; }
+.corner-buttons { display: flex; gap: 6px; align-items: center; }
+.chip { background: var(--panel); padding: 6px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+.corner-buttons button { font: inherit; font-weight: 800; border: 0; cursor: pointer; background: var(--panel); color: var(--ink); border-radius: 99px; padding: 6px 12px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+#new-btn { width: 34px; height: 34px; padding: 0; font-size: 20px; line-height: 34px; background: var(--accent); color: white; }
+.corner-buttons button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.mission { background: var(--panel); border-radius: 14px; padding: 12px 14px; width: 100%; box-shadow: 0 6px 20px rgba(0,0,0,.18); display: grid; gap: 8px; }
+.mission:empty { display: none; }
+.mission-head { display: grid; gap: 1px; }
+.eyebrow { font-size: 10.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; opacity: .6; }
+.mission-head b { font-size: 16px; line-height: 1.2; }
+.objectives { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.objectives li { display: grid; grid-template-columns: 22px 1fr auto; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; padding: 4px 6px; border-radius: 8px; }
+.objectives li i { font-style: normal; text-align: center; }
+.objectives li em { font-style: normal; font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+.objectives li.done { opacity: .55; } .objectives li.done span { text-decoration: line-through; }
+.objectives li.done i { color: var(--accent); font-weight: 900; }
+.objectives li.next { background: #fff3c4; box-shadow: inset 3px 0 0 #e8b923; }
+.mission small { font-size: 11.5px; opacity: .6; }
+.reflect-now { font: inherit; font-weight: 800; border: 0; border-radius: 9px; padding: 9px; background: #e8b923; color: #3b2300; cursor: pointer; animation: glow 1.4s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 0 5px rgba(232,185,35,.35); } }
+.memory { font-size: 12px; font-weight: 700; background: #e7f0fb; color: #1d4f7a; padding: 6px 8px; border-radius: 8px; }
+.memory.done { background: #e4f3e8; color: var(--accent); }
+
+/* ---- NPC dialogue: fixed, lower right, never over the HUD ---- */
+.dialog { position: fixed; right: 14px; bottom: 120px; width: min(360px, 44vw); z-index: 12; display: grid; grid-template-columns: 46px 1fr; gap: 10px; align-items: start; background: white; padding: 12px 14px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.3); animation: in .25s ease; }
+.dialog .portrait { width: 46px; height: 46px; border-radius: 50%; background: #efe9da; display: grid; place-items: center; font-size: 28px; }
+
+/* ---- modals: reflection, worlds, new world, tutorial ---- */
+.modal-wrap { position: fixed; inset: 0; z-index: 30; background: rgba(15,25,20,.45); display: grid; place-items: center; padding: 16px; animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; } }
+.modal { position: relative; background: var(--panel); border-radius: 18px; padding: 22px 24px; width: min(520px, 100%); max-height: 90vh; overflow: auto; display: grid; gap: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.35); animation: pop2 .3s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop2 { from { transform: scale(.92); opacity: 0; } }
+.modal h2 { margin: 0; font-size: 22px; letter-spacing: -.3px; line-height: 1.2; }
+.modal .sub { margin: 0; opacity: .7; font-size: 13px; }
+.modal label { display: grid; gap: 4px; font-weight: 700; font-size: 13px; }
+.modal input, .modal textarea { font: inherit; padding: 9px 11px; border: 2px solid #d9ddd3; border-radius: 9px; background: white; width: 100%; }
+.modal textarea { min-height: 70px; resize: vertical; }
+.modal button { font: inherit; font-weight: 800; border: 0; border-radius: 10px; padding: 11px 14px; cursor: pointer; }
+.modal .primary { background: var(--accent); color: white; }
+.modal .ghost { background: transparent; color: var(--ink); border: 2px solid #d9ddd3; }
+.modal button:disabled { opacity: .45; cursor: default; }
+.modal .close { position: absolute; top: 10px; right: 12px; background: transparent; font-size: 22px; padding: 2px 8px; opacity: .6; }
+.modal .row { display: flex; gap: 8px; justify-content: flex-end; }
+.modal .row button[type=submit] { background: var(--accent); color: white; }
+.ratings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.ratings button { background: white; border: 2px solid #d9ddd3 !important; display: grid; gap: 2px; justify-items: center; padding: 10px 4px !important; font-size: 12px; }
+.ratings button span { font-size: 26px; }
+.ratings button small { opacity: .45; font-size: 10px; }
+.ratings button.active { border-color: var(--accent) !important; background: #e4f3e8; }
+.tutorial ol { margin: 0; padding-left: 20px; display: grid; gap: 10px; font-size: 15px; }
+kbd { display: inline-block; min-width: 22px; padding: 1px 6px; margin: 0 1px; border-radius: 5px; background: white; border: 1px solid #cfd4ca; border-bottom-width: 3px; font: 700 12px system-ui, sans-serif; text-align: center; }
+.world-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.world-list li { display: grid; grid-template-columns: 62px 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; background: white; border: 1.5px solid #e3e6df; }
+.world-list .code { letter-spacing: 2px; font-size: 16px; }
+.world-list .title { font-weight: 700; font-size: 14px; }
+.world-list small { opacity: .6; }
+.world-list button { background: var(--accent); color: white; padding: 8px 12px !important; }
+.world-list button:disabled { background: #e3e6df; color: var(--ink); }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.create .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.create .tabs button { background: white; border: 2px solid #d9ddd3; padding: 8px 4px; font-size: 12.5px; }
+.create .tabs button.active { border-color: var(--accent); color: var(--accent); background: #e4f3e8; }
+.create .status { margin: 0; font-weight: 700; min-height: 1.2em; }
+.create .status.error { color: var(--warn); }
+.create .ready { display: grid; gap: 6px; justify-items: start; background: #e4f3e8; padding: 12px; border-radius: 12px; }
+.create .ready b { font-size: 34px; letter-spacing: 6px; line-height: 1; }
+.teleport { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: radial-gradient(circle, rgba(255,250,220,.95), rgba(120,200,160,.95)); animation: fade .35s ease; }
+.teleport div { display: grid; justify-items: center; gap: 6px; color: #1d2a22; }
+.teleport span { font-size: 64px; animation: spin 1.1s linear infinite; }
+.teleport b { font-size: 30px; letter-spacing: 1px; }
+@keyframes spin { to { transform: rotate(360deg) scale(1.2); } }
+
+@media (max-width: 760px) {
+  #corner { width: min(290px, 60vw); }
+  .bars { width: 200px; }
+  .grid3, .create .tabs { grid-template-columns: 1fr 1fr; }
+  .ratings { grid-template-columns: 1fr 1fr; }
+}
