@@ -1,0 +1,28 @@
+{
+  "name": "mastery-grove-server",
+  "private": true,
+  "type": "module",
+  "description": "Builder C — the Spine. Express, in-memory state, contract routes, and a built-in fallback brain so the demo runs even if other segments fail.",
+  "engines": { "node": ">=22.12" },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "5.2.1",
+    "multer": "2.3.0",
+    "tsx": "4.23.13",
+    "zod": "4.6.2"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/multer": "2.2.0",
+    "@types/node": "22.20.2",
+    "@types/supertest": "7.2.1",
+    "supertest": "7.2.2",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

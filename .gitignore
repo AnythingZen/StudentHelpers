@@ -21,3 +21,6 @@ coverage/
 
 # TypeScript incremental build cache — regenerated every build, causes conflicts
 *.tsbuildinfo
+
+# backup client build output
+backup-client/dist/

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mastery Grove</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="stage"></div>
+
+    <form id="join" class="panel" autocomplete="off">
+      <h1>Mastery Grove</h1>
+      <p class="sub">Walk the forest. Answer by walking onto a stone.</p>
+      <label>Your name <input id="join-name" maxlength="24" required placeholder="Alex" /></label>
+      <label>Room code <input id="join-room" maxlength="4" required placeholder="OAK7" /></label>
+      <div id="rooms" class="rooms"></div>
+      <button type="submit">Enter the forest</button>
+      <p id="join-error" class="error" role="alert"></p>
+      <p class="keys">WASD move · Shift sprint · Mouse look · E interact · Esc release mouse</p>
+    </form>
+
+    <div id="hud" hidden>
+      <div class="room"><b id="hud-room"></b><span id="hud-subject"></span></div>
+      <div class="bars">
+        <div class="bar xp"><span>XP</span><i><em id="bar-xp"></em></i><b id="val-xp">0</b></div>
+        <div class="bar mastery"><span>MASTERY</span><i><em id="bar-mastery"></em></i><b id="val-mastery">0%</b></div>
+        <div class="bar retention"><span>RETENTION</span><i><em id="bar-retention"></em></i><b id="val-retention">0%</b></div>
+      </div>
+    </div>
+    <div id="prompt" hidden></div>
+    <div id="look-hint" hidden>Click to look around</div>
+    <div id="toasts"></div>
+    <div id="banner" hidden></div>
+    <div id="fox" class="panel" hidden>
+      <p>🦊 How sure are you?</p>
+      <div class="fox-buttons">
+        <button data-c="low">1 · Not sure</button>
+        <button data-c="medium">2 · Kind of</button>
+        <button data-c="high">3 · Very sure</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
