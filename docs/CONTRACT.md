@@ -152,7 +152,7 @@ depends on having the answer client-side.
 
 ---
 
-## The eight endpoints. That is the entire backend.
+## The endpoints. That is the entire backend.
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
@@ -164,6 +164,31 @@ depends on having the answer client-side.
 | `POST` | `/api/deploy-quest/:worldId` | `{ misconceptionId }` | `{ addedTreeIds }` — hour 5 |
 | `POST` | `/api/presence/:worldId` | `{ playerId, name, pos, yaw }` | `{ ok }` — every 500ms |
 | `GET` | `/api/presence/:worldId` | — | `{ players: [{ playerId, name, pos, yaw, seeded }] }` |
+| `GET` | `/api/state/:worldId?playerId=` | — | the same, **as that student sees it**, plus `me` (missions) |
+| `POST` | `/api/reflect` | `{ worldId, playerId, name, conceptId, rating: 1–4, note }` | state + `accuracy` — finishes a mission |
+
+### Missions — per student (added; see `server/src/progress.ts`)
+
+The forest is shared by the class. Each student's **path** through it is their own,
+derived from their answer events and reflections:
+
+- Every grove is a **mission** built from its own trees: *answer N right* (N ≤ 3),
+  *answer one from memory*, *help Mia*, the *teacher's focus quest* (after Deploy
+  Quest), *come back to what you missed*, and *reflect*.
+- **Spaced practice:** a miss is only fixed by a correct answer that comes *after
+  another question*. Retrying on the spot regrows the tree, but the mission still
+  sends you back — to your sapling up the path.
+- **Metacognition:** the fox asks confidence before choice and recall answers; the
+  mission ends with a reflection (1 still confused … 4 could teach it, plus one
+  sentence), compared with the student's actual accuracy.
+- A grove **unlocks for a student** when every prerequisite mission is complete.
+  Completion is sticky, so a later focus quest never re-locks a grove.
+- Send `playerId` (and `name`) with `/api/answer`: locks, bars, and saplings are then
+  per student. Without `playerId` the old class-wide rule applies.
+- `GET /api/teacher` adds `students[]`: online, status (`stuck`, `overconfident`,
+  `on-track`, `not-started`, `finished`), current mission and steps, accuracy,
+  calibration, last misconception, last reflection. It also carries `notice` when a
+  link couldn't be read and the world was grown from the link's topic instead.
 
 Presence is polled at **500ms**, separately from state at 2s, because positions
 need to move smoothly and the payload is tiny. Clients **lerp** other players
