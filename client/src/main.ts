@@ -21,9 +21,27 @@ let world: World; let nearby: string | null = null; const objects = new Map<stri
 function renderForest() {
   forest.clear(); objects.clear();
   for (const tree of world.trees) { const concept = world.concepts.find((item) => item.id === tree.conceptId)!; const object = buildTree(tree.state, tree.id, isLocked(world, concept)); object.position.set(...tree.pos); forest.add(object); objects.set(tree.id, object); }
-  for (const concept of world.concepts) { const locked = isLocked(world, concept); const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: textSprite(locked ? 'LOCKED' : concept.name, locked ? '#9b8791' : '#fff3cf') })); sign.position.set(concept.centre[0], 5, concept.centre[2]); sign.scale.set(7, 1.35, 1); forest.add(sign); }
+  for (const concept of world.concepts) {
+    const locked = isLocked(world, concept);
+    const label = locked ? ['GROVE LOCKED', 'Master the path ahead'] : splitLabel(concept.name);
+    const sign = new THREE.Sprite(new THREE.SpriteMaterial({ map: textSprite(label, locked), transparent: true, depthWrite: false }));
+    sign.position.set(concept.centre[0], 5.5, concept.centre[2]); sign.scale.set(8.2, 2.35, 1); forest.add(sign);
+  }
 }
-function textSprite(text: string, color: string) { const c = document.createElement('canvas'); c.width = 512; c.height = 96; const ctx = c.getContext('2d')!; ctx.font = 'bold 28px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = color; ctx.fillText(text.toUpperCase(), 256, 56); const texture = new THREE.CanvasTexture(c); return texture; }
+function splitLabel(value: string): [string, string] {
+  const words = value.split(' '); const middle = Math.ceil(words.length / 2);
+  return [words.slice(0, middle).join(' '), words.slice(middle).join(' ')];
+}
+function textSprite(lines: [string, string], locked: boolean) {
+  const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 288;
+  const context = canvas.getContext('2d')!; const background = locked ? '#2e3541' : '#173f52';
+  context.fillStyle = background; context.beginPath(); context.roundRect(24, 24, 976, 240, 30); context.fill();
+  context.strokeStyle = locked ? '#718095' : '#9de1e8'; context.lineWidth = 7; context.stroke();
+  context.textAlign = 'center'; context.textBaseline = 'middle'; context.fillStyle = locked ? '#b8c0ca' : '#fff7d4';
+  context.font = '800 52px Nunito, system-ui'; context.fillText(lines[0].toUpperCase(), 512, 112);
+  context.font = '700 35px Nunito, system-ui'; context.fillStyle = locked ? '#8e9bab' : '#a9e3e6'; context.fillText(lines[1], 512, 184);
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.minFilter = THREE.LinearFilter; return texture;
+}
 function toast(message: string) { const el = document.querySelector<HTMLElement>('#toast')!; el.textContent = message; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 4000); }
 function openTree(treeId: string) { const tree = world.trees.find((item) => item.id === treeId)!; player.controls.unlock(); showQuestion(tree, async (response) => { const result = await answer(world, tree.id, response); tree.state = result.treeState; renderForest(); if (result.correct) { closeQuestion(); toast('🔨 Bridge Repair +1 · The grove brightens.'); } else showHint(result.scaffoldHint ?? 'What could you try next?', () => { closeQuestion(); toast(`⚠️ The Fraction Bridge is unstable. A sapling of ${world.concepts.find((c) => c.id === tree.conceptId)?.name} has taken root ahead.`); }); }, closeQuestion); }
 const enter = document.querySelector<HTMLElement>('#enter')!;
