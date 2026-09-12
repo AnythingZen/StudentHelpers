@@ -2,13 +2,13 @@
 // diagnose() classifies a wrong answer into the WORLD'S misconception enum —
 // the model cannot invent a label, which is what makes the heatmap a measurement.
 
-import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, Output } from 'ai';
 import type { World, Tree, TreeWithAnswer, Diagnosis, Explanation, Confidence, Calibration } from '../../shared/types.js';
 import { DiagnosisSchema, GradeSchema, ExplanationSchema } from './schemas.js';
 import { DIAGNOSE_PROMPT, GRADE_PROMPT, EXPLAIN_PROMPT } from './prompts.js';
+import { fast, hotOptions } from './llm.js';
 
-const hot = { model: anthropic('claude-sonnet-5'), providerOptions: { anthropic: { effort: 'low' as const } } };
+const hot = () => ({ model: fast(), ...hotOptions() });
 
 export function calibration(confidence: Confidence | undefined, correct: boolean): Calibration | null {
   if (!confidence) return null;
@@ -34,7 +34,7 @@ export async function diagnose(
   }
 
   const { output } = await generateText({
-    ...hot,
+    ...hot(),
     system: DIAGNOSE_PROMPT,
     prompt: `Concept: ${concept?.name ?? tree.conceptId}
 Question: ${tree.question}
@@ -54,7 +54,7 @@ export async function gradeRecall(tree: Tree, text: string): Promise<{ correct: 
   const t = tree as TreeWithAnswer;
   if (process.env.BRAIN_MOCK === '1') return { correct: true, why: 'mock' };
   const { output } = await generateText({
-    ...hot,
+    ...hot(),
     system: GRADE_PROMPT,
     prompt: `Question: ${tree.question}\nReference answer: ${t.answerText}\nStudent answer: ${text}`,
     output: Output.object({ schema: GradeSchema }),
@@ -65,7 +65,7 @@ export async function gradeRecall(tree: Tree, text: string): Promise<{ correct: 
 export async function gradeExplanation(tree: Tree, text: string): Promise<Explanation> {
   if (process.env.BRAIN_MOCK === '1') return { passed: true, hit: tree.rubric ?? [], missing: [], encouragement: 'mock' };
   const { output } = await generateText({
-    ...hot,
+    ...hot(),
     system: EXPLAIN_PROMPT,
     prompt: `Task: ${tree.question}\nRubric:\n${(tree.rubric ?? []).map(r => `- ${r}`).join('\n')}\n\nStudent's explanation:\n${text}`,
     output: Output.object({ schema: ExplanationSchema }),

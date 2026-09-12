@@ -1,13 +1,13 @@
 // Source -> World. One call: concepts, prerequisite DAG, misconceptions, trees.
 // The only branch on input.kind is how the user message is built.
 
-import { anthropic } from '@ai-sdk/anthropic';
-import { streamText, Output, type TextPart, type FilePart } from 'ai';
+import { streamText, Output, type TextPart } from 'ai';
 import { readFile } from 'node:fs/promises';
 import type { World, Syllabus, Source, SpawnInput, Tree, Concept } from '../../shared/types.js';
 import { WorldSpawnSchema, type WorldSpawn, type SpawnTree } from './schemas.js';
 import { SPAWN_PROMPT } from './prompts.js';
 import { fetchSource } from './source.js';
+import { smart, spawnOptions, pdfToPages } from './llm.js';
 
 export async function spawnWorld(
   input: SpawnInput,
@@ -23,10 +23,10 @@ export async function spawnWorld(
   }
 
   const result = streamText({
-    model: anthropic('claude-opus-5'),
+    model: smart(),
     output: Output.object({ schema: WorldSpawnSchema }),
     messages: [{ role: 'user', content: [{ type: 'text', text: SPAWN_PROMPT(syllabus, source) }, ...content] }],
-    providerOptions: { anthropic: { structuredOutputMode: 'auto' } },
+    ...spawnOptions(),
   });
 
   for await (const partial of result.partialOutputStream) {
@@ -36,18 +36,17 @@ export async function spawnWorld(
 }
 
 // The ~6-line branch. Everything else is shared.
-async function buildMessage(input: SpawnInput): Promise<{ source: Source; content: (TextPart | FilePart)[] }> {
+async function buildMessage(input: SpawnInput): Promise<{ source: Source; content: TextPart[] }> {
   switch (input.kind) {
-    case 'pdf':
-      return {
-        source: { kind: 'pdf', filename: input.filename, pages: 0 },
-        content: [{ type: 'file', data: input.data, mediaType: 'application/pdf', filename: input.filename,
-                    providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } }],
-      };
+    case 'pdf': {
+      const pages = await pdfToPages(input.data);
+      return { source: { kind: 'pdf', filename: input.filename, pages: pages.length }, content: [{ type: 'text', text: pagesToText(pages) }] };
+    }
     case 'url': {
-      if (/\.pdf(\?|$)/i.test(input.url))
-        return { source: { kind: 'pdf', filename: input.url, pages: 0 },
-                 content: [{ type: 'file', data: new URL(input.url), mediaType: 'application/pdf' }] };
+      if (/\.pdf(\?|$)/i.test(input.url)) {
+        const pages = await pdfToPages(Buffer.from(await (await fetch(input.url)).arrayBuffer()));
+        return { source: { kind: 'pdf', filename: input.url, pages: pages.length }, content: [{ type: 'text', text: pagesToText(pages) }] };
+      }
       const { title, text } = await fetchSource(input.url);
       return { source: { kind: 'url', url: input.url, title }, content: [{ type: 'text', text: `<document title="${title}">\n${text}\n</document>` }] };
     }
@@ -57,6 +56,10 @@ async function buildMessage(input: SpawnInput): Promise<{ source: Source; conten
     case 'prompt':
       return { source: { kind: 'prompt', text: '' }, content: [] };
   }
+}
+
+function pagesToText(pages: string[]): string {
+  return pages.map((p, i) => `<page n="${i + 1}">\n${p.trim()}\n</page>`).join('\n\n');
 }
 
 function emptyWorld(syllabus: Syllabus, source: Source): World {
