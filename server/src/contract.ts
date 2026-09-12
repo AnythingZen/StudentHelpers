@@ -129,6 +129,7 @@ export interface Player {
 // One answer, as logged. Every teacher-console number is derived from these.
 export interface AnswerEvent {
   ts: number;
+  sessionIndex: number;
   playerId: string;
   treeId: string;
   conceptId: string;

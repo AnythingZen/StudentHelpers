@@ -166,7 +166,7 @@ describe('isLocked — the mastery gate', () => {
 
 describe('bars', () => {
   const ev = (over: Partial<AnswerEvent>): AnswerEvent => ({
-    ts: 0, playerId: 'p', treeId: 't', conceptId: 'c1', kind: 'choice', correct: true,
+    ts: 0, sessionIndex: 0, playerId: 'p', treeId: 't', conceptId: 'c1', kind: 'choice', correct: true,
     misconceptionId: null, confidence: null, ...over,
   });
 
