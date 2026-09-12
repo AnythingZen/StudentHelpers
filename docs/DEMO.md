@@ -198,8 +198,10 @@ instead of an answer. The classification is what makes 45 students aggregatable
 into one heatmap.
 
 **"How do I know it didn't hallucinate the questions?"**
-Every question carries the page and passage it came from, using Claude's document
-citations. Hover any question to see the teacher's own text.
+Every question carries the page and passage it came from, and the server checks
+that exact quote really appears on that page of the teacher's document before the
+world is built. If it can't find it, the citation is dropped rather than shown.
+Hover any question to see the teacher's own text.
 
 **"Why Singapore MOE?"**
 Because it's a published national syllabus, so our content is checkable, and

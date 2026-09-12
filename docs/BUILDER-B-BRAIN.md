@@ -64,7 +64,7 @@ about six lines; do not fork the pipeline.
 
 | `source.kind` | Message content | Provenance | Build it? |
 |---|---|---|---|
-| `pdf` | `{ type: 'file', mediaType: 'application/pdf' }` | page + quote | **Core.** The hero path. |
+| `pdf` | per-page text via `unpdf`, sent as `<page n>` blocks | page + quote, **server-verified** | **Core.** The hero path. |
 | `text` | the pasted text in the text part | none (`citation: null`) | **Yes** — same code as `prompt` |
 | `prompt` | topic description only, no document | none | **Yes** — ~zero cost |
 | `url` | `web_fetch` server tool | page + quote | **Hour-5 stretch only** |
@@ -115,7 +115,7 @@ tools: [{
   name: 'web_fetch',
   max_uses: 3,
   allowed_domains: ['...'],        // curate an allowlist; never leave it open
-  citations: { enabled: true },
+  // no `citations` here: the citations API + structured output = HTTP 400
   max_content_tokens: 100000,
 }]
 ```
@@ -138,7 +138,10 @@ levels, derives the prerequisite graph, and predicts the misconceptions.
   window is under 1M tokens). A worksheet is fine.
 - PDFs must be standard — **no passwords, no encryption**. A teacher *will*
   upload an encrypted one. Return a clean error, don't crash.
-- Scanned PDFs work (vision), so don't reject image-only pages.
+- **Scanned PDFs do not work.** Text extraction only reads a PDF's text layer, so
+  an image-only worksheet extracts to almost nothing. If extraction returns under
+  ~200 characters, fail with a clear message — *"This PDF looks scanned. Paste the
+  text, or pick a topic instead."* — never spawn an empty world.
 
 ### The call
 
@@ -153,7 +156,7 @@ const result = streamText({
     role: 'user',
     content: [
       { type: 'text', text: SPAWN_PROMPT(syllabus) },
-      { type: 'file', data: input.data, mediaType: 'application/pdf' },
+      { type: 'text', text: pagesToText(await pdfToPages(input.data)) },  // <page n> blocks
     ],
   }],
   providerOptions: { anthropic: { structuredOutputMode: 'auto' } },
@@ -172,25 +175,38 @@ Notes that will cost you time if you miss them:
 - `await result.output` rejects with `TypeValidationError` if the final object
   fails the schema. Catch it and fall back (see below).
 
-### Two provider features to turn on
+### Citations — the model writes them, the server verifies them
 
-**Prompt caching** on the document block. You will re-spawn the same worksheet
-forty times today during integration and rehearsal. Cache it. In raw Anthropic
-terms this is `cache_control: { type: 'ephemeral' }` on the document block; check
-the AI SDK's `providerOptions.anthropic` passthrough for the file part and wire
-it. If it fights you for more than 15 minutes, skip it — it's an optimisation.
+**Correction to an earlier version of this brief:** it said to turn on Claude's
+citations API alongside `Output.object`. That returns **HTTP 400** — Anthropic's
+docs state citations *"are incompatible with structured outputs."* Zen caught
+this. Thank you, Zen.
 
-**Citations** — `citations: { enabled: true }` on the document block, which makes
-Claude return the page and passage each question came from. Fill
-`tree.citation = { page, quote }`. **This is a core feature, not polish**: it lets
-a teacher verify every question traces to their own material, which is the first
-objection any real teacher raises about generated content.
+So `{ page, quote }` is filled **by the model, inside the schema**, reading the
+`<page n>` blocks. That means a quote *could* be invented — and "hover to see the
+teacher's own text" is our answer to "did the AI make this up?", so it has to be
+true. Verify every citation against the extracted text before the world ships:
 
-The Bedrock docs show this shape as `providerOptions.<provider>.citations` on the
-file part. **Verify the exact path for the Anthropic provider at minute 20** —
-it's the one API shape in this plan I could not confirm first-hand for this
-provider. If the passthrough doesn't work, drop to `@anthropic-ai/sdk@0.125.0`
-directly for the spawn call only; the raw `document` block shape is confirmed.
+```ts
+const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+function verifyCitations(world: World, pages: string[]): World {
+  return { ...world, trees: world.trees.map(t => {
+    const c = t.citation;
+    const page = c && pages[c.page - 1];
+    const ok = !!page && norm(page).includes(norm(c.quote));
+    if (c && !ok) console.warn(`[brain] dropped unverifiable citation on ${t.id}`);
+    return ok ? t : { ...t, citation: null };
+  })};
+}
+```
+
+A dropped citation just hides the `📄` chip for that tree — nothing breaks. Log
+the drop rate during rehearsal; if it's high, tighten the prompt ("quote verbatim,
+no paraphrase") rather than loosening the check.
+
+**Prompt caching** is still worth wiring on the Anthropic path — you'll re-spawn
+the demo worksheet dozens of times. Skip it if it fights you for over 15 minutes.
 
 ### `SPAWN_PROMPT` must ask for all five things
 
@@ -381,7 +397,7 @@ wifi dies. C can develop against `BRAIN_MOCK=1` all afternoon.
 
 ```mermaid
 flowchart TD
-    PDF[Teacher PDF] -->|file part + citations| SPAWN[spawnWorld · opus-5]
+    PDF[Teacher PDF] -->|per-page text| SPAWN[spawnWorld · smart model]
     SPAWN -->|partialOutputStream| GROW[World: status=growing]
     GROW --> READY[World: status=ready]
 
@@ -415,7 +431,7 @@ Your functions are stateless: they take a `World` and return a `World` or a
 |---|---|
 | 0:30 | Brain package scaffolded, key in `.env`, `schemas.ts` matches CONTRACT |
 | 1:00 | **One real PDF → valid world JSON printed to console.** Nothing else matters until this works. |
-| 1:30 | Citations + Bloom + prerequisites + misconceptions all populating |
+| 1:30 | **Verified** citations + Bloom + prerequisites + misconceptions all populating |
 | 2:00 | `schedule` tests green; `BRAIN_MOCK=1` replays fixtures |
 | **2:30** | **Handoff: C can call `spawnWorld` and get a real world** |
 | 3:00 | `diagnose` returning sane misconception + scaffold on real wrong answers |

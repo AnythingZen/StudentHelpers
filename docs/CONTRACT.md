@@ -133,7 +133,7 @@ interface Tree {
   choices?: string[];         // kind === 'choice' only
   rubric?: string[];          // kind === 'teach' only — points the explanation must hit
   explanation: string;
-  citation: { page: number; quote: string } | null;  // provenance from the PDF
+  citation: { page: number; quote: string } | null;  // model-written, SERVER-VERIFIED against page text; null if unverifiable
   state: TreeState;
   leitnerBox: 1 | 2 | 3;
   spawnedFrom: string | null; // sapling → the tree id it respawned from

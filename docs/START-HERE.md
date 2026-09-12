@@ -29,6 +29,19 @@ that out at minute 2 than at the 2:30 integration.
 
 ## Step 2 — what changed, if you read an earlier version
 
+> **Latest reviews — read yours:**
+> [round 1 — Zen](reviews/b-brain-c348b5b.md) ·
+> [round 2 — Zen and Roshan](reviews/round-2-zen-e479d07-roshan-9b2334b.md)
+>
+> **Canonical `shared/types.ts` is Zen's**, from `feature/b-brain`. Roshan and Zen
+> each created one; don't merge them — Roshan switches imports to Zen's.
+>
+> **Two team decisions open:** which LLM provider runs the demo, and whether the
+> Khan Academy scraper stays. Recommendations are in round 2.
+>
+> **Branches:** code goes on your `feature/*` branch. `development` takes merges at
+> checkpoints only.
+
 ### Everyone
 
 - **Set up [TOOLING.md](TOOLING.md) first** — Node 22.12+, and approve the two
@@ -100,8 +113,9 @@ that out at minute 2 than at the 2:30 integration.
 - **The spawn prompt must ask for one concept from the level above** — the level
   ladder. The model will not produce it unless asked.
 - **Confidence calibration** is a comparison, not a model call.
-- **Verify the Anthropic citations passthrough at minute 20** — it is the one API
-  shape in the plan not confirmed first-hand for this provider.
+- **Citations API + structured output = HTTP 400.** You found this; the plan was
+  wrong. Model writes `{ page, quote }`; the server verifies the quote is really on
+  that page. Snippet in your brief.
 
 ### C
 

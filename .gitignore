@@ -18,3 +18,6 @@ coverage/
 # demo recordings are large; keep them out of git
 *.mov
 *.mp4
+
+# TypeScript incremental build cache — regenerated every build, causes conflicts
+*.tsbuildinfo
