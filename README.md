@@ -32,10 +32,10 @@ all three builders can work against real-shaped data from minute 15.
    - **[docs/BUILDER-A-FOREST.md](docs/BUILDER-A-FOREST.md)** — three.js scene,
      movement, tree rendering, question card, the layout function.
    - **[docs/BUILDER-B-BRAIN.md](docs/BUILDER-B-BRAIN.md)** — PDF → world,
-     misconception diagnosis, recall grading, Leitner scheduler.
+     misconception diagnosis, recall and explanation grading, Leitner scheduler.
    - **[docs/BUILDER-C-SPINE.md](docs/BUILDER-C-SPINE.md)** — express server,
      in-memory state, teacher console + heatmap, deployment, shipping.
-3. **[docs/DEMO.md](docs/DEMO.md)** — the 7-hour phase plan, the 90-second demo
+3. **[docs/DEMO.md](docs/DEMO.md)** — the 7-hour phase plan, the 150-second demo
    script, the citations slide, and what to say when judges push back.
 
 `mockWorld.json` and `mockWorldReading.json` are valid worlds. **Code against
@@ -75,7 +75,8 @@ Builder A drops to 2.5D top-down. Builder C makes that call.
 Every mechanic maps to a paper, and the code actually does what the paper says —
 the sapling respawn is the spacing effect, free-recall trees are the testing
 effect, `layout.ts` interleaves rather than blocks, and grove depth follows
-Bloom's. Four citations on one slide, each pointing at a real line of code.
+Bloom's, and teach trees are the protege effect. Five citations on one slide,
+each pointing at a real line of code.
 See [docs/DEMO.md](docs/DEMO.md).
 
 The PDF is the whole adoption story: the teacher uploads the worksheet she
