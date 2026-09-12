@@ -38,8 +38,11 @@ const orbit = (centre: Vec3, radius: number, periodMs: number, phase: number, no
 export function seededClassmates(world: ServerWorld, now: number): Player[] {
   if (world.concepts.length === 0) return [];
   const groves = [...world.concepts].sort((a, b) => b.centre[2] - a.centre[2]); // nearest the entrance first
-  const first = groves[0]!.centre;
-  const second = (groves[1] ?? groves[0]!).centre;
+  // Loop beside each grove, on the side away from the path, so classmates don't walk
+  // through the student's camera while they stand at a tree.
+  const beside = (c: Vec3): Vec3 => [c[0] + (c[0] >= 0 ? 13 : -13), 0, c[2]];
+  const first = beside(groves[0]!.centre);
+  const second = beside((groves[1] ?? groves[0]!).centre);
   const players: Player[] = [
     { playerId: 'seed-aisha', name: 'Aisha', seeded: true, ...orbit(first, 6, 60_000, 0, now) },
     { playerId: 'seed-weijie', name: 'Wei Jie', seeded: true, ...orbit(second, 7, 45_000, Math.PI, now, -1) },

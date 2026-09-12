@@ -52,7 +52,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; font: 15px/1.4 system-ui
 .name-tag { font-size: 12px; background: rgba(0,0,0,.45); padding: 1px 7px; border-radius: 99px; }
 .stone-label { background: rgba(255,252,240,.96); color: var(--ink); text-shadow: none; width: 38px; height: 38px; line-height: 38px; border-radius: 50%; font-size: 20px; font-weight: 900; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,.25); }
 .stone-label.active { outline: 3px solid #ffd66b; }
-.question-card { background: rgba(255,252,240,.96); color: var(--ink); text-shadow: none; padding: 10px 14px; border-radius: 10px; font-size: 15px; width: 330px; white-space: normal; text-align: left; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.question-card { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 11; pointer-events: none; background: rgba(255,252,240,.97); color: var(--ink); padding: 10px 16px; border-radius: 12px; font-size: 15px; width: min(420px, 60vw); text-align: left; box-shadow: 0 6px 22px rgba(0,0,0,.28); }
 .question-card .options { list-style: none; margin: 8px 0 2px; padding: 0; display: grid; gap: 4px; font-weight: 500; font-size: 14px; }
 .question-card .options span { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: #1f3a2b; color: #fff; font-weight: 800; font-size: 12px; margin-right: 6px; }
 .question-card small { display: block; opacity: .6; font-size: 11px; margin-top: 4px; }

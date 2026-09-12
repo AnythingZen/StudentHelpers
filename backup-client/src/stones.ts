@@ -13,7 +13,7 @@ interface Stone { root: THREE.Group; disc: THREE.Mesh; label: HTMLDivElement; fi
 
 export class AnswerStones {
   private stones: Stone[] = [];
-  private card: CSS2DObject | null = null;
+  private card: HTMLDivElement | null = null;
   private rise = 0;
   private sinkAt: number | null = null;
   private fired = false;
@@ -66,8 +66,10 @@ export class AnswerStones {
       this.stones.push({ root, disc, label, fill: 0 });
     });
 
+    // A fixed panel rather than a label pinned above the tree: pinned in the world, it
+    // projected off the top of the screen whenever the student stood close to the tree.
     const cardEl = document.createElement('div');
-    cardEl.className = 'label question-card';
+    cardEl.className = 'question-card';
     cardEl.innerHTML = `<b></b><ol class="options"></ol><small></small><em class="cite"></em>`;
     cardEl.querySelector('b')!.textContent = tree.question;
     const list = cardEl.querySelector('.options')!;
@@ -85,9 +87,8 @@ export class AnswerStones {
       const quote = tree.citation.quote.length > 90 ? `${tree.citation.quote.slice(0, 89)}…` : tree.citation.quote;
       cite.textContent = `📄 Worksheet p.${tree.citation.page} — “${quote}”`;
     } else cite.remove();
-    this.card = new CSS2DObject(cardEl);
-    this.card.position.set(treePos.x, 5.6, treePos.z);
-    this.scene.add(this.card);
+    document.body.append(cardEl);
+    this.card = cardEl;
   }
 
   /** Returns the chosen index once, the moment a stone's ring fills. */
@@ -125,7 +126,7 @@ export class AnswerStones {
 
   clear(): void {
     this.stones.forEach(s => removeWithLabels(this.scene, s.root));   // stone labels are children — see labels.ts
-    if (this.card) this.scene.remove(this.card);
+    this.card?.remove();
     this.stones = []; this.card = null; this.treeId = null; this.sinkAt = null;
   }
 }

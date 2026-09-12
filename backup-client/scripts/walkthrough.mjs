@@ -140,16 +140,27 @@ function studentVoice(rubric) {
 }
 
 // ---------------- on-camera answering ----------------
-/** The one question played out in full: stones, the fox, a wrong answer, Byte, the sapling, the retry. */
-async function showcaseQuestion(page, tree, grove) {
+/**
+ * A question played out on camera: stones, the fox, and — when it happens — a wrong answer,
+ * the AI diagnosis, Professor Byte, the sapling and the retry. The recorder can't know the
+ * right answer, so it tries stones from the last option backwards; the caller moves on to
+ * another question until a genuine wrong answer has been shown.
+ */
+async function showcaseQuestion(page, tree, grove, first) {
   await page.keyboard.press('KeyE');
   await page.waitForFunction(() => window.__game.stones().length > 0, null, { timeout: 8_000 });
-  await beat(page, `Quest: ${grove.questName}`, tree.citation ? clip(`📄 Worksheet p.${tree.citation.page} — every question cites its source`, 100) : '',
-    `Walk up to a tree and accept its quest. Answer stones rise — you answer by walking onto one.${tree.citation ? ' And every question shows the page of the worksheet it came from.' : ''}`);
+  if (first) {
+    await beat(page, `Quest: ${grove.questName}`, tree.citation ? clip(`📄 Worksheet p.${tree.citation.page} — every question cites its source`, 100) : '',
+      `Walk up to a tree and accept its quest. Answer stones rise — you answer by walking onto one.${tree.citation ? ' And every question shows the page of the worksheet it came from.' : ''}`);
+  } else {
+    await beat(page, `Quest: ${grove.questName}`, 'another tree', '', 1500);
+  }
   const stones = await page.evaluate(() => window.__game.stones());
-  let shownWrong = false;
-  for (let i = 0; i < stones.length; i++) {
-    if (i > 0) {                                               // step off before the next stone can count
+  const order = stones.map((_, i) => i).reverse();
+  let wrongShown = false;
+  for (let k = 0; k < order.length; k++) {
+    const i = order[k];
+    if (k > 0) {                                               // step off before the next stone can count
       const [px, pz] = await playerPos(page);
       const dx = tree.pos[0] - px, dz = tree.pos[2] - pz, d = Math.hypot(dx, dz) || 1;
       await walkTo(page, px + (dx / d) * 1.8, pz + (dz / d) * 1.8);
@@ -157,21 +168,24 @@ async function showcaseQuestion(page, tree, grove) {
     await walkTo(page, stones[i][0], stones[i][1]);
     await page.waitForSelector('#fox:not([hidden])', { timeout: 10_000 });
     await face(page, tree);
-    if (i === 0) await beat(page, 'The fox asks: how sure are you?', '', 'The fox asks how sure you are — so the game can tell a guess from a real misunderstanding.');
+    if (first && k === 0) await beat(page, 'The fox asks: how sure are you?', '', 'The fox asks how sure you are — so the game can tell a guess from a real misunderstanding.');
     const response = nextAnswer(page);
-    await page.keyboard.press(i === 0 ? 'Digit3' : 'Digit2');
+    await page.keyboard.press(k === 0 ? 'Digit3' : 'Digit2');
     const r = await response;
     await page.waitForFunction(() => !window.__game.busy(), null, { timeout: 90_000 });
     if (r.correct) {
-      await beat(page, r.treeState === 'regrown' ? 'Right — the tree regrows' : 'Right — a plank for the bridge',
-        `XP ${r.xp} · mastery ${Math.round(r.mastery * 100)}% · retention ${Math.round(r.retention * 100)}%`,
-        shownWrong
-          ? 'Try again, get it right, and the tree grows back. XP jumps — but mastery only moves when you actually understand.'
-          : 'Right answers add planks to the bridge. XP jumps — but mastery only moves when you actually understand.');
-      return r;
+      const bars = `XP ${r.xp} · mastery ${Math.round(r.mastery * 100)}% · retention ${Math.round(r.retention * 100)}%`;
+      if (wrongShown) {
+        await beat(page, 'Right — the tree regrows', bars,
+          'Try again, get it right, and the tree grows back. XP jumps — but mastery only moves when you actually understand.');
+      } else {
+        await beat(page, 'Right first time — a plank for the bridge', bars,
+          first ? 'Right answers add planks to the bridge that leads to the next grove.' : '', 2200);
+      }
+      return { wrongShown };
     }
-    if (!shownWrong) {
-      shownWrong = true;
+    if (!wrongShown) {
+      wrongShown = true;
       const known = r.misconceptionId && r.misconceptionId !== 'unclassified';
       await beat(page, r.calibration === 'overconfident' ? 'Confident — and wrong. The tree withers.' : 'Wrong — the tree withers',
         known ? clip(`AI diagnosis: “${r.misconceptionLabel}”`, 110) : 'Professor Byte asks a question back — never the answer',
@@ -180,7 +194,7 @@ async function showcaseQuestion(page, tree, grove) {
           : 'Wrong, and confident about it. The tree withers, and Professor Byte asks a guiding question instead of giving the answer.',
         5500);
       if (r.saplingId) {
-        await beat(page, 'A sapling of the same idea sprouts up the path', 'Spaced practice, built into the world',
+        await beat(page, 'A sapling of the same idea sprouts up the path', 'spaced practice, built into the world',
           'A sapling of the same idea sprouts further up the path — spaced practice, built into the world.');
       }
     }
@@ -292,13 +306,15 @@ try {
   const root = world.concepts.find(c => c.prerequisites.length === 0);
   const next = world.concepts.find(c => c.prerequisites.length > 0 && c.prerequisites.every(p => p === root.id));
   const miaTree = world.trees.find(t => t.kind === 'teach' && t.spawnedFrom === null);   // where the server stands Mia
-  const firstTree = world.trees.find(t => t.conceptId === root.id && t.spawnedFrom === null && t.kind === 'choice');
+  const showcaseTrees = world.trees.filter(t => t.conceptId === root.id && t.spawnedFrom === null && t.kind === 'choice').slice(0, 3);
 
   await label(student, 'A student joins and walks into the forest', 'classmates share the world · XP, mastery and retention top-left',
     'A student joins with the room code. It’s a shared 3D world — classmates are exploring too.');
   await walkTo(student, 0, root.centre[2] + 12);
-  await approach(student, firstTree);
-  await showcaseQuestion(student, firstTree, root);
+  for (const [n, tree] of showcaseTrees.entries()) {          // until a real wrong answer is on camera
+    await approach(student, tree);
+    if ((await showcaseQuestion(student, tree, root, n === 0)).wrongShown) break;
+  }
   segments.push({ who: 'student', start: s, end: now('student'), speed: 1 });
 
   // Mia first if she's in this grove, then the rest of the grove off camera.
